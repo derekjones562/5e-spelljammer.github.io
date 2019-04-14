@@ -16,7 +16,7 @@ class NavBar {
 	static initElements () {
 		const navBar = document.getElementById("navbar");
 
-		addLi(navBar, "5etools.html", "Home");
+		addLi(navBar, "index.html", "Home");
 
 		const ulRules = addDropdown(navBar, "Rules");
 		addLi(ulRules, "quickreference.html", "Quick Reference");
