@@ -1,0 +1,51 @@
+{
+	"sjship": [
+		{
+			"name": "Elven Flitter",
+			"source": "SJ",
+			"page": 51,
+			"value": "10000 gp",
+			"tonnage": 1,
+			"crew": 1,
+			"passenger": 0,
+			"hp": 50,
+			"manoeuvreClass": "B",
+			"landingLand": true,
+			"landingWater": true,
+			"ac": 13,
+			"cargo": "1/2 ton",
+			"keelLength": "20 ft.",
+			"beamLength": "5 ft.",
+			"immune": [
+				"poison",
+				"psychic",
+				"lightning"
+			],
+			"fluff": {
+				"entries": [
+					"The flitter is the smallest standard ship in fantasy space and has little more than a modified spelljammer helm tucked within its small butterfly shape. It carries a single passenger/captain/helmsman, who sits just ahead of the wings. The flitter is not recommended for long trips, given its small size and delicate construction. Travelling in a flitter has been compared to riding a tireless horse for several days\u2014you get where you're going, but not very comfortably.",
+					"The flitter has insufficient interior space for anything but personal items in its tiny cargo hold. The ship is too small to carry any large weaponry. The flitter is really nothing more than an extension of the user's own form.",
+					{
+						"name": "Ship Uses",
+						"type": "section",
+						"entries": [
+							"{@b Messenger:} In its spelljamming configuration, the flitter is best at carrying light goods over short interstellar distances. The lightest good to carry is information, so the flitter  often serves as a messenger between elven fleets separated by the void or in different spheres entirely. Such missions are dangerous for these messengers, called in their tongue \"lone riders.\"",
+							"{@b Scout:} Similarly, the flitter is an excellent reconnaissance and espionage ship, capable of slipping into small areas and making planet-fall. Heading for the nearest large solar body is a favourite tactic for the \"lone rider\" seeking to escape from dangerous pursuers.",
+							"{@b Landing Craft:} Sometimes owners strip the spelljamming engine out of a flitter and replace it with a more conventional engine. In this configuration, the flitter is useless for interplanetary voyages, but suitable for short hops into and out of the atmosphere or between ships. The elven navy follows a strict policy of only allowing ships without helms to make planet-fall, so this use of flitters as landing craft is very common.",
+							"{@b Small Fighters:} Another place for a flitter lacking a spelljammer helm is in close combat with enemy ships. Large dreadnoughts of the {@sjship Elven Armada} class carry a number of de-powered flitters. While these ships cannot manage interplanetary flight, they are capable of attacking enemy ships. Controls are set into the seat of the flitter, and the ships are manned by archers or mages, who soften up a target before the main attack."
+						]
+					},
+					{
+						"name": "Other Configurations",
+						"type": "section",
+						"entries": [
+							"{@b De-powered Versions:} Used as landing craft and small fighters as noted, these flitters have their spelljammer helms removed and replaced with simpler, more conventional engines. The common elven engines used for these craft have a movement on the tactical map of 2/round.",
+							"{@b Wild Flitters:} There are a number of abandoned flitters littering the cosmos, the remains of failed missions, undelivered messages, and old battles. Such craft are seriously overgrown, their wings curled in on themselves like seashells. Such ships may have workable engines within, and are Manoeuvre Class E and AC 12 until trimmed back. Repair costs are equivalent to refitting half the hull.",
+							"{@b Firewinds:} This type of de-powered flitter has not been used by the elven fleet since the Unhuman Wars. The firewind is a suicide craft, loaded with flammables and piloted to crash on enemy decks. Used against wooden ships, each flitter has the effect of two hits from a greek fire projector. The firewind pilots are trained to bail out if possible. Elves even used charmed ores and men to fly the ships near the end of the Unhuman War"
+						]
+					}
+				]
+			}
+		}
+	]
+}

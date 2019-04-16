@@ -1299,6 +1299,15 @@ function Renderer () {
 								};
 								this._recursiveRender(fauxEntry, textStack, meta);
 								break;
+							case "@sjship":
+								fauxEntry.href.path = UrlUtil.PG_SJ_SHIPS;
+								if (!source) fauxEntry.href.hash += HASH_LIST_SEP + SRC_DMG;
+								fauxEntry.href.hover = {
+									page: UrlUtil.PG_SJ_SHIPS,
+									source: source || "NONE" || SRC_DMG
+								};
+								this._recursiveRender(fauxEntry, textStack, meta);
+								break;
 						}
 
 						break;
@@ -3916,6 +3925,51 @@ Renderer.ship = {
 	}
 };
 
+Renderer.sjship = {
+	getCompactRenderedString (ship) {
+		// TODO improve this if/when ships are added to a finalised product
+		return Renderer.sjship.getRenderedString(ship);
+	},
+
+	getRenderedString (ship) {
+		const renderer = Renderer.get();
+
+		const $td = $(`<td colspan="6" class="text"/>`);
+		if (ship.entries) {
+			const depth = -1;
+			renderer.setFirstSection(true);
+			$td.append(renderer.render({type: "section", entries: ship.entries}, depth));
+		} else {
+			$td.append(HTML_NO_INFO);
+		}
+
+		// TODO: Saves
+		// TODO: Expand Manoeuvre class
+		return `
+			${Renderer.utils.getBorderTr()}
+			${Renderer.utils.getNameTr(ship)}
+			<tr class="text"><td colspan="6"><i>Length: ${ship.keelLength}, Width: ${ship.beamLength}</i><br></td></tr>
+			<tr class="text"><td colspan="6">
+			<div><b>Tonnage</b> ${ship.tonnage} ton</div>
+            <div><b>Creature Capacity</b> ${ship.crew} crew${ship.passenger ? `, ${ship.passenger} passengers` : ""}</div>
+			<div><b>Armor Class</b> ${ship.ac}</div>
+			<div><b>Hit Points</b> ${ship.hp}${ship.dt ? ` (damage threshold ${ship.dt})` : ""}${ship.hpNote ? `; ${ship.hpNote}` : ""}</div>
+			<div><b>Manoeuvre Class</b> ${ship.manoeuvreClass}</div>
+			<div><b>Landing—Land</b> ${ship.landingLand ? "Yes" : "No"}</div>
+			<div><b>Landing—Water</b> ${ship.landingWater ? "Yes" : "No"}</div>
+			<div><b>Cargo</b> ${ship.cargo}</div>
+            ${ship.immune ? `<div><b>Damage Immunities</b> ${Parser.monImmResToFull(ship.immune)}</div>` : ""}
+			</td></tr>
+        	${Renderer.utils.getPageTr(ship)}
+        	${Renderer.utils.getBorderTr()}
+		`;
+	},
+
+	getFluff (ship) {
+		return ship.fluff;
+	},
+};
+
 Renderer.hover = {
 	linkCache: {},
 	_isInit: false,
@@ -4216,6 +4270,10 @@ Renderer.hover = {
 			}
 			case UrlUtil.PG_SHIPS: {
 				loadSimple(page, "ships.json", "ship");
+				break;
+			}
+			case UrlUtil.PG_SJ_SHIPS: {
+				loadSimple(page, "sjships.json", "sjship");
 				break;
 			}
 			default:
@@ -4666,6 +4724,8 @@ Renderer.hover = {
 				return Renderer.table.getCompactRenderedString;
 			case UrlUtil.PG_SHIPS:
 				return Renderer.ship.getCompactRenderedString;
+			case UrlUtil.PG_SJ_SHIPS:
+				return Renderer.sjship.getCompactRenderedString;
 			default:
 				return null;
 		}

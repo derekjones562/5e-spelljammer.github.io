@@ -6347,7 +6347,7 @@
 						"3. Waiting",
 						"4. Sailors Come Ashore",
 						"5. All Aboard",
-						"Troubleshooting"
+						"Part 1 Troubleshooting"
 					],
 					"ordinal": {
 						"type": "part",
@@ -6360,7 +6360,7 @@
 						"Skyrunner",
 						"1. Setting Sail",
 						"2. Under Weigh",
-						"Troubleshooting"
+						"Part 2 Troubleshooting"
 					],
 					"ordinal": {
 						"type": "part",
@@ -6375,7 +6375,7 @@
 						"Prisoners",
 						"Into the Hive",
 						"Staging Notes",
-						"Troubleshooting"
+						"Part 3 Troubleshooting"
 					],
 					"ordinal": {
 						"type": "part",
@@ -6414,7 +6414,7 @@
 						"What's Going On",
 						"Launch (Outside View)",
 						"Launch (Interior View)",
-						"Troubleshooting"
+						"Part 5 Troubleshooting"
 					],
 					"ordinal": {
 						"type": "part",
@@ -6429,7 +6429,7 @@
 						"Infiltration",
 						"Inside the Enemy",
 						"Controlling the Hive",
-						"Troubleshooting",
+						"Part 6 Troubleshooting",
 						"Rewards"
 					],
 					"ordinal": {
@@ -6440,7 +6440,7 @@
 				{
 					"name": "NPCs",
 					"headers": [
-						"Jon Tobart",
+						"Jon Tobart (Shazogrox)",
 						"Stonecrop",
 						"The Crew"
 					],

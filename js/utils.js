@@ -1404,6 +1404,7 @@ Parser.CAT_ID_SHIP = 31;
 Parser.CAT_ID_PACT_BOON = 32;
 Parser.CAT_ID_ELEMENTAL_DISCIPLINE = 33;
 Parser.CAT_ID_ARTIFICER_INFUSION = 34;
+Parser.CAT_ID_SJSHIP = 35;
 
 Parser.CAT_ID_TO_FULL = {};
 Parser.CAT_ID_TO_FULL[Parser.CAT_ID_CREATURE] = "Bestiary";
@@ -1440,6 +1441,7 @@ Parser.CAT_ID_TO_FULL[Parser.CAT_ID_SHIP] = "Ship";
 Parser.CAT_ID_TO_FULL[Parser.CAT_ID_PACT_BOON] = "Pact Boon";
 Parser.CAT_ID_TO_FULL[Parser.CAT_ID_ELEMENTAL_DISCIPLINE] = "Elemental Discipline";
 Parser.CAT_ID_TO_FULL[Parser.CAT_ID_ARTIFICER_INFUSION] = "Infusion";
+Parser.CAT_ID_TO_FULL[Parser.CAT_ID_SJSHIP] = "Spelljammer Ship";
 
 Parser.pageCategoryToFull = function (catId) {
 	return Parser._parse_aToB(Parser.CAT_ID_TO_FULL, catId);
@@ -3943,6 +3945,7 @@ UrlUtil.PG_MAKE_SHAPED = "makeshaped.html";
 UrlUtil.PG_MANAGE_BREW = "managebrew.html";
 UrlUtil.PG_TABLES = "tables.html";
 UrlUtil.PG_SHIPS = "ships.html";
+UrlUtil.PG_SJ_SHIPS = "sjships.html";
 
 UrlUtil.URL_TO_HASH_BUILDER = {};
 UrlUtil.URL_TO_HASH_BUILDER[UrlUtil.PG_BESTIARY] = (it) => UrlUtil.encodeForHash([it.name, it.source]);
@@ -3965,6 +3968,7 @@ UrlUtil.URL_TO_HASH_BUILDER[UrlUtil.PG_OBJECTS] = (it) => UrlUtil.encodeForHash(
 UrlUtil.URL_TO_HASH_BUILDER[UrlUtil.PG_TRAPS_HAZARDS] = (it) => UrlUtil.encodeForHash([it.name, it.source]);
 UrlUtil.URL_TO_HASH_BUILDER[UrlUtil.PG_TABLES] = (it) => UrlUtil.encodeForHash([it.name, it.source]);
 UrlUtil.URL_TO_HASH_BUILDER[UrlUtil.PG_SHIPS] = (it) => UrlUtil.encodeForHash([it.name, it.source]);
+UrlUtil.URL_TO_HASH_BUILDER[UrlUtil.PG_SJ_SHIPS] = (it) => UrlUtil.encodeForHash([it.name, it.source]);
 
 UrlUtil.CAT_TO_PAGE = {};
 UrlUtil.CAT_TO_PAGE[Parser.CAT_ID_CREATURE] = UrlUtil.PG_BESTIARY;
@@ -4001,6 +4005,7 @@ UrlUtil.CAT_TO_PAGE[Parser.CAT_ID_SHIP] = UrlUtil.PG_SHIPS;
 UrlUtil.CAT_TO_PAGE[Parser.CAT_ID_PACT_BOON] = UrlUtil.PG_OPT_FEATURES;
 UrlUtil.CAT_TO_PAGE[Parser.CAT_ID_ELEMENTAL_DISCIPLINE] = UrlUtil.PG_OPT_FEATURES;
 UrlUtil.CAT_TO_PAGE[Parser.CAT_ID_ARTIFICER_INFUSION] = UrlUtil.PG_OPT_FEATURES;
+UrlUtil.CAT_TO_PAGE[Parser.CAT_ID_SJSHIP] = UrlUtil.PG_SJ_SHIPS;
 
 if (!IS_DEPLOYED && !IS_ROLL20 && typeof window !== "undefined") {
 	// for local testing, hotkey to get a link to the current page on the main site
@@ -4892,6 +4897,7 @@ BrewUtil = {
 					case UrlUtil.PG_MAKE_SHAPED: return ["spell", "creature"];
 					case UrlUtil.PG_MANAGE_BREW: return BrewUtil._DIRS;
 					case UrlUtil.PG_SHIPS: return ["ship"];
+					case UrlUtil.PG_SJ_SHIPS: return ["sjship"];
 					default: throw new Error(`No homebrew directories defined for category ${page}`);
 				}
 			}
@@ -5165,6 +5171,7 @@ BrewUtil = {
 							case UrlUtil.PG_MAKE_SHAPED: return ["spell", "creature"];
 							case UrlUtil.PG_MANAGE_BREW: return BrewUtil._STORABLE;
 							case UrlUtil.PG_SHIPS: return ["ship"];
+							case UrlUtil.PG_SJ_SHIPS: return ["sjship"];
 							default: throw new Error(`No homebrew properties defined for category ${page}`);
 						}
 					};

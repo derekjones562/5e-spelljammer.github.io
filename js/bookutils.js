@@ -227,7 +227,7 @@ const BookUtil = {
 		let chapter = 0;
 		let scrollTo;
 		let scrollIndex;
-		let forceScroll = false;
+		let forceScroll = true;
 		if (hashParts && hashParts.length > 0) chapter = Number(hashParts[0]);
 		if (hashParts && hashParts.length > 1) {
 			scrollTo = $(`[href="#${bookId},${chapter},${hashParts[1]}"]`).data("header");

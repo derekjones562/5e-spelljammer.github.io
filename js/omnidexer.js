@@ -552,6 +552,13 @@ Omnidexer.TO_INDEX = [
 		listProp: "ship",
 		baseUrl: "ships.html",
 		hover: true
+	},
+	{
+		category: Parser.CAT_ID_SJSHIP,
+		file: "sjships.json",
+		listProp: "sjship",
+		baseUrl: "sjships.html",
+		hover: true
 	}
 ];
 

@@ -64,7 +64,7 @@
 							"type": "entries",
 							"name": "Shazogrox/Tobart",
 							"entries": [
-								"One beholder mage, a monstrous wizard, has deduced the Hive's current course. The beholder mage, named Shazogrox, now hopes to bring the monstrous killing machine under his control. The key to success: the Queen's Eyes. The relics have slowly grown in power over the centuries, strengthened by the Ravager's kills. They do not yet form a true artefact, but they come very close.",
+								"One beholder mage, a monstrous wizard, has deduced the Hive's current course. The beholder mage, named {@creature shazogrox|SJ|Shazogrox}, now hopes to bring the monstrous killing machine under his control. The key to success: the Queen's Eyes. The relics have slowly grown in power over the centuries, strengthened by the Ravager's kills. They do not yet form a true artefact, but they come very close.",
 								"The Queen's Eyes bestow titanic power; but until they achieve true artefact status, they remain fragile and can be destroyed.",
 								"By controlling the Ravager, the ambitious Shazogrox hopes to slaughter all rival beholders in this sphere.",
 								"The beholder mage is motivated by revenge. He was outcast from his nation due to (for lack of a better term) his political beliefs. Now polymorphed into human form, Shazogrox journeys across space in the guise of a spelljamming privateer named Jon Tobart.",
@@ -129,23 +129,23 @@
 							]
 						},
 						"They examine the rope and anchor, of course. These are from the spelljamming ship Skyrunner, now floating at anchor several miles overhead.",
-						"The subsections that follow outline the PCs' likely actions and possible outcomes. When the PCs are finished looking at the rope and anchor, move on to {@area 1>2}.",
+						"The subsections that follow outline the PCs' likely actions and possible outcomes. When the PCs are finished looking at the rope and anchor, move on to {@area 1>2||climbing the rope}.",
 						"{@b The anchor:} The Skyrunner's massive anchor is shaped like its earthbound counterparts. It is roughly ten feet long, measures eight feet across its two huge, curved spikes, and weighs about two tons. On a crosspiece atop the anchor, the rope is tied with a complex knot.",
 						"The anchor is cast of an iron alloy with tiny flecks of a silvery metal. Any character who examines it gets an investigate check. Characters with the Sailor or Shipwright proficiencies or secondary skill make this roll with a advantage. Those who succeed notice that the anchor shows no signs of corrosion nor any evidence that it has been employed at sea.",
-						"{@b The rope:} The rope is a new magical item called an infinite rope (see the \"New Magical Items\" appendix for details). Normally, the rope is stretched by playing it out in coils. In this case, it was simply knotted to an anchor. When the anchor was thrown overboard, the rope stretched to the necessary length.",
+						"{@b The rope:} The rope is a new magical item called an TODO: infinite rope (see the \"New Magical Items\" appendix for details). Normally, the rope is stretched by playing it out in coils. In this case, it was simply knotted to an anchor. When the anchor was thrown overboard, the rope stretched to the necessary length.",
 						"The rope is about three inches thick; surprisingly thin, considering the weight of the anchor. It is woven of several strands of smaller cord about one-quarter-inch thick. Closer examination reveals small metallic threads running through the rope.",
-						"A detect magic spell reveals strong magic on the rope and on the large knot used to tie it to the anchor.",
+						"A {@spell detect magic} spell reveals strong magic on the rope and on the large knot used to tie it to the anchor.",
 						{
 							"type": "entries",
 							"name": "Likely Actions",
 							"entries": [
-								"{@b Untying the rope:} A wizard lock has been cast on the knot, making it very difficult to untie.",
-								"Untying the knot without damaging the rope is possible but difficult, requiring a Dexterity check with a penalty of -5. Each attempt takes one turn. Characters with the Rope Use proficiency may make an unmodified roll in half the time.",
+								"{@b Untying the rope:} An {@spell arcane lock} has been cast on the knot, making it very difficult to untie.",
+								"Untying the knot without damaging the rope is possible but difficult, requiring a dexterity check with disadvantage. Each attempt takes one minute. Characters with the sailor or similar background may make an unmodified roll in half the time.",
 								"If the characters get the rope loose, it swings back and forth overhead, dropping low enough on every third or fourth pass to knock the wind out of some innocent bystander or do incidental property damage.",
-								"Remember that this is a very long, three-inch-thick rope whipping around; there is a lot of force behind it! So much, in fact, that a character who tries to grab hold is swept right up into the air. It takes another anchor or something the size of a fully-loaded cart to pin it down again. Most likely it dangles loose until the Skyrunner's sailors come to fix it (see {@area 1>3}).",
+								"Remember that this is a very long, three-inch-thick rope whipping around; there is a lot of force behind it! So much, in fact, that a character who tries to grab hold is swept right up into the air. It takes another anchor or something the size of a fully-loaded cart to pin it down again. Most likely it dangles loose until the Skyrunner's sailors come to fix it (see {@area 1>3||waiting}).",
 								"{@b Cutting the rope:} Although thin, the rope has the strength of hardwood. What's worse, the rope sways when struck, making it difficult to cut. For these reasons, the rope can take 30 hit points of damage before breaking.",
 								"Cutting the rope destroys the enchantment and causes it to start shrinking back to its normal size. If the PCs try to grab on as it zips skyward, they must make Dexterity checks. Any who succeed are pulled into the heavens with a wrenching force and dizzying speed. Roll as you would for an attempt to climb the rope (see below) with disadvantage for complete lack of preparation. If the PC fails either of these rolls, calculate distance and damage as outlined below.",
-								"If the PCs cut the rope, Tobart and his crew still come down as described in {@area 1>4} below, on a duplicate infinite rope, held safely out of the PCs' reach."
+								"If the PCs cut the rope, Tobart and his crew still come down as described in {@area 1>4||sailors come ashore}, on a duplicate infinite rope, held safely out of the PCs' reach."
 							]
 						}
 					]
@@ -157,11 +157,11 @@
 						"This has many drawbacks. The major obstacle for the PCs is the sheer length of the climb. Making the ascent under their own power is really not feasible, since the rope goes two miles straight up with no good handholds.",
 						"When PCs get up a few hundred feet, the sway of the rope that seemed so gentle from the ground is violent enough to throw off all but the strongest characters. Precautions such as safety ropes reduce the chance of disaster, but do not guarantee safety.",
 						"If the PCs want to try the climb, have them make an Intelligence check. If anyone makes it, the DM should point out that they have no idea how long the rope really is. If anyone makes the check by 2 or more, they realize just how brutal the swaying rope would be.",
-						"Even so, reckless PCs may still attempt the climb. Have them make Strength and Dexterity ability checks with a bonus or penalty from -3 to +3 for preparation or lack thereof. Anyone who fails either check falls, despite any precautions they took (safety ropes snap, characters tied together go down together, etc.). Thieves may make a Climb*Walls roll to counteract the effects of a failed roll, saving them from almost certain doom. As for the rest of them ....",
+						"Even so, reckless PCs may still attempt the climb. Have them make Strength and Dexterity ability checks with a bonus or penalty from -3 to +3 for preparation or lack thereof. Anyone who fails either check falls, despite any precautions they took (safety ropes snap, characters tied together go down together, etc.).",
 						"{@b Falling:} To determine the height of the character when he falls, roll a d10 four times and multiply the results together. This is the distance fallen in feet. (For example, rolls of 5, 3, 8, and 7 give a height of 5 x 3 x 8 x 7 = 840 feet.)",
-						"Damage is ld6 for every 10 feet fallen, to a maximum of 20d6 (terminal velocity). Since the average fall calculated by this method is about 915‘, it is safe to assume terminal velocity. If a character sustains this kind of damage, remember the massive damage rule (Dungeon Master's Guide, page 75): If a character takes 50 or more hit points from any single attack, he must save vs. death or die.",
+						"Damage is ld6 for every 10 feet fallen, to a maximum of 20d6 (terminal velocity). Since the average fall calculated by this method is about 915‘, it is safe to assume terminal velocity.",
 						"{@b Magic:} If the characters have the proper spells or items, they can fly or levitate upward alongside the rope. They might have difficulty avoiding the swaying rope; require a Dexterity check (more if you feel they are warranted). A failed check means the rope hits the character for ld4 points of damage.",
-						"{@b Success:} If they reach the top of the rope, the PCs find themselves on the main deck of the Skyrunner. Go to {@area 1>4}."
+						"{@b Success:} If they reach the top of the rope, the PCs find themselves on the main deck of the Skyrunner. Go to {@area 1>4||sailors come ashore}."
 					]
 				},
 				{
@@ -187,7 +187,7 @@
 								"An hour after the anchor crashed to the ground, you spot a strange contraption sliding slowly down the rope. It looks like the Crow's nest lookout platform from the top of a ship's mast. It's about a thousand feet up. It should reach the ground in a few minutes."
 							]
 						},
-						"Give the PCs a chance to make preparations. If they ready an attack, the city guardsmen try to discourage this: \"attacking is our job,\" they say. (However, the guards are seasoned veterans, and they do not attack without provocation.) If the PCs still attack the oncoming object, see \"Troubleshooting.\" Meanwhile, the other citizens faint or flee, just as they did when the anchor fell.",
+						"Give the PCs a chance to make preparations. If they ready an attack, the city guardsmen try to discourage this: \"attacking is our job,\" they say. (However, the guards are seasoned veterans, and they do not attack without provocation.) If the PCs still attack the oncoming object, see \"{@area Part 1 Troubleshooting||Troubleshooting}.\" Meanwhile, the other citizens faint or flee, just as they did when the anchor fell.",
 						{
 							"type": "inset",
 							"name": "Assuming the PCs don't attack, read the following aloud:",
@@ -195,7 +195,7 @@
 								"After three or four minutes, the contraption stops about 15 feet above the ground. It's a strange circular platform about 20 feet across, made of something that looks like oak. The rope passes through a hole in the platform's centre. Metal braces reach below and above it, holding cylindrical guides that encircle the rope and keep the platform steady.",
 								"Four large wooden beams extend out from the platform's edges, like long minute hands on a clock face. At the end of each beam is a big copper float shaped like a hot-air balloon. Underneath the platform hang several large burlap bags that look like they are filled with something.",
 								"Four men stand on the platform. Two are outfitted like sailors: sleeveless shirts, tight leggings, and a kerchief around the neck. The third man is really big, almost a giant. He carries no weapon, but wears plate armour.",
-								"The fourth human is a tall man with reddish skin and a heavy beard. He wears chain mail, high boots, and a red half-cloak. A broadsword hangs from his belt.",
+								"The fourth human is a tall man with reddish skin and a heavy beard. He wears chain mail, high boots, and a red half-cloak. A rapier hangs from his belt.",
 								"This man casts a rope ladder over the side of the platform. It reaches the ground. He starts to climb down."
 							]
 						},
@@ -211,10 +211,10 @@
 									"type": "inset",
 									"name": "If the players want to examine the humans more closely, read the following aloud:",
 									"entries": [
-										"The tall, bearded man with the half-cloak stands about 6'6\" tall. From the roughness of his beard, he must shave with his broadsword. His eyes are bright blue, like the sky overhead. He moves gracefully, as though floating."
+										"The tall, bearded man with the half-cloak stands about 6'6\" tall. From the roughness of his beard, he must shave with his rapier. His eyes are bright blue, like the sky overhead. He moves gracefully, as though floating."
 									]
 								},
-								"This is Shazogrox, the polymorphed beholder mage in his human form of Captain Jon Tobart. His eye colour changes during the adventure, whenever he casts a spell or reverts back to beholder form. For more information, see \"Non-Player Characters\" and the beholder mage description in the appendix.",
+								"This is {@area Jon Tobart (Shazogrox)||Shazogrox}, the polymorphed beholder mage in his human form of Captain Jon Tobart. His eye colour changes during the adventure, whenever he casts a spell or reverts back to beholder form.",
 								{
 									"type": "inset",
 									"name": "Read the following aloud:",
@@ -222,7 +222,7 @@
 										"The huge man must be over seven feet tall. He wears full plate armour, along with an enormous shield strapped to his back. His face looks like something pushed it in and stepped on it. He walks stiffly, and he smells of heavy perfume. He hasn‘t said anything."
 									]
 								},
-								"This is Stonecrop, a flesh golem that Jon Tobart employs as a bodyguard. Stonecrop obeys only Shazogrox/Tobart. Though unarmed now, Stonecrop sometimes carries a mace because his master orders it; however, the golem cannot use it. The perfume, of course, masks the odours of earth and flesh, but not too well. Any PC can detect them with a successful Intelligence check, and animals always detect the odours.",
+								"This is {@area Stonecrop||Stonecrop}, a flesh golem that Jon Tobart employs as a bodyguard. Stonecrop obeys only Shazogrox/Tobart. Though unarmed now, Stonecrop sometimes carries a mace because his master orders it; however, the golem cannot use it. The perfume, of course, masks the odours of earth and flesh, but not too well. Any PC can detect them with a successful perception check, and animals always detect the odours.",
 								"This unlikely disguise cannot fool players for long. Jon Tobart tries to keep up the pretence in front of the crowd while he delivers his appeal (see below). After he recruits the PCs, he cares little about the pretence. However, the DM can provide comic relief by having Tobart maintain the thin charade, even after the players recognize Stonecrop as a golem, that this is the Skyrunners \"first mate.\"",
 								{
 									"type": "inset",
@@ -234,7 +234,7 @@
 								},
 								"These are two of the 24 animals that Tobart has polymorphed into human form. The first is Gulug, a transformed toad; the other, Ralgir, was once a wolf. They can talk, but don't have much to say. Gulug spends most of his time staring hungrily at flying bugs. Ralgir tends to be easily startled by sudden noises.",
 								"Tobart employs these transformed beasts as crew, since they can follow simple orders. More importantly, he uses them to lend authenticity to his role as ship's captain. Both of these disguises are more convincing than Stonecrop's, fooling the PCs at least until the mission is underway.",
-								"Many other polymorphed crew members remain aboard the Skyrunner. Four crew members are described fully in the \"Non-Player Characters\" appendix.",
+								"Many other polymorphed crew members remain aboard the Skyrunner. Four crew members are {@area The Crew||described fully}.",
 								"Captain Tobart climbs down the ladder. Showing his empty hands and smiling, he draws the crowd back, then recites his prepared lie:"
 							]
 						},
@@ -253,8 +253,7 @@
 								"Of course, the PCs may well oblige, either joining the captain right away, or (more likely) trying to get more information from him.",
 								"Tobart claims to be from a distant land to the north. He travels in a ship that sails the sky; \"I bought it from the elves,\" he says. In the last port he visited, he heard of a titanic monster, the Ravager, capable of devouring whole cities. The monster dwells on a floating island, and he has learned the island is drifting toward this very city!",
 								"Tobart says nothing about spelljamming at this point, since it might scare off possible recruits. He claims that the journey, to \"distant lands,\" should take a few days (a blatant lie). He acknowledges that the Ravager is dangerous, but he can fight it with \"special weapons, whose nature I have sworn to keep secret for now\" (another fabrication).",
-								"If the PCs ask strange questions, Tobart improvises, always maintaining the appearance of altruism. To this end, Tobart has cast a delude spell on himself, in case the characters cast know alignment on him. Though casting this is ordinarily quite rude, Tobart encourages it, \"to prove my good intentions.\" The spell shows his alignment to be lawful neutral; the same as the crew member Ralgir, the polymorphed wolf.",
-								"Tobart, a genius, can act kindly for the duration of this conversation, despite his alignment of neutral evil."
+								"If the PCs ask strange questions, Tobart improvises, always maintaining the appearance of altruism. Tobart, a genius, can act kindly for the duration of this conversation, despite his alignment of neutral evil."
 							]
 						}
 					]
@@ -270,7 +269,7 @@
 							"name": "Read the following aloud:",
 							"entries": [
 								"Once you climb aboard the anchor hoist, Tobart says, \"Grab onto the rail, and be ready to rise fast when I cut the ballast.\" He shouts over the side, \"You below, stand away!\"",
-								"He draws his broadsword and cuts through a rope stretched across the platform. You hear catches giving way and a thud as the ballast bags strike the ground. With a sudden wrench, the platform rises quickly up the rope. The two normal-sized sailors fall to their knees, but Tobart and the big man hardly seem to notice the acceleration."
+								"He draws his rapier and cuts through a rope stretched across the platform. You hear catches giving way and a thud as the ballast bags strike the ground. With a sudden wrench, the platform rises quickly up the rope. The two normal-sized sailors fall to their knees, but Tobart and the big man hardly seem to notice the acceleration."
 							]
 						},
 						"The levitating anchor hoist rises two miles in about an hour and a quarter. The air grows thin and cold. Tobart seems not to notice, and can answer more questions from the PCs as they rise. The golem slows slightly; the other sailors shiver and draw blankets from a pack on the platform.",
@@ -279,7 +278,7 @@
 							"type": "entries",
 							"name": "Boarding the Ship",
 							"entries": [
-								"The PCs will reach the Skyrunner either as Tobart's recruits, or a s uninvited guests who (magically) climbed the rope.",
+								"The PCs will reach the Skyrunner either as Tobart's recruits, or as uninvited guests who (magically) climbed the rope.",
 								{
 									"type": "inset",
 									"name": "Either way, read the following as they near the ship:",
@@ -289,7 +288,7 @@
 										"The prow of the ship is carved to resemble a beautiful winged woman. Her arm stretches outward. like a queen's sceptre. A name is painted across the bow in gold letters: Skyrunner."
 									]
 								},
-								"The large colour map details the Skyrunner's layout. The \"New Spelljamming Ships\" appendix describes its game statistics.",
+								"The large colour map details the Skyrunner's layout. The TODO: \"New Spelljamming Ships\" appendix describes its game statistics.",
 								"Once you are familiar with this, continue the action according to the PCs' method of entry.",
 								"{@b Recruits:} The anchor hoist rises to within a few feet of the hull. Tobart pronounces a word (\"solonto\") that causes the hoist to slow and stop. Crewmen lower a rope ladder, and all but Stonecrop climb up.",
 								"At Tobart's orders, Stonecrop climbs the rope and, alone, pulls the enormous anchor hoist onto the main deck. There, crewmen detach the guides from the rope and roll the hoist down into a cargo hold. Proceed to the next chapter.",
@@ -303,7 +302,7 @@
 				},
 				{
 					"type": "section",
-					"name": "Troubleshooting",
+					"name": "Part 1 Troubleshooting",
 					"entries": [
 						"Here are a few ways to get the adventure back on track if the players do something completely unpredictable.",
 						"{@b PCs attack anchor hoist:} Tobart cuts one ballast bag, levitating the hoist quickly out of hand-weapon range. From the cover of the platform he shouts his peaceful intentions. The crowd yells at the PCs to stop acting like lunatics.",
@@ -3074,7 +3073,7 @@
 					"name": "Jon Tobart (Shazogrox)",
 					"entries": [
 						"7th-level beholder mage",
-						"As Tobart: AC 2; Str 16, Int 18, Wis 16, Dex 12, Con 15, Cha 10;hp 80; A L NE. Equipment (as Tobart): chain mail +2, shield, broadsword + I / +2 us. magic. using and enchanted creatures, ring of invisibility.",
+						"As Tobart: AC 2; Str 16, Int 18, Wis 16, Dex 12, Con 15, Cha 10;hp 80; A L NE. Equipment (as Tobart): chain mail +2, shield, rapier + I / +2 us. magic. using and enchanted creatures, ring of invisibility.",
 						"Spells known: Color spray, enlarge, hold portal, light, mending, message, continual light, darkness 15' radius, fog cloud, knock, levitate, magic mouth, rope trick, shatter, whispering wind, wizard lock, blink, delude, explosive runes, fly, haste, improved whispering wind, tongues, wraithform, dimension door, fire shield, Otiluke's Resilient Sphere, polymorph other, polymorph self, stoneskin, vacancy.",
 						"Spells Stored: Usually blink, delude, fly, haste, wraithform, fire shield, dimension door, polymorph other, polymorph self, stoneskin. When he enters the Hive, Tobart has stored improved whispering wind in place of his blink spell, to ease communication in the giant structure.",
 						"Shazogrox is a beholder, born to the Greshtharx nation. During his youth, through some genetic flaw or perversion, Shazogrox grew dissatisfied with the beholders' senseless, perpetual race wars. Why not unite the beholders and conquer all the spheres' lesser races?",
@@ -3089,7 +3088,7 @@
 							"name": "Tobart",
 							"entries": [
 								"Shazogrox becomes Tobart by casting a polymorph self spell, so he can maintain human form only for about two hours at a time.",
-								"Tobart is a large man, nearly six and one-half feet tall, with ruddy skin and long, dark hair held back in a single braid closed with a brass ring. His broad face is deeply lined and framed by a rough beard that has been hacked down to a manageable shape. He wears a chain shirt over a heavy leather jerkin, soft leather leggings tucked into high boots, and a red half-cloak. From his broad belt hang a broadsword and a brass horn.",
+								"Tobart is a large man, nearly six and one-half feet tall, with ruddy skin and long, dark hair held back in a single braid closed with a brass ring. His broad face is deeply lined and framed by a rough beard that has been hacked down to a manageable shape. He wears a chain shirt over a heavy leather jerkin, soft leather leggings tucked into high boots, and a red half-cloak. From his broad belt hang a rapier and a brass horn.",
 								"The only inhuman feature of Tobart's appearance involves his eyes. They change colour when the beholder mage casts any spell. In the early stages of the adventure, this subtle change usually occurs off-stage, and PCs may not notice it.",
 								"To all appearances, Tobart is a very serious man of solitary nature, well-meaning and honourable despite his grim demeanour. He uses these traits to explain the frequent absences required by the polymorph spell.",
 								"Shazogrox is aware that Tobart's gloomy personality and periodic disappearances provoke suspicion. He has constructed a cover story to explain these antisocial traits. If necessary, Tobart takes one or more of the PCs \"into his confidence.\" He tells the sad (but fictitious) story of his curse: He is a were-bear, doomed to live a double life as man and beast.",

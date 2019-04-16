@@ -1138,6 +1138,15 @@ function EntryRenderer () {
 								};
 								self._recursiveEntryRender(fauxEntry, textStack, depth);
 								break;
+							case "@sjship":
+								fauxEntry.href.path = UrlUtil.PG_SJ_SHIPS;
+								if (!source) fauxEntry.href.hash += HASH_LIST_SEP + SRC_DMG;
+								fauxEntry.href.hover = {
+									page: UrlUtil.PG_SJ_SHIPS,
+									source: source || "NONE" || SRC_DMG // this too
+								};
+								self._recursiveEntryRender(fauxEntry, textStack, depth);
+								break;
 						}
 					}
 				} else textStack[0] += s;
@@ -3705,6 +3714,131 @@ EntryRenderer.ship = {
 	}
 };
 
+EntryRenderer.sjship = {
+	getCompactRenderedString (ship) {
+		// TODO improve this if/when ships are added to a finalised product
+		return EntryRenderer.sjship.getRenderedString(ship);
+	},
+
+	getRenderedString (ship) {
+		const renderer = EntryRenderer.getDefaultRenderer();
+
+		function getSectionTitle (title) {
+			return `<tr class="mon__stat-header-underline"><td colspan="6"><span>${title}</span></td></tr>`
+		}
+
+		function getSectionHpPart (sect, each) {
+			if (!sect.ac && !sect.hp) return "";
+			return `
+				<div><b>Armor Class</b> ${sect.ac}</div>
+				<div><b>Hit Points</b> ${sect.hp}${each ? ` each` : ""}${sect.dt ? ` (damage threshold ${sect.dt})` : ""}${sect.hpNote ? `; ${sect.hpNote}` : ""}</div>
+			`;
+		}
+
+		function getControlSection (control) {
+			if (!control) return "";
+			return `
+				<tr class="mon__stat-header-underline"><td colspan="6"><span>Control: ${control.name}</span></td></tr>
+				<tr><td colspan="6">
+				${getSectionHpPart(control)}
+				<div>${renderer.renderEntry({entries: control.entries})}</div>
+				</td></tr>
+			`;
+		}
+
+		function getMovementSection (move) {
+			if (!move) return "";
+			function getLocomotionSection (loc) {
+				const asList = {
+					type: "list",
+					style: "list-hang-notitle",
+					items: [
+						{
+							type: "item",
+							name: `Locomotion (${loc.mode})`,
+							entries: loc.entries
+						}
+					]
+				};
+				return `<div>${renderer.renderEntry(asList)}</div>`;
+			}
+
+			return `
+				<tr class="mon__stat-header-underline"><td colspan="6"><span>${move.isControl ? `Control and ` : ""}Movement: ${move.name}</span></td></tr>
+				<tr><td colspan="6">
+				${getSectionHpPart(move)}
+				${move.locomotion.map(getLocomotionSection)}
+				</td></tr>
+			`;
+		}
+
+		function getWeaponSection (weap) {
+			return `
+				<tr class="mon__stat-header-underline"><td colspan="6"><span>Weapons: ${weap.name}${weap.count ? ` (${weap.count})` : ""}</span></td></tr>
+				<tr><td colspan="6">
+				${getSectionHpPart(weap, !!weap.count)}
+				${renderer.renderEntry({entries: weap.entries})}
+				</td></tr>
+			`;
+		}
+
+		function getOtherSection (oth) {
+			return `
+				<tr class="mon__stat-header-underline"><td colspan="6"><span>${oth.name}</span></td></tr>
+				<tr><td colspan="6">
+				${getSectionHpPart(oth)}
+				${renderer.renderEntry({entries: oth.entries})}
+				</td></tr>
+			`;
+		}
+
+		return `
+			${EntryRenderer.utils.getBorderTr()}
+			${EntryRenderer.utils.getNameTr(ship)}
+			<tr class="text"><td colspan="6"><i>${Parser.sizeAbvToFull(ship.size)} vehicle${ship.dimensions ? `, (${ship.dimensions.join(" by ")})` : ""}</i><br></td></tr>
+			<tr class="text"><td colspan="6">
+				<div><b>Creature Capacity</b> ${ship.capCrew} crew${ship.capPassenger ? `, ${ship.capPassenger} passengers` : ""}</div>
+				${ship.capCargo ? `<div><b>Cargo Capacity</b> ${ship.capCargo} ton${ship.capCargo === 1 ? "" : "s"}</div>` : ""}
+				<div><b>Travel Pace</b> ${ship.pace} miles per hour (${ship.pace * 24} miles per day)</div>
+			</td></tr>
+			<tr><td colspan="6">
+				<table class="summary striped-even">
+					<tr>
+						<th class="col-2 text-align-center">STR</th>
+						<th class="col-2 text-align-center">DEX</th>
+						<th class="col-2 text-align-center">CON</th>
+						<th class="col-2 text-align-center">INT</th>
+						<th class="col-2 text-align-center">WIS</th>
+						<th class="col-2 text-align-center">CHA</th>
+					</tr>	
+					<tr>
+						<td class="text-align-center">${EntryRenderer.utils.getAbilityRoller(ship, "str")}</td>
+						<td class="text-align-center">${EntryRenderer.utils.getAbilityRoller(ship, "dex")}</td>
+						<td class="text-align-center">${EntryRenderer.utils.getAbilityRoller(ship, "con")}</td>
+						<td class="text-align-center">${EntryRenderer.utils.getAbilityRoller(ship, "int")}</td>
+						<td class="text-align-center">${EntryRenderer.utils.getAbilityRoller(ship, "wis")}</td>
+						<td class="text-align-center">${EntryRenderer.utils.getAbilityRoller(ship, "cha")}</td>
+					</tr>
+				</table>
+			</td></tr>
+			<tr class="text"><td colspan="6">
+				${ship.immune ? `<div><b>Damage Immunities</b> ${Parser.monImmResToFull(ship.immune)}</div>` : ""}
+				${ship.conditionImmune ? `<div><b>Condition Immunities</b> ${Parser.monCondImmToFull(ship.conditionImmune)}</div>` : ""}
+			</td></tr>
+			${getSectionTitle("Hull")}
+			<tr><td colspan="6">
+			${getSectionHpPart(ship.hull)}
+			</td></tr>
+			${(ship.control || []).map(getControlSection).join("")}
+			${(ship.movement || []).map(getMovementSection).join("")}
+			${(ship.weapon || []).map(getWeaponSection).join("")}
+			${(ship.other || []).map(getOtherSection).join("")}
+			${EntryRenderer.utils.getPageTr(ship)}
+			${EntryRenderer.utils.getBorderTr()}
+		`;
+	}
+};
+
 EntryRenderer.hover = {
 	linkCache: {},
 	_isInit: false,
@@ -4005,6 +4139,10 @@ EntryRenderer.hover = {
 			}
 			case UrlUtil.PG_SHIPS: {
 				loadSimple(page, "ships.json", "ship");
+				break;
+			}
+			case UrlUtil.PG_SJ_SHIPS: {
+				loadSimple(page, "sjships.json", "sjship");
 				break;
 			}
 			default:
@@ -4455,6 +4593,8 @@ EntryRenderer.hover = {
 				return EntryRenderer.table.getCompactRenderedString;
 			case UrlUtil.PG_SHIPS:
 				return EntryRenderer.ship.getCompactRenderedString;
+			case UrlUtil.PG_SJ_SHIPS:
+				return EntryRenderer.sjship.getCompactRenderedString;
 			default:
 				return null;
 		}

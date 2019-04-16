@@ -78,6 +78,7 @@ class NavBar {
 		addLi(ulDms, "cultsboons.html", "Cults & Demonic Boons");
 		addLi(ulDms, "objects.html", "Objects");
 		addLi(ulDms, "ships.html", "Ships");
+		addLi(ulDms, "sjships.html", "Spelljammer Ships");
 		addLi(ulDms, "trapshazards.html", "Traps & Hazards");
 		addDivider(ulDms);
 		addLi(ulDms, "crcalculator.html", "CR Calculator");
