@@ -6328,6 +6328,38 @@
 			"storyline": "Extra Life"
 		},
 		{
+			"name": "The Barber of Silverymoon",
+			"id": "TBoS",
+			"contents": [
+				{
+					"name": "Preface",
+					"headers": [
+						"Adventure Setup",
+						"Adventure Overview",
+						"A Hair-Raising Plot",
+						"Adventure Hook",
+						"Interviews and Investigations",
+						"Map"
+					]
+				},
+				{
+					"name": "Adventure",
+					"headers": [
+						"Jooge's Barbershop",
+						"The Cellars",
+						"Hair and Horror",
+						"The Caverns"
+					]
+				}
+			],
+			"level": {
+				"start": 6,
+				"end": 6
+			},
+			"published": "2017-03-24",
+			"storyline": "Oneshots"
+		},
+		{
 			"name": "Wildspace",
 			"id": "SJ-WS",
 			"contents": [
