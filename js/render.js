@@ -3441,7 +3441,7 @@ Renderer.item = {
 		if (genericVariant.inherits.lootTables) genericVariant.lootTables = genericVariant.inherits.lootTables;
 	},
 
-	_priceRe: /^(\d+)(\w+)$/,
+	_priceRe: /^(\d+)\s*(\w+)$/,
 	enhanceItem (item) {
 		if (item._isEnhanced) return;
 		item._isEnhanced = true;
@@ -3931,7 +3931,38 @@ Renderer.sjship = {
 		return Renderer.sjship.getRenderedString(ship);
 	},
 
-	getRenderedString (ship) {
+	renderWeapons (weapons, weaponList) {
+		const renderStack = [];
+
+		function findWeapon (type, weaponList) {
+			for (const weapon of weaponList) {
+				if (weapon.name === type) {
+					return weapon;
+				}
+			}
+			return undefined;
+		}
+
+		function renderWeapon (renderStack, weapon, count) {
+			renderer.recursiveRender({
+				name: (count > 1 ? `${count}x ` : "") + weapon.name,
+				entries: [
+					`{@atk rw} {@hit ${weapon.attack}} to hit, range ${weapon.range}, one target, rate of fire: ${weapon.rateOfFire} rounds, crew: ${weapon.crew}. {@h} {@damage ${weapon.damage}} ${weapon.damageType} damage.`
+				]
+			}, renderStack, {depth: 2});
+		}
+
+		weapons.forEach(e => {
+			if (e.type) {
+				renderWeapon(renderStack, findWeapon(e.type, weaponList), e.count ? e.count : 1);
+			} else {
+				renderWeapon(renderStack, e, e.count ? e.count : 1);
+			}
+		});
+		return `<tr class='action'><td colspan='6' class="mon__sect-row-inner">${renderStack.join("")}</td></tr>`;
+	},
+
+	getRenderedString (ship, weapons) {
 		const renderer = Renderer.get();
 
 		const $td = $(`<td colspan="6" class="text"/>`);
@@ -3943,23 +3974,86 @@ Renderer.sjship = {
 			$td.append(HTML_NO_INFO);
 		}
 
+		let value = ship.value;
+		// format price nicely
+		// 5 characters because e.g. XXX gp is fine
+		if (value && value.length > 5) {
+			const m = Renderer.item._priceRe.exec(value);
+			if (m) {
+				value = `${Number(m[1]).toLocaleString()}  ${m[2]}`;
+			}
+		}
+
+		function convertArmour (armourRating) {
+			return 22 - armourRating;
+		}
+
+		function convertHealth (hullPoints) {
+			return hullPoints * 25;
+		}
+
+		function convertDamageThreshold (hitPoints) {
+			if (hitPoints >= 100) {
+				if (hitPoints < 300) {
+					return 10;
+				}
+
+				if (hitPoints < 500) {
+					return 15;
+				}
+
+				if (hitPoints < 1000) {
+					return 20;
+				}
+
+				if (hitPoints < 1500) {
+					return 25;
+				}
+
+				return 30;
+			}
+
+			return undefined;
+		}
+
+		if (ship.ac === undefined) {
+			ship.ac = convertArmour(ship.armourRating);
+		}
+
+		if (ship.hp === undefined) {
+			ship.hp = convertHealth(ship.hullPoints);
+		}
+
+		if (ship.dt === undefined) {
+			ship.dt = convertDamageThreshold(ship.hp);
+		}
+
 		// TODO: Saves
 		// TODO: Expand Manoeuvre class
 		return `
 			${Renderer.utils.getBorderTr()}
 			${Renderer.utils.getNameTr(ship)}
-			<tr class="text"><td colspan="6"><i>Length: ${ship.keelLength}, Width: ${ship.beamLength}</i><br></td></tr>
+			<tr class="text"><td colspan="6">
+			<i>Length: ${ship.keelLength}, Width: ${ship.beamLength}</i>
+			${value ? `<div>${value}</div>` : ""}
+			</td></tr>
 			<tr class="text"><td colspan="6">
 			<div><b>Tonnage</b> ${ship.tonnage} ton</div>
             <div><b>Creature Capacity</b> ${ship.crew} crew${ship.passenger ? `, ${ship.passenger} passengers` : ""}</div>
 			<div><b>Armor Class</b> ${ship.ac}</div>
 			<div><b>Hit Points</b> ${ship.hp}${ship.dt ? ` (damage threshold ${ship.dt})` : ""}${ship.hpNote ? `; ${ship.hpNote}` : ""}</div>
 			<div><b>Manoeuvre Class</b> ${ship.manoeuvreClass}</div>
+			<div><b>Power Type</b> ${ship.powerType}</div>
+			<div><b>Ship Rating</b> ${ship.shipRating}</div>
 			<div><b>Landing—Land</b> ${ship.landingLand ? "Yes" : "No"}</div>
 			<div><b>Landing—Water</b> ${ship.landingWater ? "Yes" : "No"}</div>
 			<div><b>Cargo</b> ${ship.cargo}</div>
             ${ship.immune ? `<div><b>Damage Immunities</b> ${Parser.monImmResToFull(ship.immune)}</div>` : ""}
 			</td></tr>
+			
+			${ship.weapons && weapons ? `<tr><td colspan="6" class="mon__stat-header-underline"><span class="mon__sect-header-inner">Standard Armament</span></td></tr>
+				${Renderer.sjship.renderWeapons(ship.weapons, weapons)}` : ""}
+		
         	${Renderer.utils.getPageTr(ship)}
         	${Renderer.utils.getBorderTr()}
 		`;

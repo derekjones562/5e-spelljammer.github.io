@@ -42,6 +42,7 @@ async function onJsonLoad (data) {
 	ListUtil.initGenericPinnable();
 
 	addShips(data);
+	addWeapons(data);
 	BrewUtil.pAddBrewData()
 		.then(handleBrew)
 		.then(() => BrewUtil.bind({list}))
@@ -65,6 +66,7 @@ function handleBrew (homebrew) {
 }
 
 let shipList = [];
+let weaponList = [];
 let shI = 0;
 function addShips (data) {
 	if (!data.sjship || !data.sjship.length) {
@@ -121,6 +123,13 @@ function addShips (data) {
 	ListUtil.bindUploadButton();
 }
 
+function addWeapons (data) {
+	if (!data.sjweapon || !data.sjweapon.length) {
+		return;
+	}
+	weaponList = weaponList.concat(data.sjweapon);
+}
+
 // filtering function
 function handleFilterChange () {
 	const f = filterBox.getValues();
@@ -172,7 +181,7 @@ function renderStatblock (ship) {
 	// }
 
 	function buildStatsTab () {
-		$content.append(Renderer.sjship.getRenderedString(ship));
+		$content.append(Renderer.sjship.getRenderedString(ship, weaponList));
 
 		// const $floatToken = $(`#float-token`).empty();
 		// if (mon.tokenUrl || !mon.uniqueId) {

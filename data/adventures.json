@@ -6483,6 +6483,10 @@
 				},
 				{
 					"name": "Magic",
+					"headers": [
+						"Infinite Rope",
+						"The Queen's Eyes"
+					],
 					"ordinal": {
 						"type": "appendix",
 						"identifier": "B"

@@ -64,7 +64,7 @@
 							"type": "entries",
 							"name": "Shazogrox/Tobart",
 							"entries": [
-								"One beholder mage, a monstrous wizard, has deduced the Hive's current course. The beholder mage, named {@creature shazogrox|SJ|Shazogrox}, now hopes to bring the monstrous killing machine under his control. The key to success: the Queen's Eyes. The relics have slowly grown in power over the centuries, strengthened by the Ravager's kills. They do not yet form a true artefact, but they come very close.",
+								"One beholder mage, a monstrous wizard, has deduced the Hive's current course. The beholder mage, named {@creature Shazogrox|SJ|Shazogrox}, now hopes to bring the monstrous killing machine under his control. The key to success: the Queen's Eyes. The relics have slowly grown in power over the centuries, strengthened by the Ravager's kills. They do not yet form a true artefact, but they come very close.",
 								"The Queen's Eyes bestow titanic power; but until they achieve true artefact status, they remain fragile and can be destroyed.",
 								"By controlling the Ravager, the ambitious Shazogrox hopes to slaughter all rival beholders in this sphere.",
 								"The beholder mage is motivated by revenge. He was outcast from his nation due to (for lack of a better term) his political beliefs. Now polymorphed into human form, Shazogrox journeys across space in the guise of a spelljamming privateer named Jon Tobart.",
@@ -131,7 +131,7 @@
 						"They examine the rope and anchor, of course. These are from the spelljamming ship Skyrunner, now floating at anchor several miles overhead.",
 						"The subsections that follow outline the PCs' likely actions and possible outcomes. When the PCs are finished looking at the rope and anchor, move on to {@area 1>2||climbing the rope}.",
 						"{@b The anchor:} The Skyrunner's massive anchor is shaped like its earthbound counterparts. It is roughly ten feet long, measures eight feet across its two huge, curved spikes, and weighs about two tons. On a crosspiece atop the anchor, the rope is tied with a complex knot.",
-						"The anchor is cast of an iron alloy with tiny flecks of a silvery metal. Any character who examines it gets an investigate check. Characters with the Sailor or Shipwright proficiencies or secondary skill make this roll with a advantage. Those who succeed notice that the anchor shows no signs of corrosion nor any evidence that it has been employed at sea.",
+						"The anchor is cast of an iron alloy with tiny flecks of a silvery metal. Any character who examines it gets an investigate check. Characters with the Sailor or similar background make this roll with a advantage. Those who succeed notice that the anchor shows no signs of corrosion nor any evidence that it has been employed at sea.",
 						"{@b The rope:} The rope is a new magical item called an TODO: infinite rope (see the \"New Magical Items\" appendix for details). Normally, the rope is stretched by playing it out in coils. In this case, it was simply knotted to an anchor. When the anchor was thrown overboard, the rope stretched to the necessary length.",
 						"The rope is about three inches thick; surprisingly thin, considering the weight of the anchor. It is woven of several strands of smaller cord about one-quarter-inch thick. Closer examination reveals small metallic threads running through the rope.",
 						"A {@spell detect magic} spell reveals strong magic on the rope and on the large knot used to tie it to the anchor.",
@@ -140,7 +140,7 @@
 							"name": "Likely Actions",
 							"entries": [
 								"{@b Untying the rope:} An {@spell arcane lock} has been cast on the knot, making it very difficult to untie.",
-								"Untying the knot without damaging the rope is possible but difficult, requiring a dexterity check with disadvantage. Each attempt takes one minute. Characters with the sailor or similar background may make an unmodified roll in half the time.",
+								"Untying the knot without damaging the rope is possible but difficult, requiring a dexterity check with disadvantage. Each attempt takes one minute. Characters with the Sailor or similar background may make an unmodified roll in half the time.",
 								"If the characters get the rope loose, it swings back and forth overhead, dropping low enough on every third or fourth pass to knock the wind out of some innocent bystander or do incidental property damage.",
 								"Remember that this is a very long, three-inch-thick rope whipping around; there is a lot of force behind it! So much, in fact, that a character who tries to grab hold is swept right up into the air. It takes another anchor or something the size of a fully-loaded cart to pin it down again. Most likely it dangles loose until the Skyrunner's sailors come to fix it (see {@area 1>3||waiting}).",
 								"{@b Cutting the rope:} Although thin, the rope has the strength of hardwood. What's worse, the rope sways when struck, making it difficult to cut. For these reasons, the rope can take 30 hit points of damage before breaking.",
@@ -324,7 +324,7 @@
 					"name": "Skyrunner",
 					"entries": [
 						"The beholder mage had his galleon built for this voyage based on what he knew about the ships of the characters' homeworld. It is a spelljamming craft designed to look like a groundling ship, not an actual seagoing vessel.",
-						"Therefore, characters with the Sailor or Shipwright proficiencies who succeed in an Intelligence check notice some oddities. Make these rolls secretly when the PCs first board the ship, then once per day during the voyage. When a PC makes a roll, give one of the following facts:",
+						"Therefore, characters with the Sailor or similar background who succeed in a Perception check notice some oddities. Make these rolls secretly when the PCs first board the ship, then once per day during the voyage. When a PC makes a roll, give one of the following facts:",
 						{
 							"type": "list",
 							"items": [
@@ -340,7 +340,7 @@
 							"type": "image",
 							"href": {
 								"type": "internal",
-								"path": "SJ/portstarboard.png"
+								"path": "adventure/SJ-WS/portstarboard.png"
 							},
 							"title": "Directions"
 						},
@@ -348,7 +348,7 @@
 							"type": "image",
 							"href": {
 								"type": "internal",
-								"path": "SJ/skyrunner_maindeck.png"
+								"path": "adventure/SJ-WS/skyrunner_maindeck.png"
 							},
 							"title": "Skyrunner Main Deck"
 						},
@@ -390,7 +390,7 @@
 							"type": "entries",
 							"name": "4. Captain's Cabin",
 							"entries": [
-								"The door to this room is iron-bound hardwood with an inset lock and a brass plate bearing the word 'Captain'. The door is kept locked at all times. When Tobart is in the room, the secret room that lies beyond, or any of the rooms below, has a wizard lock holds the door. He removes it when he leaves to avoid provoking suspicion if someone detects it.",
+								"The door to this room is iron-bound hardwood with an inset lock and a brass plate bearing the word 'Captain'. The door is kept locked at all times. When Tobart is in the room, the secret room that lies beyond, or any of the rooms below, an {@spell arcane lock} holds the door. He removes it when he leaves to avoid provoking suspicion if someone detects it.",
 								"Unlike the rest of the ship, this room is well-appointed, with handsome furnishings and decorative hangings. Twin windows near the back offer a breathtaking panorama of Wildspace.",
 								"A large desk, made of carved wood trimmed in gold leaf, dominates the room. Two small chairs face the high backed throne behind the desk. All three are of darkly stained wood upholstered in red velvet. There is a four-poster bed to port and a wardrobe starboard. Several decorative tapestries of gold and crimson cover the bare bulkheads.",
 								"Since Tobart is actually a beholder mage, this room is just part of his disguise. A searches reveals nothing of use, but PCs who succeed in an investigation check notice that all of the furniture in the room is brand new. Dust has settled on the bed sheets, and the velvet seat of the Captain's chair shows no wear. The desk's token assortment of inks, quills and parchments are all unused. The wardrobe holds four identical outfits, which match what Tobart wore the first time the PCs saw him.",
@@ -413,12 +413,12 @@
 							"type": "entries",
 							"name": "6. Secret Room",
 							"entries": [
-								"The door to this room is hidden behind a tapestry. Like the entrance to the captain's cabin, it is made of iron-bound wood with an inset lock. It is wizard locked at all times. This lock is complex and well made, requiring a Pick Locks roll at -10% that takes double the normal time.",
-								"Shazogrox keeps this room under a vacancy spell. This makes the room appear empty and unused, covered in cobwebs and a fine layer of dust. The things in the room are rendered invisible. Only forceful contact with cloaked items, dispel magic, true sight, or the equivalent allows the characters to see the room as it really is.",
+								"The door to this room is hidden behind a tapestry. Like the entrance to the captain's cabin, it is made of iron-bound wood with an inset lock. It is {@spell arcane lock||arcane locked} at all times. This lock is complex and well made, requiring a lockpicking attempt to be at disadvantage and take double the normal time.",
+								"Shazogrox keeps this room under a vacancy spell. This makes the room appear empty and unused, covered in cobwebs and a fine layer of dust. The things in the room are rendered invisible. Only forceful contact with cloaked items, {@spell dispel magic}, {@spell true seeing}, or the equivalent allows the characters to see the room as it really is.",
 								"What is actually here: A pedestal stands in the middle of the room, three feet in diameter and four feet high, bearing a silk cushion. The beholder uses this as a bed.",
 								"The walls, floor, and ceiling of the room are painted red. Each wall bears a bizarre, impressionistic mural painted in black.",
 								"On the ceiling, carefully painted in black and gold, is the map. The PCs' homeworld is a gold sphere marked with a black X; the Hive is depicted as a gold eye. There are small pots of black and gold pigment on the floor beside the pedestal, along with several paintbrushes of various sizes.",
-								"A trapdoor on the far side of the room is secured with a padlock. Attempting to pick the lock triggers a magic mouth spell. With a flash of amber, the image of a slit-like mouth lined with a double row of fangs appears above the trap door. It speaks with a strange accent: \"Go no further if the safety of your homeworld is important to you. You have been warned.\"",
+								"A trapdoor on the far side of the room is secured with a padlock. Attempting to pick the lock triggers a {@spell magic mouth} spell. With a flash of amber, the image of a slit-like mouth lined with a double row of fangs appears above the trap door. It speaks with a strange accent: \"Go no further if the safety of your homeworld is important to you. You have been warned.\"",
 								"With that, the hideous apparition vanishes. The warning is a feint, and there is no danger in opening the trapdoor. If and when the padlock is removed, the trapdoor reveals a ladder going down. This ladder leads to Room 4 on the Cargo Deck."
 							]
 						},
@@ -427,14 +427,7 @@
 							"name": "7. Heavy Ballista",
 							"entries": [
 								"A huge crossbow, this fearsome weapon is large then most catapults. Unlike the ballistae on the forecastle, which are mounted on static pivots, this weapon stands on a platform fitted with grooved metal wheels, like those on an ore cart. Hand brakes and tie-lines keep the platform stationary.",
-								"Operation requires a crew of four. Two crank the ratchet wheels on either side of the weapon to cock the device; a third loads it with bolts the size of spears; the last aims it, shifting it on its pivot mount. Loading takes three rounds, so the weapon may be fired only every fourth round. Ammunition is kept in two large baskets affixed to the platform, 20 bolts per basket.",
-								"TODO:",
-								"Range: 2 Hexes (1000 yards)",
-								"Damage: 3-30 Hit Points, 3-6 Hull Points",
-								"Crew: 4",
-								"Loading Time: 1/4",
-								"THAC0: 12",
-								"Crit Hit on a: 19, 20"
+								"Operation requires a crew of four. Two crank the ratchet wheels on either side of the weapon to cock the device; a third loads it with bolts the size of spears; the last aims it, shifting it on its pivot mount. Loading takes three rounds, so the weapon may be fired only every fourth round. Ammunition is kept in two large baskets affixed to the platform, 20 bolts per basket."
 							]
 						},
 						{
@@ -456,7 +449,7 @@
 							"type": "image",
 							"href": {
 								"type": "internal",
-								"path": "SJ/skyrunner_forecastle.png"
+								"path": "adventure/SJ-WS/skyrunner_forecastle.png"
 							},
 							"title": "Skyrunner Forecastle"
 						},
@@ -464,14 +457,7 @@
 							"type": "entries",
 							"name": "1. Ballista",
 							"entries": [
-								"Each of these is a medium ballista on a swivel mount with a basket of 40 bolts on the deck beside it.",
-								"TODO:",
-								"Range: 4 Hexes (2000 yards)",
-								"Damage: 3-18 Hit Points, 1-3 Hull Points",
-								"Crew: 2",
-								"Loading Time: 1/3",
-								"THAC0: 14",
-								"Crit hit on a: 20"
+								"Each of these is a medium ballista on a swivel mount with a basket of 40 bolts on the deck beside it."
 							]
 						},
 						{
@@ -485,7 +471,7 @@
 							"type": "image",
 							"href": {
 								"type": "internal",
-								"path": "SJ/skyrunner_sterncastle.png"
+								"path": "adventure/SJ-WS/skyrunner_sterncastle.png"
 							},
 							"title": "Skyrunner Sterncastle"
 						},
@@ -507,7 +493,7 @@
 							"type": "image",
 							"href": {
 								"type": "internal",
-								"path": "SJ/skyrunner_cargodeck.png"
+								"path": "adventure/SJ-WS/skyrunner_cargodeck.png"
 							},
 							"title": "Skyrunner Cargo Deck"
 						},
@@ -578,7 +564,7 @@
 							"type": "image",
 							"href": {
 								"type": "internal",
-								"path": "SJ/skyrunner_steerage.png"
+								"path": "adventure/SJ-WS/skyrunner_steerage.png"
 							},
 							"title": "Skyrunner Steerage"
 						},
@@ -601,9 +587,9 @@
 								"More information is contained in the material, but it is more covert and would require extensive research.",
 								"Among the papers is a scroll with a rough sketch of the Hive that shows a crack in its surface marked with an X. This is a map to the \"back door\" left by the Arcane that was revealed during one of the few attempts to penetrate the asteroid.",
 								"Note: The PCs must find this map at some point before reaching the Hive. As described later, Tobart could decide to show the map to the PCs. However, if the PCs discover Tobart's secret identity and kill him (or he flees) before he shows them the map, the DM must find a way for them to discover this map.",
-								"Secreted about the room are several useful magic items that Tobart has brought along to help fight beholders. There are six arrows of beholder slaying hidden behind a panel in the wall; the panel has been wizard locked.",
-								"A secret bottom in one of the desk drawers holds a wizard scroll with the following spells: stone to flesh (x2) and reincarnation.",
-								"Inside a large vase is a vibrant purple prism. It is an ioun stone that can store up to 12 spell levels. It currently contains a raise dead and a resurrection spell. Tobart may use these items as appropriate during the adventure."
+								"Secreted about the room are several useful magic items that Tobart has brought along to help fight beholders. There are {@item Arrow of Slaying (Generic)||twelve arrows of beholder slaying} hidden behind a panel in the wall; the panel has been wizard locked.",
+								"A secret bottom in one of the desk drawers holds a wizard scroll with the following spells: {@spell greater restoration} (x2) and {@spell reincarnate}.",
+								"Inside a large vase is a vibrant purple prism. It is an {@item Ioun Stone, Reserve||ioun stone} that can store up to 12 spell levels. It currently contains a {@spell raise dead} and a {@spell resurrection} spell. Tobart may use these items as appropriate during the adventure."
 							]
 						},
 						{
@@ -618,7 +604,7 @@
 							"name": "3. Orb Room",
 							"entries": [
 								"The entrance to this room is a brass door sealed with a heavy bar, secured with a padlock with three keyholes that require three separate keys. Because of the way the locks are built, it is impossible to tell which way is locked and which way is unlocked, so the only way to pick the locks is by trial and error.",
-								"When encountered, the lock positions will be locked/unlocked/locked. As a thief picks each of the locks, simply note the change in position until he hits upon unlocked/unlocked/unlocked. A knock spell changes two positions from locked to unlocked, so the padlock opens unless it was triple locked at the time.",
+								"When encountered, the lock positions will be locked/unlocked/locked. As a thief picks each of the locks, simply note the change in position until he hits upon unlocked/unlocked/unlocked. A {@spell knock} spell changes two positions from locked to unlocked, so the padlock opens unless it was triple locked at the time.",
 								{
 									"type": "inset",
 									"name": "Read this to the players:",
@@ -709,10 +695,10 @@
 							"entries": [
 								"When the PCs first encountered him, Tobart was friendly and very persuasive. But once in space, he grows stern and condescending. The beholder mage views the PCs as a lesser race and cannot treat them as equals.",
 								"Like his crew, Tobart has some peculiarities that become evident after a day or two. These include:",
-								"{@b Frequent absences:} Although Tobart is the sole authority on the ship, he spends a lot of time in his cabin. This is because he has only a two-hour duration on his polymorph self spell and must retreat to his quarters to renew it. He also finds the human form repugnant and uncomfortable, so he spends as little time as possible as Tobart.",
+								"{@b Frequent absences:} Although Tobart is the sole authority on the ship, he spends a lot of time in his cabin. This is because he has only a two-hour duration on his polymorph spell and must retreat to his quarters to renew it. He also finds the human form repugnant and uncomfortable, so he spends as little time as possible as Tobart.",
 								"When he goes to his room, he slips on his ring of invisibility. When he shifts back into beholder form, the ring stays with him, and he remains invisible. While invisible, he uses his magic to renew his polymorph spell. He then removes the ring and goes back on deck. When he is resting, he goes to his secret room, turns invisible, and sleeps.",
 								"{@b Changing eye colour:} When Shazogrox casts spells, Tobart's eyes change colour to match the spellstalk he is using; each stalk has a different colour.",
-								"Since the beholder finds the human form repulsive, he does not use a mirror and has not discovered this flaw in his disguise. Any time he casts a spell, PCs get an Intelligence check to notice the change. Since Shazogrox does all of his spellcasting in private, they will not be able to link the colour change to spellcasting at first, but it must make them suspicious nonetheless.",
+								"Since the beholder finds the human form repulsive, he does not use a mirror and has not discovered this flaw in his disguise. Any time he casts a spell, PCs get a Perception check to notice the change. Since Shazogrox does all of his spellcasting in private, they will not be able to link the colour change to spellcasting at first, but it must make them suspicious nonetheless.",
 								"{@b Odd attitudes:} Should conversation turn to beholders, Tobart grows vehement in hatred, ranting on and on about these monsters and how much he despises them.",
 								"If asked why he hates them so, he adapts his werebear story, claiming that a beholder cursed him. If the PCs know that beholders cannot do this, he tells them it was a beholder mage, assuming they know of such creatures. If the PCs ask him what a beholder mage is, he is forced to explain, giving them a subtle clue to his true identity.",
 								"{@b Ways to discover Tobart's nature:} If detect magic is cast upon Tobart, he radiates strong magic, since he's a beholder mage. If PCs confront him with this, he gives his standard werebear excuse. If they cast dispel magic on him, it removes the polymorph self spell, causing him to revert to his true form.",
@@ -775,7 +761,7 @@
 							]
 						},
 						"The mysterious objects were part of the Hive's defences; they have been overcome over the years in past attacks. These devices were ships of a sort, each powered by an Orbus sealed into it during its creation, armed by the Arcane with powerful destructive enchantments to repel unwanted visitors.",
-						"The Orbi are all dead, and the ships are destroyed. But detect magic still reveals lingering magic of great power.",
+						"The Orbi are all dead, and the ships are destroyed. But {@spell detect magic} still reveals lingering magic of great power.",
 						"If Tobart is present, he nervously orders his men to shoot a ballista at one of the orbs. After a couple of tries, he is convinced they are inactive and orders the ship to approach. If asked about them, he says nothing more than, \"I think they are guardians of some kind.\"",
 						"If the Skyrunner approaches, it becomes obvious that the objects are damaged. The four in this area are rough and grey; the black spots are actually scorch marks, Two of them have ruptured, leaving the outer hull cracked and split. A pinkish tendril has oozed out of one of these cracks, the dangling appendage of a long-dead parasite.",
 						"What to do next? It seems that the charts were either inaccurate or misread, or that something has happened to the Hive. If the PCs are in charge, they most likely search the area or continue on their previous heading. Either way, they find the Hive.",
@@ -794,7 +780,7 @@
 						"The Hive is moving at one hex per turn. It never changes direction. It tumbles through a full circle rotation every half hour.",
 						"Its appearance, shocks and alarms those on board. Pick up the pace of the story. If Tobart is still in charge, he barks orders for a full stop. Ask everyone for their intentions as if running combat. Though the crew must hustle to avoid a collision, they are in no real danger.",
 						"When the crisis is over, the PCs can question Tobart. At this stage, he is willing to tell them a bit more about the Hive. He does not tell them about the nature of the Ravager or the Queen's Eyes, but he does say that the asteroid is home to the Ravager, the creature that threatens their homeworld.",
-						"Tobart also says they will be entering through a secret entrance. He produces the map that shows its location (see the description of the Skyrunner's steerage deck, Room 2). {@b Important:} Tobart must convey this information, for it is crucial to the PCs' success once Tobart is gone.",
+						"Tobart also says they will be entering through a secret entrance. He produces the map that shows its location (see the {@area 2>1>4||Skyrunner's steerage deck, Secret Room}). {@b Important:} Tobart must convey this information, for it is crucial to the PCs' success once Tobart is gone.",
 						"During this conversation, the captain comments that the approach has seemed too easy so far. If questioned on this point, he says that from what he has learned about this place, he was expecting more active guardians.",
 						{
 							"type": "inset",
@@ -811,7 +797,7 @@
 								"While the Skyrunner has been approaching the Hive, two beholder scout ships have been doing battle with its remaining defences. One of the ships has been destroyed by the device, which was subsequently destroyed by the second ship. This ship has continued on its course around the asteroid, only to encounter the Skyrunner.",
 								"These ships are the advance scouts for an expedition by the Greshtharx beholder nation, Shazogrox's former allies. The expedition's goal: to gain possession of the Queen's Eyes.",
 								"If Tobart is present, he senses the beholder ship before it is actually visible. He frantically orders the crew to battle stations. If anyone questions him, he becomes furious and shouts at them to do as he says. After this outburst, the scout ship becomes visible beyond the asteroid.",
-								"When he actually sees the beholder scout ship, Tobart goes absolutely berserk with hatred. He distributes six magical arrows of slaying that work against beholders; these are the arrows described in the Steerage Deck, Room 2, of the Skyrunner. Prompt the PCs to wonder how Tobart got such powerful magic. They may even need to use the bolts against him!"
+								"When he actually sees the beholder scout ship, Tobart goes absolutely berserk with hatred. He distributes {@item Arrow of Slaying (Generic)||twelve arrows of beholder slaying}; these are the arrows described in the {@area 2>1>4||Skyrunner's steerage deck, Secret Room}. Prompt the PCs to wonder how Tobart got such powerful magic. They may even need to use the bolts against him!"
 							]
 						},
 						{
@@ -860,12 +846,11 @@
 					"type": "section",
 					"name": "To Battle Beholders",
 					"entries": [
-						"This event takes place if the Skyrunner fights the beholder ship. The first part of the battle is a spelljamming duel between the two ships. If the PCs destroy the Tyrant Scout, it opens up and the six common beholders inside approach to battle individual PCs.",
+						"This event takes place if the {@sjship Skyrunner|SJ-WS} fights the beholder ship. The first part of the battle is a spelljamming duel between the two ships. If the PCs destroy the {@sjship Tyrant Scout|SJ-WS}, it opens up and the six common {@creature beholder||beholders} inside approach to battle individual PCs.",
 						{
 							"type": "entries",
 							"name": "Duel in Space",
 							"entries": [
-								"For a description of the beholder Tyrant Scout, consult the \"New Spelljamming Ships\" appendix.",
 								"Use the blank star-map from the box set. The beholders enter near the top right-hand edge; the PCs can enter from the left or bottom, anywhere within eight hexes of the lower left corner. The entire right side of the map is an arc, part of a circle 33 hexes (about ten miles) in diameter, that represents the Hive.",
 								"None of Tobart's shapeshifted animal crew understand the use of missile weapons, so they are of little use in long-range battle. Even so, the \"crew\" can make up ‘half a ballista crew, as long as one PC is present to give orders. The PCs' own missile weapons and the Skyrunner's ballistae prove the key to victory.",
 								"The beholder ship closes to three hexes so it can bring its weapon to bear. During the fight, it tries to maintain this range, so it can fire while staying just out of range of the heavy ballista.",
@@ -883,8 +868,8 @@
 							"name": "The Beholders Attack",
 							"entries": [
 								"Four to six PCs must fight six beholders. Dead PCs, right? Not necessarily.",
-								"First, the PCs have the arrows that instantly kill beholders. Second, the Tyrant Scout is a full three hexes away (1500 yards). Beholders have a movement rate of only 3, so it takes them several rounds to reach the Skyrunner. During this time, the PCs can pick them off with the ballistae, or possibly (since their ship is no longer neutralized) get the ship underway and outrun the stranded beholders.",
-								"{@b Beholder tactics:} When they first emerge, the six beholders array themselves in a group of four in a square and the other two at top and bottom, \"back to back to back,\" with eyes facing outward in all directions. This creates a complete anti-magic zone for 140 yards around them. The magical slaying arrows become normal arrows that do only normal damage.",
+								"First, the PCs have the arrows that instantly kill beholders. Second, the Tyrant Scout is a full three hexes away (4500 ft./1500 metres). Beholders have a movement rate of only 20 ft., so it takes them several rounds to reach the Skyrunner. During this time, the PCs can pick them off with the ballistae, or possibly (since their ship is no longer neutralized) get the ship underway and outrun the stranded beholders.",
+								"{@b Beholder tactics:} When they first emerge, the six beholders array themselves in a group of four in a square and the other two at top and bottom, \"back to back to back,\" with eyes facing outward in all directions. This creates a complete anti-magic zone for 150 ft. around them. The magical slaying arrows become normal arrows that do only normal damage.",
 								"Once the formation is broken, the slaying arrows work as intended if they can be fired from an angle not covered by any beholder's central eye.",
 								"When the larger formation is broken, surviving beholders pair off. Two float with their undersides touching, allowing them maximum eye coverage no matter what approach their opponents take."
 							]
@@ -893,7 +878,7 @@
 							"type": "entries",
 							"name": "Outcomes",
 							"entries": [
-								"If the PCs lose, go to Event 3. If the PCs win and no beholders survive, the PCs are ready to enter the Hive; skip directly to the next section. If the PCs win but some beholders survive, keep reading.",
+								"If the PCs lose, go to {@area Prisoners||Prisoners}. If the PCs win and no beholders survive, the PCs are ready to enter the Hive; skip directly to {@area The Biggest Dungeon||the next section}. If the PCs win but some beholders survive, keep reading.",
 								"If the PCs have killed two or more beholders with arrows of slaying, the surviving beholders try to bargain for their lives or, if absolutely necessary, surrender. These captives speak the PCs' language flawlessly and can give the PCs clues, listed below. Do not volunteer this information, but give it if the players ask.",
 								"Although these beholders have come in search of an artefact contained within the Hive, they do not mention this unless forced. If pressured into speaking of the artefact, they can only guess that it is a powerful weapon, which would explain the presence of \"the outcast\" (Tobart), but they have no idea what it might be.",
 								{
@@ -942,7 +927,7 @@
 					"type": "section",
 					"name": "Into the Hive",
 					"entries": [
-						"The Hive's brass dome proves impenetrable, as though permanently enchanted with a wall of force.",
+						"The Hive's brass dome proves impenetrable, as though permanently enchanted with a {@spell wall of force}.",
 						"With the help of Tobart's map, the PCs can find a \"back door,\" a secret tunnel built by the Arcane when they provided this asteroid to the Sazaur. They gain entry to the vast complex, first encountering the last remaining defences and a workshop left behind by the Arcane.",
 						{
 							"type": "entries",
@@ -1007,7 +992,14 @@
 			"name": "The Biggest Dungeon",
 			"entries": [
 				"In this chapter, the PCs explore the interior of the Hive. The Sazaur beholders (aided by the Arcane) tunnelled out this asteroid with their disintegration rays, creating a series of colossal interior chambers. The rooms work as a dungeon of sorts, suited to the large scale of outer space: Each room measures over two miles on a side!",
-				"A large colour map included in this module depicts the giant asteroid dungeon and offers an overview of the complex.",
+				{
+					"type": "image",
+					"href": {
+						"type": "internal",
+						"path": "adventure/SJ-WS/asteroid.jpg"
+					},
+					"title": "The Hive (Outside View)"
+				},
 				"The Hive served as a combined construction site and temple, where the Sazaur beholders built the Ravager and also enacted magical rites vital to its construction. Since the original beholder nation perished, the Queen's Eyes have increased in power, so much that they have developed a limited sentience. Now they exist as \"Incarnations,\" NPC embodiments-of their original powers.",
 				"The PCs can explore the Hive to learn about the Ravager and its purpose. Each room also provides a mini scenario involving its unique Incarnation. And while the PCs adventure in the Hive, Jon Tobart is trying to restore the Hive's ancient functions and control the Ravager.",
 				"This chapter includes room-by-room descriptions of the Hive. The next chapter describes events that ensue once the PCs enter the Hive.",
@@ -1023,9 +1015,9 @@
 							"name": "The Crystals",
 							"entries": [
 								"In each room, the light source and the focus for the room's sympathetic magic is a giant, glowing crystal that hovers in the middle of the room. The crystal is shaped like a decahedron (a ten-sided die, in gaming terms) and measures 50 yards from point to point. The crystals were created by the Arcane.",
-								"{@b Function:} Each crystal focuses and purifies the sympathetic magic in its room, then relays it to the Queen's Eye in that room. The light is an intentional by-product of the magic. At its strongest intensity,a crystal gives light equivalent to that of the Sun on a bright summer day. Sometimes a crystal may cast a different light; see the individual room descriptions for details.",
+								"{@b Function:} Each crystal focuses and purifies the sympathetic magic in its room, then relays it to the Queen's Eye in that room. The light is an intentional by-product of the magic. At its strongest intensity, a crystal gives light equivalent to that of the Sun on a bright summer day. Sometimes a crystal may cast a different light; see the individual room descriptions for details.",
 								"The giant crystals also serve as parts of the Ravager. As shown in Chapters 5 and 6, the Ravager's shape is that of a giant beholder. When the Ravager assembles, the inner sleeve of the tunnel to each room detaches and turns into a giant eyestalk. Each eyestalk grasps the crystal decahedron in its room, and the crystals become the Ravager's ten smaller \"eyes.\" For more information, see the next chapter.",
-								"{@b Composition:} The crystals are made of what appears to be diamond. Unusually strong and sturdy, the crystals save as rock crystal on the Item Saving Throws table (DMG, Table 29, p. 39), except that their saving throw vs. Crushing Blows and Falling is 3. A failed saving throw cracks and destroys one of the crystal's ten facets, producing ldlO x 10 fragments of (apparent) jewel quality.",
+								"{@b Composition:} The crystals are made of what appears to be diamond. TODO: Unusually strong and sturdy, the crystals save as rock crystal on the Item Saving Throws table (DMG, Table 29, p. 39), except that their saving throw vs. Crushing Blows and Falling is 3. A failed saving throw cracks and destroys one of the crystal's ten facets, producing ldl0 x 10 fragments of (apparent) jewel quality.",
 								"But this clear, gem-like substance has no commercial value; even if PCs could move the gigantic crystals, they turn to glass when removed from the Hive or the Ravager for more than one hour."
 							]
 						},
@@ -1037,7 +1029,7 @@
 								"But in the eight centuries or more since the Ravager destroyed the beholders that created it, the process of making the artefact has gone slightly awry. Each of the smaller eyes has gathered so much magical energy that it has organized itself into a self-aware intellect. These \"Incarnations\" function as obstacles to the PCs in their attempts to defeat the Ravager.",
 								"Each of the following room descriptions (except the last) features one unique Incarnation that controls its room. This section discusses the features they share in common, and it starts with a brief description of the process of sympathetic magic in the Hive.",
 								"{@b Sympathetic magic:} This well-known principle of magic maintains that \"like produces like.\" That is, a small effect can produce a larger but similar magical effect.",
-								"Many of the material components of spells use sympathetic principles. For example, the basic light spell requires a firefly or a bit of phosphorescent moss, both light-generating objects. When harnessed to a magical spell, these small objects produce a much larger magical light, by the principle of sympathetic magic. (For details see \"The Nature of Magical Fabrication,\" DMG, p. 84.)",
+								"Many of the material components of spells use sympathetic principles. For example, the basic light spell requires a firefly or a bit of phosphorescent moss, both light-generating objects. When harnessed to a magical spell, these small objects produce a much larger magical light, by the principle of sympathetic magic.",
 								"In the Hive, the master wizards among the Arcane designed and constructed each room to produce powerful sympathetic magic on a colossal scale. Nearly everything in a room was planned to produce a given emotion, frame of mind, or spell-like effect. The room's atmosphere, its \"aura,\" pervaded the room's central crystal. The crystal purified the enchantment created through sympathetic magic, then transmitted it to the room's eye. The eye thus gained the magical aspect of that room's environment.",
 								"{@b Self-awareness:} Since the Hive's creators did not survive to supervise this process, it has gone awry and created an unforeseen effect: The smaller eyes have gradually evolved intellects of sorts. Each has become an elemental Incarnation of its power: for example, the fear eye has become an embodiment of fear, and it exists only to feed from fear.",
 								"In this way, the sympathetic magic process perpetuates itself ever more strongly. The original enchantment powers the eye; the eye's Incarnation actively furthers the conditions of the room toward more extreme embodiments of its power; this increases the power of the room's sympathetic magic, creating a vicious circle. Since the eyes came from a beholder (an evil being), their Incarnations are all evil by nature.",
@@ -1046,7 +1038,8 @@
 								"On the other hand, each Incarnation can polymorph self freely, in order to more effectively achieve its desired effect of sympathetic magic. However, the Queen's Eye is always obvious and can be attacked, regardless of the form the Incarnation takes.",
 								"Each Incarnation communicates telepathically, as though wearing a helm of telepathy (DMG, p. 171). The only differences are that this ability cannot be detected magically, and it allows the Incarnation to communicate with any sentient being, ignoring language barriers.",
 								"{@b Fighting the Incarnations:} In each room, the PCs' task is to find and recognize the Incarnation (sometimes not an easy task), defeat it, and destroy the eye. This may produce a calamity in the room. The individual room descriptions note the effects, if any, of destroying their Incarnations.",
-								"{@b For saving throws, THACO, etc., treat each Incarnation as a 20th-level wizard}, unless the individual Incarnation description notes otherwise."
+								"{@b For saving throws, to hit, etc., treat each Incarnation as a 20th-level wizard}, unless the individual Incarnation description notes otherwise.",
+								"TODO: attributes for incarnations?"
 							]
 						}
 					]
@@ -1057,6 +1050,14 @@
 					"entries": [
 						"This spherical room, about five miles across, is the formation chamber for the Ravager. The great device assembles itself for each mission of destruction, then disassembles itself to distribute its newly-acquired magical energy to the various Queen's Eyes.",
 						"Since this is the biggest and the centrally located room, it is numbered 1 for convenience. Actually, the PCs have already explored some other room before entering this one, probably Room 2 (see its description in this chapter).",
+						{
+							"type": "image",
+							"href": {
+								"type": "internal",
+								"path": "adventure/SJ-WS/room1.jpg"
+							},
+							"title": "The Hive (Room 1)"
+						},
 						{
 							"type": "entries",
 							"name": "Entering the Room",
@@ -1085,7 +1086,7 @@
 								"Gravity in this chamber pulls outward. No matter where the PCs stand in the sphere, they always feel they are at the bottom looking up, as though in an enormous fish-bowl.",
 								"The light source is the Hive's major crystal decahedron, the one attuned to the principal Queen's Eye. The crystal hovers in the passage between this room and Room 12. Because of its position, the sphere's light varies between the intensity of noon (at the opposite end of the sphere) and sunset (near the crystal's passage). For half a mile around the passage itself, the crystal cannot be seen, and its light lends only a twilit dimness to the area.",
 								"The crystal and the passage are both described in the section for Room 12.",
-								"The crystal also casts a longer-range version of the beholder's anti-magic ray; its radius is one mile. However, because of the diluting effect of this tremendous range, the anti-magic effect is reduced to that of a minor globe of invulnerability. This functions like the power of the primary Queen's Eye; for details, see the \"New Magic\" appendix.",
+								"The crystal also casts a longer-range version of the beholder's anti-magic ray; its radius is one mile. However, because of the diluting effect of this tremendous range, the anti-magic effect is reduced to that of a {@spell globe of invulnerability} that only blocks magic level 3 or lower. This functions like the power of the primary {@area The Queen's Eyes||Queen's Eye}.",
 								"The pits are the tunnels to the smaller rooms, as described at the beginning of this chapter. The huge brown slabs are murals that depict the history of the Sazaur, the Queen's Eyes, and the Ravager. The silver stalks are the dead remains of the silver slimes that maintained the asteroid. The dead stalks smell like burnt gunpowder.",
 								"The slimes are explained later."
 							]
@@ -1096,7 +1097,7 @@
 							"entries": [
 								"The central chamber is just under five miles across. Its 25 murals each measure roughly one mile by one-half mile. Passages to other rooms are 100 yards across; the great passage to Room 12 measures 1.7 miles from side to side and tunnels one-tenth of a mile into that end of the sphere. The crystal that lights the room is 100 yards in diameter.",
 								"For all its stupendous size, this room is essentially empty-right now. Except for the details which follow and appear on the adventure cover, there is no sign of the Ravager nor any occupants, and there are no random encounters in this room. But why is the air so fresh? Why is the room so clean?",
-								"{@b The silver slimes:} The answer lies in these odd fungus-like maintenance monsters, described in the appendix.",
+								"{@b The silver slimes:} The answer lies in these odd {@creature silver slime|SJ-WS|fungus-like maintenance monsters}.",
 								"The amoeboid blobs scavenge the area for all trash and organic material. In their plant-like \"sporangia\" phase they photosynthesise, absorbing the central crystal's light and cleaning the air.",
 								"Now that nothing has occupied the central sphere for a long time, most of the silver slimes have died in this room. Their only remains are the stalks that the PCs find between the murals. Living colonies still survive in the smaller rooms. This only adds to the mystery facing the PCs.",
 								"Many slimes survive in this chamber in their long-lived \"macrocyst\" stage. The DM can introduce these as desired; they become important in the adventure's last chapter. For more information, see the monster description in the appendix.",
@@ -3172,6 +3173,76 @@
 			"type": "section",
 			"name": "Appendix B: Magic",
 			"entries": [
+				{
+					"type": "section",
+					"name": "Infinite Rope",
+					"entries": [
+						"Many versions of this useful item appear throughout the spheres. An infinite rope, since it can be nearly any length needed, proves valuable to climbers, miners, and spacefarers.",
+						"Only the rarest infinite ropes are truly infinite length. The great majority (99%) reach only a finite length. Usually, a rope can stretch to a maximum of slightly over one mile for each foot of its original length. However, wide variation among ropes is possible.",
+						"Depending on the manufacturer of the item, the rope can be of many different varieties, from thin cord to a six-inch thickness. Very rarely the rope has other properties; elven rope and combination infinite and climbing ropes are obviously useful. The initial length of the rope also varies considerably, from one- or two-foot \"pocket models\" to the standard 50-foot coil.",
+						"Each rope stretches when the user speaks a unique command word and pulls. When the command word is spoken a second time, the rope stops stretching and can be anchored and used normally. The speaker must be touching the rope when using the command.",
+						"Speaking a second unique command word causes the rope to return to its original size, shrinking 10' per round. The shrinking can be halted by speaking the second command word again. If the rope has been tied, it automatically unties itself unless the knot is secured with an {@spell arcane lock} or other magical protection. It is risky to use the rope in long-term applications.",
+						"The rope cannot be used to compress or crush. If it is kept from retracting, the rope stops at the length where it met the resistance. The rope must then save (DC 10); if it fails, it snaps and is destroyed. When the command word is spoken again, it tries to retract again. It keeps doing so every time the command word is used until the resistance is removed.",
+						"The Skyrunner's rope uses the word \"extrolarias\" to stretch and \"introlarias\" to retract. Jon Tobart uses the rope solely as a mooring hawser for the ship's anchor."
+					]
+				},
+				{
+					"type": "section",
+					"name": "The Queen's Eyes",
+					"entries": [
+						"These 11 eyes are the surviving relics of the Sazaur Mother who led her nation in glorious genocide of other beholder nations. The eyes' innate powers have grown enormously in their 800 years within the Hive.",
+						"The Sazaur Queen, evidently a mutation, was enormous even by beholder standards. The size of the eyes illustrates this: The central eye measures three feet across, and the smaller ones are the size of soccer balls. All are leathery in texture like mummy skin, tan in colour like aged parchment, and wrinkled with thick, ropey veins. The irises of the eyes are faded red.",
+						{
+							"type": "entries",
+							"name": "Configuration",
+							"entries": [
+								"All of the Queen's Eyes together compose a single powerful item on the verge of true artefact status. Until it achieves that status, the eyes can be destroyed like any magical item.",
+								"When the wielder of the primary eye wills, the ten smaller eyes {@spell teleport} to its location. The small eyes orbit rapidly around the central eye. The more power the item exerts, the faster the small eyes revolve.",
+								"The wielder can summon some eyes and not others. The small eyes teleport back to their previous locations when the wielder desires. No small eye can summon the other eyes.",
+								"In their special rooms in the Hive, the smaller eyes have developed self aware Incarnations and unique powers. But when summoned, they temporarily lose this consciousness and revert to ordinary items with the powers listed below."
+							]
+						},
+						{
+							"type": "entries",
+							"name": "Minor Powers",
+							"entries": [
+								"The effects of the ten small eyes can be used as often as the wielder desires, except that only one power per round can be used. The wielder can do nothing else while using the power. These powers work only when the small eyes are orbiting the primary eye.",
+								"When the wielder's spellcasting DC becomes important, treat the spell as if it has a save DC of 20 or the owners primary spellcasting DC, whichever is higher. When the wielder's spellcasting attack modifier becomes important, treat the spell as if it has an attack bonus of +10 or the owners primary spellcasting attack modifier, whichever is higher.",
+								"When the wielder's spellcasting level becomes important, treat the spell as if it has a save DC of 20,  were cast by a 20th-level wizard. All these powers have a maximum range of 300 ft.",
+								"{@b 1. Charm person:} This eye casts {@spell charm person} as if using a level 9 spell slot. The spell works only against targets that can be charmed.",
+								"{@b 2. Charm monster:} This eye casts {@spell charm monster|XGE} as if using a level 9 spell slot, but works against any living, non-humanoid creature.",
+								"{@b 3. Sleep:} This eye generates a magical {@spell symbol}, causing sleep. This symbol, and the others below, appears on some body part of the potential victim(s).",
+								"{@b 4. Telekinesis:} This eye projects {@spell telekinesis}.",
+								"{@b 5. Flesh to stone ray:} This eye projects {@spell flesh to stone}",
+								"{@b 6. Disintegrate:} This eye projects {@spell disintegrate}",
+								"{@b 7. Fear:} Generates a {@spell symbol} of fear.",
+								"{@b 8. Slow:} This eye casts {@spell slow}.",
+								"{@b 9. Cause Serious Wounds:} This eye casts {@spell inflict wounds} as if cast using a level 3 spell slot.",
+								"{@b 10. Death ray:} This eye casts {@spell circle of death}."
+							]
+						},
+						{
+							"type": "entries",
+							"name": "Major Powers",
+							"entries": [
+								"The antimagic ray of the central eye affects the entire area for one mile around, in all directions. The direction of the eye's pupil is irrelevant. However, it works similarly to a {@spell Globe of Invulnerability}, except it only blocks spells of 3rd level or lower. Only six inches of lead or several feet of stone can block this effect.",
+								"The ray is active all the time, unless the wielder specifically wills it to deactivate. If the wielder loses consciousness or control of the eye, the ray reactivates.",
+								"The item's powers inflict especially great destruction against beholders. Beholders receive no saving throws against any of the minor powers above. This makes the Queen's Eyes all the more fearsome and desirable to the beholder nations."
+							]
+						},
+						{
+							"type": "entries",
+							"name": "Dangers",
+							"entries": [
+								"In addition to the usual corrupting effects of any artefact (or neo-artefact, in this case), the Queen's Eyes have several disadvantages.",
+								"{@b Alignment change:} The wielder becomes lawful evil as soon as one of the central eye's major powers is used. The wielder attempts to conceal the alignment change (if any) until all who knew his or her former alignment are dead. The wielder happily tries to expedite this.",
+								"{@b Fragility:} A wielder using the powers risks \"shorting out\" the relic. Until they achieve true artefact status, the Queen's Eyes remain fragile, especially outside the Hive. At dramatic points in the adventure, one of the smaller eyes malfunctions as the wielder tries to use it; most likely, as Tobart tries to vaporize the PCs. The eye burns away into worthless ash, destroyed by the powerful energy coursing through it.",
+								"Thereafter, each of the other small eyes disintegrates at an appropriate time. If the PCs gain control of the Queen's Eyes, the characters can use them to wipe out a few leftover Tyrant Ships in the adventure's finale. But the deterioration process continues inexorably. This gives the DM a handy excuse to take this powerful device out of the PCs' hands after they have achieved the goal of the adventure.",
+								"{@b Transformation:} Every time a non-beholder wielder uses any power, the DM makes a secret wisdom saving throw (DC 10) for the character. The first time, the roll is unmodified. Each subsequent time, the wielder incurs a cumulative -1 penalty to the saving throw. If and when the wielder fails a saving throw, he or she is permanently {@spell polymorph||polymorphed} into a beholder!"
+							]
+						}
+					]
+				}
 			]
 		},
 		{

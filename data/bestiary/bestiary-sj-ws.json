@@ -5,7 +5,7 @@
 			"group": "Beholders",
 			"size": "M",
 			"type": "aberration",
-			"source": "SJ",
+			"source": "SJ-WS",
 			"alignment": [
 				"N",
 				"E"
@@ -147,7 +147,7 @@
 			"group": "Beholders",
 			"size": "M",
 			"type": "aberration",
-			"source": "SJ",
+			"source": "SJ-WS",
 			"alignment": [
 				"N",
 				"E"
@@ -282,6 +282,61 @@
 				"P",
 				"N",
 				"O"
+			]
+		},
+		{
+			"name": "Silver Slime",
+			"size": "M",
+			"type": "plant",
+			"source": "SJ-WS",
+			"alignment": [
+				"U"
+			],
+			"ac": [
+				{
+					"ac": 11,
+					"from": [
+						"natural armor"
+					]
+				}
+			],
+			"hp": {
+				"average": 65,
+				"formula": "10d10 + 10"
+			},
+			"speed": {
+				"walk": 10
+			},
+			"str": 15,
+			"dex": 6,
+			"con": 13,
+			"int": 1,
+			"wis": 1,
+			"cha": 1,
+			"conditionImmune": [
+				"prone",
+				"blinded",
+				"deafened",
+				"exhaustion",
+				"charmed"
+			],
+			"senses": "blindsight 10 ft.",
+			"passive": 5,
+			"cr": "1/2",
+			"action": [
+				{
+					"name": "Punch",
+					"entries": [
+						"{@atk mw} {@hit 2} to hit, reach 5 ft., one target. {@h}13 ({@damage 3d8}) bludgeoning damage."
+					]
+				}
+			],
+			"page": 0,
+			"senseTags": [
+				"BS"
+			],
+			"damageTags": [
+				"B"
 			]
 		}
 	]
