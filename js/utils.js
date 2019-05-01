@@ -539,10 +539,18 @@ Parser.getAbilityModifier = function (abilityScore) {
 	return modifier;
 };
 
+function feetToMetres (val) {
+	return val / 5 * 1.5;
+}
+
 Parser.getSpeedString = (it) => {
 	function procSpeed (propName) {
 		function addSpeed (s) {
-			stack.push(`${propName === "walk" ? "" : `${propName} `}${getVal(s)} ft.${getCond(s)}`);
+			if (Renderer.metric) {
+				stack.push(`${propName === "walk" ? "" : `${propName} `}${feetToMetres(getVal(s))} m.${getCond(s)}`);
+			} else {
+				stack.push(`${propName === "walk" ? "" : `${propName} `}${getVal(s)} ft.${getCond(s)}`);
+			}
 		}
 
 		if (it.speed[propName] || propName === "walk") addSpeed(it.speed[propName] || 0);
@@ -571,7 +579,11 @@ Parser.getSpeedString = (it) => {
 		}
 		return stack.join(joiner);
 	} else {
-		return it.speed + (it.speed === "Varies" ? "" : " ft. ");
+		if (Renderer.metric && typeof it.speed === "number") {
+			return feetToMetres(it.speed) + (it.speed === "Varies" ? "" : " m. ");
+		} else {
+			return it.speed + (it.speed === "Varies" ? "" : " ft. ");
+		}
 	}
 };
 
@@ -2702,13 +2714,12 @@ MiscUtil = {
 		}
 	},
 
-	MONTH_NAMES: [
-		"January", "February", "March", "April", "May", "June",
-		"July", "August", "September", "October", "November", "December"
-	],
 	dateToStr (date, short) {
-		const month = MiscUtil.MONTH_NAMES[date.getMonth()];
-		return `${short ? month.substring(0, 3) : month} ${date.getDate()}, ${date.getFullYear()}`;
+		return date.toLocaleDateString(undefined, {
+			day: "numeric",
+			month: short ? "short" : "long",
+			year: "numeric"
+		});
 	},
 
 	findCommonPrefix (strArr) {

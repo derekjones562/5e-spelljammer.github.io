@@ -6486,6 +6486,7 @@ Renderer.HEAD_1 = "rd__b--2";
 Renderer.HEAD_2 = "rd__b--3";
 Renderer.HEAD_2_SUB_VARIANT = "rd__b--4";
 Renderer.DATA_NONE = "data-none";
+Renderer.metric = false;
 
 if (typeof module !== "undefined") {
 	module.exports.Renderer = Renderer;

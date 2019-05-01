@@ -159,7 +159,7 @@
 						"If the PCs want to try the climb, have them make an Intelligence check. If anyone makes it, the DM should point out that they have no idea how long the rope really is. If anyone makes the check by 2 or more, they realize just how brutal the swaying rope would be.",
 						"Even so, reckless PCs may still attempt the climb. Have them make Strength and Dexterity ability checks with a bonus or penalty from -3 to +3 for preparation or lack thereof. Anyone who fails either check falls, despite any precautions they took (safety ropes snap, characters tied together go down together, etc.).",
 						"{@b Falling:} To determine the height of the character when he falls, roll a d10 four times and multiply the results together. This is the distance fallen in feet. (For example, rolls of 5, 3, 8, and 7 give a height of 5 x 3 x 8 x 7 = 840 feet.)",
-						"Damage is ld6 for every 10 feet fallen, to a maximum of 20d6 (terminal velocity). Since the average fall calculated by this method is about 915‘, it is safe to assume terminal velocity.",
+						"Damage is ld6 for every 10 feet fallen, to a maximum of 20d6 (terminal velocity). Since the average fall calculated by this method is about 915', it is safe to assume terminal velocity.",
 						"{@b Magic:} If the characters have the proper spells or items, they can fly or levitate upward alongside the rope. They might have difficulty avoiding the swaying rope; require a Dexterity check (more if you feel they are warranted). A failed check means the rope hits the character for ld4 points of damage.",
 						"{@b Success:} If they reach the top of the rope, the PCs find themselves on the main deck of the Skyrunner. Go to {@area 1>4||sailors come ashore}."
 					]
@@ -219,7 +219,7 @@
 									"type": "inset",
 									"name": "Read the following aloud:",
 									"entries": [
-										"The huge man must be over seven feet tall. He wears full plate armour, along with an enormous shield strapped to his back. His face looks like something pushed it in and stepped on it. He walks stiffly, and he smells of heavy perfume. He hasn‘t said anything."
+										"The huge man must be over seven feet tall. He wears full plate armour, along with an enormous shield strapped to his back. His face looks like something pushed it in and stepped on it. He walks stiffly, and he smells of heavy perfume. He hasn't said anything."
 									]
 								},
 								"This is {@area Stonecrop||Stonecrop}, a flesh golem that Jon Tobart employs as a bodyguard. Stonecrop obeys only Shazogrox/Tobart. Though unarmed now, Stonecrop sometimes carries a mace because his master orders it; however, the golem cannot use it. The perfume, of course, masks the odours of earth and flesh, but not too well. Any PC can detect them with a successful perception check, and animals always detect the odours.",
@@ -626,7 +626,7 @@
 					"name": "1. Setting Sail",
 					"entries": [
 						"Pick up the adventure where it left off at the end of Chapter I ,just as the PCs arrive aboard ship. Using a large windlass, Stonecrop draws up the infinite rope, while Jon Tobart pronounces the rope's word of contraction (\"introlarias\"). The rope shrinks as the golem draws it aboard. Though it is slow work, eventually the anchor is decked.",
-						"Tobart uses the waiting time to show the PCs around the ship, if they desire (omitting the secret areas described above); to tell the new recruits about the ship‘s routine (see below); and to serve them a bland but filling meal from the galley.",
+						"Tobart uses the waiting time to show the PCs around the ship, if they desire (omitting the secret areas described above); to tell the new recruits about the ship's routine (see below); and to serve them a bland but filling meal from the galley.",
 						"What Tobart neglects to mention is that the ship gets underway before the anchor is fully retracted. The crew have their orders; they set forth while the PCs are below with Tobart. The PCs come above deck to a rude surprise; see the next subsection for details.",
 						{
 							"type": "entries",
@@ -656,7 +656,7 @@
 					"entries": [
 						"Once he has everything under control, Tobart apologizes for the deception, claiming that he feared the PCs would not accompany him if they knew the truth. He doubted they would even believe him.",
 						"If the characters seem suspicious, he claims that he tried to recruit a party in another town, but when he told them about Wildspace, they thought him mad and drove him out. (False.)",
-						"Assuming things settle down, Tobart explains his objective. The Ravager, he says, is a monster that dwells in space. It can annihilate entire planets, and it is heading toward the PCs' homeworld. But it has been weakened by earlier battles, Tobart says. If they attack it, the Skyrunner‘s crew can defeat it before it heals itself.",
+						"Assuming things settle down, Tobart explains his objective. The Ravager, he says, is a monster that dwells in space. It can annihilate entire planets, and it is heading toward the PCs' homeworld. But it has been weakened by earlier battles, Tobart says. If they attack it, the Skyrunner's crew can defeat it before it heals itself.",
 						"If the PCs ask about earlier battles, Tobart launches into a long discourse about the various races of space (conveniently omitting beholders), their ships, and their armaments. He moves lightly into exposition about the principles of spelljamming: helms, gravity planes, air envelopes and so on.",
 						"This serves two purposes. First, it conveys the basics of fantasy space. Second, it diverts the PCs' interest from several troublesome points that Tobart would rather not discuss, such as the exact nature of the Ravager.",
 						{
@@ -852,7 +852,7 @@
 							"name": "Duel in Space",
 							"entries": [
 								"Use the blank star-map from the box set. The beholders enter near the top right-hand edge; the PCs can enter from the left or bottom, anywhere within eight hexes of the lower left corner. The entire right side of the map is an arc, part of a circle 33 hexes (about ten miles) in diameter, that represents the Hive.",
-								"None of Tobart's shapeshifted animal crew understand the use of missile weapons, so they are of little use in long-range battle. Even so, the \"crew\" can make up ‘half a ballista crew, as long as one PC is present to give orders. The PCs' own missile weapons and the Skyrunner's ballistae prove the key to victory.",
+								"None of Tobart's shapeshifted animal crew understand the use of missile weapons, so they are of little use in long-range battle. Even so, the \"crew\" can make up 'half a ballista crew, as long as one PC is present to give orders. The PCs' own missile weapons and the Skyrunner's ballistae prove the key to victory.",
 								"The beholder ship closes to three hexes so it can bring its weapon to bear. During the fight, it tries to maintain this range, so it can fire while staying just out of range of the heavy ballista.",
 								{
 									"type": "inset",
@@ -1003,6 +1003,83 @@
 				"The Hive served as a combined construction site and temple, where the Sazaur beholders built the Ravager and also enacted magical rites vital to its construction. Since the original beholder nation perished, the Queen's Eyes have increased in power, so much that they have developed a limited sentience. Now they exist as \"Incarnations,\" NPC embodiments-of their original powers.",
 				"The PCs can explore the Hive to learn about the Ravager and its purpose. Each room also provides a mini scenario involving its unique Incarnation. And while the PCs adventure in the Hive, Jon Tobart is trying to restore the Hive's ancient functions and control the Ravager.",
 				"This chapter includes room-by-room descriptions of the Hive. The next chapter describes events that ensue once the PCs enter the Hive.",
+				{
+					"type": "entries",
+					"name": "Description",
+					"entries": [
+						{
+							"type": "entries",
+							"name": "Overview",
+							"entries": [
+								"The Hive asteroid measures about ten miles in diameter. The chambers inside, though, total about 300 square miles in area!",
+								"{@b Gravity:} The discrepancy arises because gravity pulls \"down\" on each surface of the rooms, making all surfaces inhabitable. Walls and ceilings do not exist here; every surface is a floor",
+								"Gravity in the Hive does not generally interfere with spelljammer piloting. The only effect comes when a ship \"turns a corner,\", floating from one surface over to a perpendicular one. Gravity tends to pull the ship gently upright relative to the surface.",
+								"This should never lead to danger or confusion; it should only make the immediate landscape look more familiar, in contrast to the bizarre overall setting.",
+								"{@b Atmosphere:} The entire Hive is filled with fresh, unusually sweet, breathable air. Near surfaces, the pressure is normal, but in the empty spaces at each room's centre the air becomes quite thin, about the same as on a high mountain.",
+								"The air remains fresh because of the recycling ability provided by a maintenance creature, the {@creature|silver slime|SJ-WS|}. PCs encounter this new life form frequently in the Hive.",
+								"{@b Temperature:} Inside the asteroid, the air is always cool. Next to surfaces, it is as warm as a brisk autumn day. The air becomes colder at the centre of each room, where the characters can see their breaths and may shiver a bit",
+								"{@b Light:} Most of the asteroid complex is well lit by means described below. Individual room descriptions note differences to the norm.",
+								{
+									"type": "entries",
+									"name": "Size and Layout",
+									"entries": [
+										"If the arrangement of the sphere and ten connecting tunnels brings to mind the arrangement of a beholder's body and ten connected eyestalks, that's exactly right. Each of the ten smaller rooms serves as home for one of the Queen's Eyes and as the construction area for one giant eyestalk of the Ravager, a creature shaped like an enormous beholder.",
+										"By sympathetic magic, each room imbues its Queen's Eye with a power resembling the corresponding eyestalk on a real beholder. Each room's imbuing mechanism is described in this chapter",
+										"Connecting the central sphere and each room are round tunnels about 100 metres wide. For a description of these tunnels, see below.",
+										"The final chamber, Room 12, holds the largest of the Queen's Eyes, the neo-artefact. Once this ritual chamber held thousands of beholders, the entire Sazaur nation. But the Ravager destroyed them on its first mission, and now the room is empty. Empty, that is, until Captain Jon Tobart deserts the PCs, makes his way there, and gains control of the Eye!"
+									]
+								}
+							]
+						},
+						{
+							"type": "entries",
+							"name": "Tunnels",
+							"entries": [
+								"Cylindrical passages connect the central sphere and the smaller rooms. These tunnels, dark and empty, actually serve two purposes. They allow the PCs to pass between the rooms, of course, either on foot or by spelljammer. But the tunnels also form the eyestalks of the Ravager.",
+								"How? Though it is not apparent to the PCs, a thick sleeve extends beyond the walls and into the air of the smaller room. When the Ravager assembles itself into a gigantic beholder, the sleeves slide loose from their tunnels, move into the central sphere, and attach themselves to the Ravager's spherical body.",
+								"{@b Size:} Each cylindrical tunnel measures about 100 metres in diameter and extends 1,000 metres.",
+								"The sleeve inside the tunnel is four feet thick, and extends another 500 metres, thrusting into the room like a pillar. Neat the end of its length, the sleeve abruptly narrows like a funnel. The funnel opening is only 50 metres across; still plenty of clearance for a spelljamming ship.",
+								"The narrowing of the sleeve becomes important when the Ravager is assembled.",
+								"{@b Appearance:} All of the tunnels look alike. None are lit, except by the lights at each end.",
+								{
+									"type": "inset",
+									"name": "Read this description the first times the PCs enter a tunnel:",
+									"entries": [
+										"This is a gigantic cylindrical tunnel, maybe a hundred metres wide. It's so large that sounds don't even cause echoes. The air here smells very fresh",
+										"The tunnel stretches in a straight line as far as you can see\u2014which isn't far, because it's dark. But you can clearly make out a circle of white light at the far end. When you hold your hand at arm's length, you can just about cover the circle with your thumbnail. It might be a hundred metres away or a mile.",
+										"In the light from the entrance you can see that the tunnel's wall is made of some kind of black stone with glints of silver and grey. It seems to be heavily carved with pictures or symbols."
+									]
+								},
+								"The tunnel sleeve is black basalt, a hard, dense rock. The silver glints, delicate traceries in the stone, indicate repairs of fractures by the Hive's maintenance creatures, the {@creature silver slime|SJ-WS|silver slimes}. The slimes also keep the air fresh.",
+								"Every tunnel is densely carved throughout its length with stone carvings in high relief made by the Sazaur beholders and the Arcane. They depict abstract, hieroglyphic-like shapes; circles, cubes, beholder silhouettes, and above all, eyes. These represent the Queen's Eyes, of course",
+								"During the tunnel journeys, the DM may with to stage encounters with the silver slimes in their blob and plasmodium stages. The small blobs scavenge the tunnel for dust and waste, and the larger ones repair cracks.",
+								"{@b Gravity in the sleeves:} The Arcane manipulated the gravity planes inside the Hive to allow easy travel through the tunnels. Because of this, the gravity inside the sleeves lets PCs stand upright on any surface of the tunnel. Also, spelljamming ships can sail normally up the tunnel in any orientation, just as in space.",
+								"The gravity manipulation only works inside the tunnels. On the outer surfaces of the sleeves, gravity pulls \"downward\" normally toward the planes of the rooms. So a PC could walk out to the brink of a tunnel sleeve; stand over the brink; and immediately plummet 500 metres along the outside of the sleeve!",
+								"Emphasize these spatial distortions. They help create a sense of strangeness as the PCs explore the Hive.",
+								"{@b Damaging the sleeves:} The sleeves are ordinary rock and can be destroyed or damaged like rock crystal.",
+								"At the DM's option, the carvings may be part of the enchantment that maintains the peculiar gravity in the sleeves. Eradicating or destroying a group of symbols may eliminate or change the gravity in that area, perhaps bringing it in line with the gravity plane of the surrounding area. Since the effects vary widely according to the PCs' location, specific effects are left to the DM.",
+								{
+									"type": "entries",
+									"name": "Protective Wards",
+									"entries": [
+										"Each smaller room's tunnel extends into the room, as described above. From inside its room, however, the entrance is magically warded to prevent that room's inhabitants from escaping.",
+										"From the interior of the room, the tunnel entrance is guarded by consecutive layers of permanent enchantments, placed by the Arcane when the Hive was constructed. All of these spells work only on the room's intended inhabitants, not on visitors (such as beholders or the PCs). The PCs may never become aware of these wards, unless they try to bring a room's inhabitant into the tunnel.",
+										"In order of approach to the tunnel, the spells are TODO: forget, antipathy, and repulsion. All work as though cast using a 9th level spell slot.",
+										"Densely-populated rooms may have additional wards on the entrances. These are left to the DM's discretion. Use these spells as needed to explain why residents have remained in the room for eight centuries or more."
+									]
+								},
+								{
+									"type": "entries",
+									"name": "The Sentinels",
+									"entries": [
+										"Each of the Hive's smaller rooms once held a list-ditch defence to keep its inhabitants inside; a {@creature Sentinel|SJ-WS}, one of the Sazaur's large beholder-driven suits of armour.",
+										"However, when the Ravager was first created, it destroyed the beholder occupants of these suits along with the rest of the Sazaur nation. Now these golem-like suits stand inert. They may spook the PCs, or they may offer clues to the fate of the Sazaur. But they aren't active, except for one. Shortly after he enters the Hive, Jon Tobart activates a Sentinel suite and heads out to search for the Queen's Eyes. At the adventure's climax, the PCs must battle Tobart in his Sentinel suit."
+									]
+								}
+							]
+						}
+					]
+				},
 				{
 					"type": "section",
 					"name": "A Look at the Rooms",
@@ -1181,7 +1258,15 @@
 								"In fact, each mandala represents a crystal in the smaller Hive rooms. The mandala design arises from the perceptions of the beholders, who see the ten-sided crystals from several angles at once. This mural equates the Queen's Eyes with their governing crystals.",
 								"3. The \"Queen\" from the first mural in this sequence, but with the mandala designs substituting for eyes. (The crystals are implanted in the Ravager shell.)",
 								"4. The \"Queen\" next to a large circle with continental outlines sketched in: a world in space. Various power symbols emanate from the mandalas.",
-								"5.The \"Queen\" as before, but the world is now drawn as a blank circle surrounded by a dotted line. Alert players will remember that in the first mural sequence,this represented death"
+								"5.The \"Queen\" as before, but the world is now drawn as a blank circle surrounded by a dotted line. Alert players will remember that in the first mural sequence, this represented death",
+								{
+									"type": "image",
+									"href": {
+										"type": "internal",
+										"path": "adventure/SJ-WS/murals.png"
+									},
+									"title": "The Hive - Murals"
+								}
 							]
 						},
 						{
@@ -1419,7 +1504,7 @@
 									"name": "Long before they see anything, the PCs hear his approach:",
 									"entries": [
 										"The jungle noise grows to even greater levels. Then the underbrush parts and silence descends; eerie, unnatural silence. You see a man. At least you think it's a man.",
-										"The figure is very tall and is covered head to foot in thick, matted, black hair. He's dressed only in a loincloth. A bronze amulet is affixed to his chest. The amulet contains a withered red eye, so large that it must be a beholder‘s.",
+										"The figure is very tall and is covered head to foot in thick, matted, black hair. He's dressed only in a loincloth. A bronze amulet is affixed to his chest. The amulet contains a withered red eye, so large that it must be a beholder's.",
 										"All around him are the beasts of the jungle. Specifically, the party is surrounded by over a dozen huge apes , who watch the characters keenly."
 									]
 								},
@@ -1499,8 +1584,8 @@
 							"type": "entries",
 							"name": "Incarnation",
 							"entries": [
-								"Zhangzhala is a dream master. He can draw dreams from the subconscious of his victims or cause them to dream whatever he wants. He is effectively immune from attack, and so he has no game statistics. For the method of his defeat, see below.",
-								"{@b Appearance:} The dreammaster looks different to each PC. Play this up as much as possible. To a human male, he might seem the most ravishing of women: to a priest, a deity incarnate; to a lover of horses, the finest magical steed; and so on. Whatever he looks like, however, the beholder's eye remains fixed on his forehead.",
+								"Zhangzhala is a dream-master. He can draw dreams from the subconscious of his victims or cause them to dream whatever he wants. He is effectively immune from attack, and so he has no game statistics. For the method of his defeat, see below.",
+								"{@b Appearance:} The dream-master looks different to each PC. Play this up as much as possible. To a human male, he might seem the most ravishing of women: to a priest, a deity incarnate; to a lover of horses, the finest magical steed; and so on. Whatever he looks like, however, the beholder's eye remains fixed on his forehead.",
 								"In actuality, Zhangzhala is the thick mist that covers the floor.",
 								"{@b Personality:} Zhangzhala is somewhat ethereal, light-headed, easily distracted, very persuasive, and beguiling in his (feigned) innocence.",
 								"{@b Motivation:} Naturally, Zhangzhala wants to add the PCs to his collection of dreamers. The more dreamers he has, the more power he gains.",
@@ -1636,7 +1721,7 @@
 									"name": "Meeting Corundum",
 									"entries": [
 										"Among the thousands of smooth spheres drifting through the room, one stands out: an agglomeration of small boulders and rubble, 20' in diameter. If the PCs' ship approaches the central crystal, give each PC an Intelligence check to perceive this single, irregular sphere amid the others. In the vast gulf of air, this is like spotting a marble in a marketplace; but the sphere is also seeking the PCs, making detection more likely.",
-										"This collection of rocks and pebbles marks the surface of an Otiluke‘s Telekinetic Sphere cast by this room's Incarnation, Corundum. Corundum dwells in the centre of this hollow sphere, periodically expanding it to gather floating debris. Once he collects it within the sphere, Corundum keeps the detritus pressed against the sphere's wall.",
+										"This collection of rocks and pebbles marks the surface of an Otiluke's Telekinetic Sphere cast by this room's Incarnation, Corundum. Corundum dwells in the centre of this hollow sphere, periodically expanding it to gather floating debris. Once he collects it within the sphere, Corundum keeps the detritus pressed against the sphere's wall.",
 										"When the PCs encounter his protective shell, Corundum draws back the rubble on both sides of a hemispherical line, so that the rocky surface seems to open like an eyelid. Inside floats a tiny sphere less than a foot across: Corundum.",
 										"The eye spends a round or two examining the PCs and their ship. Suddenly, the ship starts to vibrate; it's flying apart! The masts pull up, planking peels back like banana peels, and ropes unravel into individual fibres. (Living beings and magical items are untouched.) This inflicts 1 hull point per round until the PCs can escape, attack, or negotiate with Corundum."
 									]
@@ -1653,7 +1738,7 @@
 								"{@b Personality:} Corundum treats the PCs as more things to be manipulated. He has no compassion or remorse, but enjoys having power over the PCs.",
 								"{@b Motivation:} Take things apart and put them together in new ways.",
 								"The Incarnation is fascinated with the ship and wants to disassemble it. Once Corundum reduces the ship to component boards and nails, he'll put it back together again in a different way. He might even return it to the PCs if they grovel, flatter, and wheedle.",
-								"{@b Powers:} Corundum can cast telekinesis or Otiluke‘s Telekinetic Sphere at will. He can dispel his spheres without speaking. Corundum is immune to damage from collisions or bludgeoning blows.",
+								"{@b Powers:} Corundum can cast telekinesis or Otiluke's Telekinetic Sphere at will. He can dispel his spheres without speaking. Corundum is immune to damage from collisions or bludgeoning blows.",
 								"{@b Identifying Quote:} \"This is some kind of conveyance, this collection of items? I will dismantle them now. No, you cannot stop me, so don't bother to try.\"",
 								{
 									"type": "entries",
@@ -1781,7 +1866,7 @@
 									"entries": [
 										"TODO:",
 										"Stennor: AC 2; MV FI 3 (B); HD 12; hp 75; #AT 5; Dmg 2-1612-8/2-81 Special/Special; SA flesh to stone, stone to flesh, ESP four times per day, telekinesis (unlimited, as a 20th-level wizard, but only works on stones); SD one-quarter damage from stone attacks; AL CE; THACO 9; XP 13,000. Stennor has no treasure.",
-										"{@b Appearance:} Stennor resembles a huge (15‘ diameter) beholder, except that instead of eyestalks, it has rock-pythons (exactly as a medusa has lesser snakes for hair); and it is covered with bronze-coloured, reptilian scales. Its small central eye is obviously one of the Queen's Eyes.",
+										"{@b Appearance:} Stennor resembles a huge (15' diameter) beholder, except that instead of eyestalks, it has rock-pythons (exactly as a medusa has lesser snakes for hair); and it is covered with bronze-coloured, reptilian scales. Its small central eye is obviously one of the Queen's Eyes.",
 										"{@b Personality:} Stennor is not clever or subtle. It enjoys ambushing enemies, mainly because of the fear this inspires.",
 										"{@b Motivation:} Stennor does not eat its dead prey; its cruelty is just a leftover beholder personality trait. It is lazy and prefers to let stoning monsters do most of the damage in this room. Stennor unconsciously recognizes that it gains no power when it petrifies a victim, but only when the monsters do. However, it does not bypass an easy ambush.",
 										"{@b Powers:} In addition to the slow levitation of real beholders, Stennor can cast ESP four times per day and telekinesis once per round, in lieu of any one of its normal attacks. Its two special attacks are its flesh to stone ray from its central eye (identical to the usual beholder attack), and the special rock it coughs out of its mouth.",
@@ -1864,7 +1949,7 @@
 							"type": "entries",
 							"name": "Aftermath",
 							"entries": [
-								"If the PCs destroy the eye, the central crystal explodes, doing 4d8 hp damage to everything in a 100‘ radius and 2d8 within 1000'. This plunges the room into darkness. PCs can make their way out by targeting the light at the end of the tunnel leading to Room 1.",
+								"If the PCs destroy the eye, the central crystal explodes, doing 4d8 hp damage to everything in a 100' radius and 2d8 within 1000'. This plunges the room into darkness. PCs can make their way out by targeting the light at the end of the tunnel leading to Room 1.",
 								"If the explosion looks likely to send the PCs hurtling to the walls of the room, say that the crystal's destruction dispelled the walls' disintegrate fields, leaving only bare rock. Whew!"
 							]
 						}
@@ -2039,7 +2124,7 @@
 							"entries": [
 								"TODO",
 								"Grull-Ghohruh: AC 8; MV 3; HD 12;hp 70; #AT 1; Dmg 1-12;SA breath causes victims to slow; A L CE; THACO 9.",
-								"{@b Appearance:} Grull-Ghohruh is a giant slug, 150 feet long and nearly 40 feet thick, with pale grey skin whose texture resembles gelatin. He has two 30‘ antennae that hang limply over his featureless face. Rows of razor-edged teeth line his lipless mouth.",
+								"{@b Appearance:} Grull-Ghohruh is a giant slug, 150 feet long and nearly 40 feet thick, with pale grey skin whose texture resembles gelatin. He has two 30' antennae that hang limply over his featureless face. Rows of razor-edged teeth line his lipless mouth.",
 								"Grull-Ghohruh has no eyes, but he can sense movement and body heat up to one mile away; so acute are these senses that he can determine an intruder's physical form, his precise location, and an approximation of his actions. For example, if a man with a long sword was approaching, Grull-Ghohruh would be able to detect the presence of a humanoid form with a bladed object; Grull-Ghohruh would also know the man's exact location and every movement.",
 								"{@b Personality:} Grull-Ghohruh lives in the centre of an immense spiral-shaped seashell that drifts aimlessly beneath the surface of the faces of his room (see \"Entering the Room,\" below). Centuries of inactivity have left him a virtual invalid. Every movement requires enormous effort, so Grull-Ghohruh does little more than lie on his belly and sift the water that washes through his teeth for nutrients.",
 								"{@b Motivation:| The passage of time has dulled Grull-Ghohruh's mind (his Intelligence is now 4). Whatever plans and aspirations he once had are now only vague memories that are too much trouble to act upon.",
@@ -2895,7 +2980,7 @@
 										"The Arcane created this unique crystal to store the life force drained from the creatures the Ravager killed over the centuries. It also uses this stored energy to propel itself through Wildspace. However, because of the Ravager's tremendous mass, its speed through space is considerably slower than a conventional ship's.",
 										"In addition to the low Ship's Rating and Manoeuvrability Class, the Ravager covers only 50 million miles per day (about two million miles an hour) through deep Wildspace: half the speed of a spelljamming ship.",
 										"Because of its slow speed, the Ravager always loses initiative in combat.",
-										"Also, the Lifejammer crystal requires the central Queen‘s Eye within it to function. Most importantly, just as the Queen's Eyes are not yet true artefacts and are thus still breakable, this \"Artifurnace\" is not indestructible either. If the Queen‘s Eyes are destroyed, the Artifurnace crystal cracks, darkens, and within 1-2 rounds shatters into powder.",
+										"Also, the Lifejammer crystal requires the central Queen's Eye within it to function. Most importantly, just as the Queen's Eyes are not yet true artefacts and are thus still breakable, this \"Artifurnace\" is not indestructible either. If the Queen's Eyes are destroyed, the Artifurnace crystal cracks, darkens, and within 1-2 rounds shatters into powder.",
 										"{@b Land:} The Ravager's bottom row of five eyestalks double as landing braces and even ground transport. They can draw their crystals from the eyestalk tips inward, protected by the tunnel sleeves; then the Ravager can walk spider-like on up to five stalks. Because of its awesome mass, it does not levitate like true beholders."
 									]
 								},
@@ -2905,7 +2990,7 @@
 									"entries": [
 										"{@b External:} Each crystal decahedron in its tunnel sleeve is the equivalent of a hugely powerful beholder eyestalk. Each has a range of 3000 yards (six hexes; cut this in half within a planetary atmosphere). At maximum range, its beam measures 100 yards across.",
 										"The Ravager can fire one eyestalk each round. After firing, an eyestalk cannot fire again until the next turn, when it has \"recharged.\" To determine whether it can bring a given eyestalk to bear on a target, use the same rules as those for regular beholders.",
-										"Against NPC opponents, the eyestalks function like those on a Tyrant Ship with 20 common beholders in its power circuit. Reduce these values in attacks against the PCs‘ ship, to a strength of one beholder in the circuit per PC. Or give the eyestalks the powers of the Queen's Eye artefact (described in the \"New Magic\" appendix).",
+										"Against NPC opponents, the eyestalks function like those on a Tyrant Ship with 20 common beholders in its power circuit. Reduce these values in attacks against the PCs' ship, to a strength of one beholder in the circuit per PC. Or give the eyestalks the powers of the Queen's Eye artefact (described in the \"New Magic\" appendix).",
 										"Note that the crystals do not have the same abilities in the Ravager that they do in their individual rooms. Outside, the Arcane's sympathetic magic no longer bestows those abilities.",
 										"{@b Interior defences:} Inside the Ravager, the crystals cannot attack. The only defences it has are the central crystal's minor globe, which is turned off when the Ravager moves or fights; the light-beams between the crystals (see the next section); and Jon Tobart in his Sentinel suit.",
 										"Also, the silver slimes, when inside the Ravager, can function not only for maintenance but as guardians (see below).",
