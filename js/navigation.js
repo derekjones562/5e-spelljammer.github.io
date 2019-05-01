@@ -4,16 +4,27 @@ class NavBar {
 	static init () {
 		// render the visible elements ASAP
 		window.addEventListener(
-			"DOMContentLoaded",
-			function () {
-				NavBar.initElements();
+			"load",
+			async function () {
+				await NavBar.initElements();
 				NavBar.highlightCurrentPage();
+				NavBar.initHandlers();
+				Omnisearch.init();
 			}
 		);
-		window.addEventListener("load", NavBar.initHandlers);
 	}
 
-	static initElements () {
+	static async initElements () {
+		async function buildAdventureIndex (adventures) {
+			const data = await DataUtil.loadJSON(`data/adventures.json`);
+			for (const adventure of data.adventure) {
+				adventures.push({
+					name: adventure.name,
+					hash: adventure.id
+				});
+			}
+		}
+
 		const navBar = document.getElementById("navbar");
 
 		addLi(navBar, "index.html", "Home");
@@ -49,30 +60,16 @@ class NavBar {
 		addLi(ulPlayers, "lifegen.html", "This Is Your Life");
 		addLi(ulPlayers, "names.html", "Names");
 
+		const adventures = [];
+		await buildAdventureIndex(adventures);
+
 		const ulDms = addDropdown(navBar, "DM Tools");
 		addLi(ulDms, "dmscreen.html", "DM Screen");
 		addDivider(ulDms);
 		const ulAdventures = addDropdown(ulDms, "Adventures", true);
-		addLi(ulAdventures, "adventure.html", "Lost Mines of Phandelver", true, "LMoP");
-		addLi(ulAdventures, "adventure.html", "Hoard of the Dragon Queen", true, "HotDQ");
-		addLi(ulAdventures, "adventure.html", "Rise of Tiamat", true, "RoT");
-		addLi(ulAdventures, "adventure.html", "Princes of the Apocalypse", true, "PotA");
-		addLi(ulAdventures, "adventure.html", "Out of the Abyss", true, "OotA");
-		addLi(ulAdventures, "adventure.html", "Curse of Strahd", true, "CoS");
-		addLi(ulAdventures, "adventure.html", "Storm King's Thunder", true, "SKT");
-		addLi(ulAdventures, "adventure.html", "Tales from the Yawning Portal: The Sunless Citadel", true, "TftYP-TSC");
-		addLi(ulAdventures, "adventure.html", "Tales from the Yawning Portal: The Forge of Fury", true, "TftYP-TFoF");
-		addLi(ulAdventures, "adventure.html", "Tales from the Yawning Portal: The Hidden Shrine of Tamoachan", true, "TftYP-THSoT");
-		addLi(ulAdventures, "adventure.html", "Tales from the Yawning Portal: White Plume Mountain", true, "TftYP-WPM");
-		addLi(ulAdventures, "adventure.html", "Tales from the Yawning Portal: Dead in Thay", true, "TftYP-DiT");
-		addLi(ulAdventures, "adventure.html", "Tales from the Yawning Portal: Against the Giants", true, "TftYP-AtG");
-		addLi(ulAdventures, "adventure.html", "Tales from the Yawning Portal: Tomb of Horrors", true, "TftYP-ToH");
-		addLi(ulAdventures, "adventure.html", "Tomb of Annihilation", true, "ToA");
-		addLi(ulAdventures, "adventure.html", "The Tortle Package", true, "TTP");
-		addLi(ulAdventures, "adventure.html", "Waterdeep: Dragon Heist", true, "WDH");
-		addLi(ulAdventures, "adventure.html", "Lost Laboratory of Kwalish", true, "LLK");
-		addLi(ulAdventures, "adventure.html", "Waterdeep: Dungeon of the Mad Mage", true, "WDMM");
-		addLi(ulAdventures, "adventure.html", "Krenko's Way", true, "KKW");
+		for (const adventure of adventures) {
+			addLi(ulAdventures, "adventure.html", adventure.name, true, adventure.hash);
+		}
 		addDivider(ulAdventures);
 		addLi(ulAdventures, "adventures.html", "View All/Homebrew");
 		addLi(ulDms, "cultsboons.html", "Cults & Demonic Boons");

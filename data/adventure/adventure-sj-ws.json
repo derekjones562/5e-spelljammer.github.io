@@ -3159,9 +3159,7 @@
 					"name": "Jon Tobart (Shazogrox)",
 					"entries": [
 						"7th-level beholder mage",
-						"As Tobart: AC 2; Str 16, Int 18, Wis 16, Dex 12, Con 15, Cha 10;hp 80; A L NE. Equipment (as Tobart): chain mail +2, shield, rapier + I / +2 us. magic. using and enchanted creatures, ring of invisibility.",
-						"Spells known: Color spray, enlarge, hold portal, light, mending, message, continual light, darkness 15' radius, fog cloud, knock, levitate, magic mouth, rope trick, shatter, whispering wind, wizard lock, blink, delude, explosive runes, fly, haste, improved whispering wind, tongues, wraithform, dimension door, fire shield, Otiluke's Resilient Sphere, polymorph other, polymorph self, stoneskin, vacancy.",
-						"Spells Stored: Usually blink, delude, fly, haste, wraithform, fire shield, dimension door, polymorph other, polymorph self, stoneskin. When he enters the Hive, Tobart has stored improved whispering wind in place of his blink spell, to ease communication in the giant structure.",
+						"He is usually polymorphed as {@creature Jon Tobart|SJ-WS}, until the hive when he is in his original {@creature Shazogrox|SJ-WS|beholder form}. He carries a {@item Ring of Invisibility} which he can only use as a humanoid.",
 						"Shazogrox is a beholder, born to the Greshtharx nation. During his youth, through some genetic flaw or perversion, Shazogrox grew dissatisfied with the beholders' senseless, perpetual race wars. Why not unite the beholders and conquer all the spheres' lesser races?",
 						"Outspoken in his beliefs, Shazogrox tried to gather support for a united beholder nation. Unfortunately, the rival beholder Hive Mothers, taking a dim view of these \"subversive activities,\" captured Shazogrox and made an example of him. They put out his central eye and banished him from Greshtharx space.",
 						"Maimed and alone, the outcast drifted in Wildspace. But as fate would have it, a passing Arcane probe sensed Shazogrox's plight and transported the wounded beholder to the probe's creator.",

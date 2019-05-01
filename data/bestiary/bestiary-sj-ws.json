@@ -161,8 +161,8 @@
 				}
 			],
 			"hp": {
-				"average": 104,
-				"formula": "19d6 + 38"
+				"average": 66,
+				"formula": "12d6 + 24"
 			},
 			"speed": {
 				"walk": 0,
@@ -172,18 +172,18 @@
 				},
 				"canHover": true
 			},
-			"str": 10,
-			"dex": 14,
-			"con": 14,
-			"int": 20,
+			"str": 16,
+			"dex": 12,
+			"con": 15,
+			"int": 18,
 			"wis": 16,
-			"cha": 17,
+			"cha": 10,
 			"save": {
-				"int": "+10",
-				"wis": "+7",
-				"cha": "+8"
+				"int": "+7",
+				"wis": "+6"
 			},
 			"skill": {
+				"arcane": "+7",
 				"perception": "+6"
 			},
 			"conditionImmune": [
@@ -191,52 +191,41 @@
 			],
 			"senses": "darkvision 120 ft.",
 			"passive": 16,
-			"languages": "Deep Speech, Undercommon",
+			"languages": "Common, Deep Speech, Undercommon",
 			"cr": {
-				"cr": "13"
+				"cr": "10"
 			},
 			"spellcasting": [
 				{
 					"name": "Spellcasting",
 					"headerEntries": [
-						"The beholder mage is a 7th-level spellcaster. Its spellcasting ability is Intelligence (spell save DC 15, {@hit 7} to hit with spell attacks). The beholder mage has the following wizard spells prepared:"
+						"Shazogrox is a 7th-level spellcaster. His spellcasting ability is Intelligence (spell save DC 15, {@hit 7} to hit with spell attacks). Shazogrox knows the following wizard spells:"
 					],
 					"spells": {
 						"0": {
 							"spells": [
 								"{@spell fire bolt}",
-								"{@spell light}",
 								"{@spell mage hand}",
+								"{@spell message}",
 								"{@spell prestidigitation}"
 							]
 						},
-						"1": {
+						"3": {
 							"slots": 3,
 							"spells": [
-								"{@spell detect magic}",
-								"{@spell mage armor}",
-								"{@spell magic missile}",
-								"{@spell shield}"
-							]
-						},
-						"2": {
-							"slots": 2,
-							"spells": [
-								"{@spell misty step}",
-								"{@spell suggestion}"
-							]
-						},
-						"3": {
-							"slots": 2,
-							"spells": [
-								"{@spell counterspell}",
-								"{@spell fireball}"
+								"{@spell blink}",
+								"{@spell fly}",
+								"{@spell gaseous form}"
 							]
 						},
 						"4": {
 							"slots": 2,
 							"spells": [
-								"{@spell greater invisibility}"
+								"{@spell dimension door}",
+								"{@spell fire shield}",
+								"{@spell otiluke's resilient sphere}",
+								"{@spell polymorph}",
+								"{@spell stoneskin}"
 							]
 						}
 					},
@@ -269,6 +258,7 @@
 			],
 			"soundClip": "https://media-waterdeep.cursecdn.com/file-attachments/0/48/beholder.mp3",
 			"languageTags": [
+				"C",
 				"DS",
 				"U"
 			],
@@ -337,6 +327,103 @@
 			],
 			"damageTags": [
 				"B"
+			]
+		},
+		{
+			"name": "Jon Tobart",
+			"isNpc": true,
+			"size": "M",
+			"type": {
+				"type": "humanoid",
+				"tags": [
+					"human"
+				]
+			},
+			"source": "SJ-WS",
+			"alignment": [
+				"N",
+				"E"
+			],
+			"ac": [
+				19
+			],
+			"hp": {
+				"average": 44,
+				"formula": "7d6 + 14"
+			},
+			"speed": {
+				"walk": 30
+			},
+			"str": 16,
+			"dex": 12,
+			"con": 15,
+			"int": 18,
+			"wis": 16,
+			"cha": 10,
+			"skill": {
+				"arcana": "+7"
+			},
+			"passive": 13,
+			"languages": "Common, Deep Speech, Infernal, Undercommon",
+			"cr": "7",
+			"action": [
+				{
+					"name": "Rapier +1",
+					"entries": [
+						"{@atk mw} {@hit 4} to hit, reach 5 ft., one target. {@h}8 ({@damage 1d8 + 4}) piercing damage."
+					]
+				}
+			],
+			"page": 58,
+			"spellcasting": [
+				{
+					"name": "Spellcasting",
+					"headerEntries": [
+						"Shazogrox is a 7th-level spellcaster. His spellcasting ability is Intelligence (spell save DC 15, {@hit 7} to hit with spell attacks). Shazogrox knows the following wizard spells:"
+					],
+					"spells": {
+						"0": {
+							"spells": [
+								"{@spell fire bolt}",
+								"{@spell mage hand}",
+								"{@spell message}",
+								"{@spell prestidigitation}"
+							]
+						},
+						"3": {
+							"slots": 3,
+							"spells": [
+								"{@spell blink}",
+								"{@spell fly}",
+								"{@spell gaseous form}"
+							]
+						},
+						"4": {
+							"slots": 2,
+							"spells": [
+								"{@spell dimension door}",
+								"{@spell fire shield}",
+								"{@spell otiluke's resilient sphere}",
+								"{@spell polymorph}",
+								"{@spell stoneskin}"
+							]
+						}
+					},
+					"ability": "int"
+				}
+			],
+			"languageTags": [
+				"C",
+				"DS",
+				"I",
+				"U"
+			],
+			"spellcastingTags": [
+				"I",
+				"CS"
+			],
+			"damageTags": [
+				"P"
 			]
 		}
 	]

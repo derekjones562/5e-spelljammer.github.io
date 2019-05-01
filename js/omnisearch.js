@@ -360,5 +360,3 @@ const Omnisearch = {
 		});
 	}
 };
-
-window.addEventListener("load", Omnisearch.init);

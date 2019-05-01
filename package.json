@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"description": "A site dedicated to making playing games with your friends as easy as possible.",
 	"scripts": {
-		"dev-server": "autoreload-server -r **/*.{html,css,js,png,jpg}",
+		"dev-server": "autoreload-server -r **/*.{html,css,js,png,jpg,json}",
 		"version-bump": "npm version -m \"chore(version): bump\"",
 		"gen-index": "node node/generate-search-index.js",
 		"clean-jsons": "node node/clean-jsons.js",
