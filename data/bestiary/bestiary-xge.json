@@ -1,8 +1,9 @@
 {
 	"monster": [
 		{
-			"source": "XGE",
 			"name": "Tiny Servant",
+			"source": "XGE",
+			"page": 169,
 			"size": "T",
 			"type": "construct",
 			"alignment": [
@@ -30,8 +31,10 @@
 			"int": 2,
 			"wis": 10,
 			"cha": 1,
+			"senses": [
+				"blindsight 60 ft. (blind beyond this radius)"
+			],
 			"passive": 10,
-			"cr": "Unknown",
 			"immune": [
 				"poison",
 				"psychic"
@@ -46,7 +49,6 @@
 				"petrified",
 				"poisoned"
 			],
-			"senses": "blindsight 60 ft. (blind beyond this radius)",
 			"action": [
 				{
 					"name": "Slam",
@@ -55,12 +57,15 @@
 					]
 				}
 			],
-			"page": 169,
+			"hasToken": true,
 			"senseTags": [
 				"B"
 			],
 			"damageTags": [
 				"B"
+			],
+			"miscTags": [
+				"MW"
 			]
 		}
 	]

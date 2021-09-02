@@ -1,8 +1,9 @@
 {
 	"monster": [
 		{
-			"source": "UAArtificerRevisited",
 			"name": "Alchemical Homunculus",
+			"source": "UAArtificerRevisited",
+			"page": 6,
 			"size": "T",
 			"type": "construct",
 			"alignment": [
@@ -33,6 +34,10 @@
 				"perception": "+4",
 				"stealth": "+4"
 			},
+			"senses": [
+				"darkvision 60 ft."
+			],
+			"passive": 10,
 			"immune": [
 				"acid",
 				"poison"
@@ -42,10 +47,9 @@
 				"exhaustion",
 				"poisoned"
 			],
-			"passive": 10,
-			"senses": "darkvision 60 ft.",
-			"languages": "understands the languages you speak",
-			"cr": "Unknown",
+			"languages": [
+				"understands the languages you speak"
+			],
 			"trait": [
 				{
 					"name": "Might of the Master",
@@ -54,11 +58,12 @@
 					]
 				}
 			],
+			"actionNote": "Requires Your Bonus Action",
 			"action": [
 				{
 					"name": "Acidic Spittle",
 					"entries": [
-						"{@atk rw} {@hit 4} to hit, range 30 ft., one target you can see. {@h}{@dice 1d6 + 2} acid damage."
+						"{@atk rw} {@hit 4} to hit, range 30 ft., one target you can see. {@h}{@damage 1d6 + 2} acid damage."
 					]
 				},
 				{
@@ -89,8 +94,110 @@
 					]
 				}
 			],
+			"hasToken": true,
 			"senseTags": [
 				"D"
+			],
+			"damageTags": [
+				"A"
+			],
+			"miscTags": [
+				"RW"
+			]
+		},
+		{
+			"name": "Iron Defender",
+			"source": "UAArtificerRevisited",
+			"page": 11,
+			"size": "M",
+			"type": "construct",
+			"alignment": [
+				"N"
+			],
+			"ac": [
+				{
+					"ac": 15,
+					"from": [
+						"natural armor"
+					]
+				}
+			],
+			"hp": {
+				"special": "equal to five times your level in this class + your Intelligence modifier + the iron defender's Constitution modifier"
+			},
+			"speed": {
+				"walk": 40
+			},
+			"str": 14,
+			"dex": 12,
+			"con": 14,
+			"int": 4,
+			"wis": 10,
+			"cha": 6,
+			"skill": {
+				"perception": "+4"
+			},
+			"senses": [
+				"darkvision 60 ft."
+			],
+			"passive": 10,
+			"immune": [
+				"poison"
+			],
+			"conditionImmune": [
+				"charmed",
+				"exhaustion",
+				"poisoned"
+			],
+			"languages": [
+				"understands the languages you speak"
+			],
+			"trait": [
+				{
+					"name": "Might of the Master",
+					"entries": [
+						"The following numbers increase by 1 when your proficiency bonus increases by 1: the iron defender's skill bonuses, the bonuses to hit and damage of its bite, and the number of hit points restored by its Repair action."
+					]
+				},
+				{
+					"name": "Vigilant",
+					"entries": [
+						"The iron defender can't be surprised."
+					]
+				}
+			],
+			"actionNote": "Requires Your Bonus Action",
+			"action": [
+				{
+					"name": "Bite",
+					"entries": [
+						"{@atk mw} {@hit 4} to hit, reach 5 ft., one target you can see. {@h}{@damage 1d8 + 2} piercing damage."
+					]
+				},
+				{
+					"name": "Repair (3/Day)",
+					"entries": [
+						"The magical mechanisms inside the iron defender restore {@dice 2d8 + 2} hit points to itself or to one construct or object within 5 feet of it."
+					]
+				}
+			],
+			"reaction": [
+				{
+					"name": "Defensive Pounce",
+					"entries": [
+						"The iron defender imposes disadvantage on the attack roll of one creature it can see that is within 5 feet of it, provided the attack roll is against a creature other than the iron defender."
+					]
+				}
+			],
+			"hasToken": true,
+			"senseTags": [
+				"D"
+			],
+			"damageTags": [
+				"P"
+			],
+			"miscTags": [
+				"MW"
 			]
 		}
 	]
