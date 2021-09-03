@@ -4936,6 +4936,7 @@ BrewUtil = {
 			case UrlUtil.PG_RECIPES: return ["recipe"];
 			case UrlUtil.PG_SHIPS: return ["ship"];
 			case UrlUtil.PG_SJ_SHIPS: return ["sjship"];
+			case UrlUtil.PG_CLASS_SUBCLASS_FEATURES: return ["classFeature", "subclassFeature"];
 			default: throw new Error(`No homebrew properties defined for category ${page}`);
 		}
 	},

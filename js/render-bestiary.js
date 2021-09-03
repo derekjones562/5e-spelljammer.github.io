@@ -24,7 +24,7 @@ class RenderBestiary {
 	}
 
 	static _getPronunciationButton (mon) {
-		return `<button class="btn btn-xs btn-default btn-name-pronounce ml-2 mb-2 self-flex-end">
+		return `<button class="btn btn-xs btn-default btn-name-pronounce ml-2">
 			<span class="glyphicon glyphicon-volume-up name-pronounce-icon"></span>
 			<audio class="name-pronounce">
 			   <source src="${Renderer.utils.getMediaUrl(mon, "soundClip", "audio")}" type="audio/mpeg">
@@ -59,7 +59,7 @@ class RenderBestiary {
 		const legGroup = DataUtil.monster.getMetaGroup(mon);
 
 		const renderedVariants = (() => {
-			const dragonVariant = Renderer.monster.dragonCasterVariant.getHtml(renderer, mon);
+			const dragonVariant = Renderer.monster.getDragonCasterVariant(renderer, mon);
 			const variants = mon.variant;
 			if (!variants && !dragonVariant) return null;
 			else {
@@ -70,7 +70,36 @@ class RenderBestiary {
 			}
 		})();
 
-		const htmlSourceAndEnvironment = this._$getRenderedCreature_getHtmlSourceAndEnvironment(mon);
+		const htmlSourceAndEnvironment = (() => {
+			const srcCpy = {
+				source: mon.source,
+				page: mon.page,
+				srd: mon.srd,
+				sourceSub: mon.sourceSub,
+				otherSources: mon.otherSources,
+				additionalSources: mon.additionalSources,
+				externalSources: mon.externalSources,
+			};
+			const additional = mon.additionalSources ? MiscUtil.copy(mon.additionalSources) : [];
+			if (mon.variant && mon.variant.length > 1) {
+				mon.variant.forEach(v => {
+					if (v.variantSource) {
+						additional.push({
+							source: v.variantSource.source,
+							page: v.variantSource.page,
+						})
+					}
+				})
+			}
+			srcCpy.additionalSources = additional;
+
+			const pageTrInner = Renderer.utils.getSourceAndPageTrHtml(srcCpy);
+			if (mon.environment && mon.environment.length) {
+				return [pageTrInner, `<div class="mb-1 mt-2"><b>Environment:</b> ${mon.environment.sort(SortUtil.ascSortLower).map(it => it.toTitleCase()).join(", ")}</div>`];
+			} else {
+				return [pageTrInner];
+			}
+		})();
 
 		const hasToken = (mon.tokenUrl && mon.uniqueId) || mon.hasToken;
 		const extraThClasses = hasToken ? ["mon__name--token"] : null;
@@ -78,7 +107,7 @@ class RenderBestiary {
 		return $$`
 		${Renderer.utils.getBorderTr()}
 		${Renderer.utils.getExcludedTr(mon, "monster", UrlUtil.PG_BESTIARY)}
-		${Renderer.utils.getNameTr(mon, {controlRhs: mon.soundClip ? RenderBestiary._getPronunciationButton(mon) : "", extraThClasses, page: UrlUtil.PG_BESTIARY, extensionData: {_scaledCr: mon._scaledCr, _scaledSpellSummonLevel: mon._scaledSpellSummonLevel, _scaledClassSummonLevel: mon._scaledClassSummonLevel}})}
+		${Renderer.utils.getNameTr(mon, {controlRhs: mon.soundClip ? RenderBestiary._getPronunciationButton(mon) : "", extraThClasses, page: UrlUtil.PG_BESTIARY, extensionData: {_scaledCr: mon._scaledCr, _scaledSummonLevel: mon._scaledSummonLevel}})}
 		<tr><td colspan="6">
 			<div ${hasToken ? `class="mon__wrp-size-type-align--token"` : ""}><i>${Renderer.monster.getTypeAlignmentPart(mon)}</i></div>
 		</td></tr>
@@ -106,16 +135,15 @@ class RenderBestiary {
 		<tr><td colspan="6"><strong>Senses</strong> ${Renderer.monster.getSensesPart(mon)}</td></tr>
 		<tr><td colspan="6"><strong>Languages</strong> ${Renderer.monster.getRenderedLanguages(mon.languages)}</td></tr>
 
-		<tr class="relative">${Parser.crToNumber(mon.cr) < VeCt.CR_UNKNOWN ? $$`
-		<td colspan="3"><strong>Challenge</strong>
+		<tr>${Parser.crToNumber(mon.cr) < VeCt.CR_UNKNOWN ? $$`
+		<td colspan="3" class="relative"><strong>Challenge</strong>
 			<span>${Parser.monCrToFull(mon.cr, {isMythic: !!mon.mythic})}</span>
 			${options.$btnScaleCr || ""}
 			${options.$btnResetScaleCr || ""}
 		</td>
-		` : `<td colspan="3"><strong>Challenge</strong> <span>\u2014</span></td>`}${mon.pbNote || Parser.crToNumber(mon.cr) < VeCt.CR_CUSTOM ? `<td colspan="3" class="text-right"><strong>Proficiency Bonus</strong> ${mon.pbNote ?? UiUtil.intToBonus(Parser.crToPb(mon.cr))}</td>` : ""}</tr>
+		` : `<td colspan="3" class="relative"><strong>Challenge</strong> <span>\u2014</span></td>`}${mon.pbNote || Parser.crToNumber(mon.cr) < VeCt.CR_UNKNOWN ? `<td colspan="3" class="text-right"><strong>Proficiency Bonus</strong> ${mon.pbNote ?? UiUtil.intToBonus(Parser.crToPb(mon.cr))}</td>` : ""}</tr>
 
 		<tr>${options.selSummonSpellLevel ? $$`<td colspan="6"><strong>Spell Level</strong> ${options.selSummonSpellLevel}</td>` : ""}</tr>
-		<tr>${options.selSummonClassLevel ? $$`<td colspan="6"><strong>Class Level</strong> ${options.selSummonClassLevel}</td>` : ""}</tr>
 
 		${allTraits ? `<tr><td class="divider" colspan="6"><div></div></td></tr>${RenderBestiary._getRenderedSection("trait", allTraits, 1)}` : ""}
 		${allActions ? `<tr><td colspan="6" class="mon__stat-header-underline"><span class="mon__sect-header-inner">Actions${mon.actionNote ? ` (<span class="small">${mon.actionNote}</span>)` : ""}</span></td></tr>

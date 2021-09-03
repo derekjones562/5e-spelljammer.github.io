@@ -61,6 +61,7 @@ class BooksList {
 		const brewData = await BrewUtil.pAddBrewData();
 		await handleBrew(brewData);
 		BrewUtil.bind({lists: [this._list, this._listAlt]});
+		await BrewUtil.pAddLocalBrewData();
 		BrewUtil.makeBrewButton("manage-brew");
 		this._list.init();
 		this._listAlt.init();
