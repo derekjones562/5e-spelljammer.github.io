@@ -13,9 +13,9 @@
 
 	<title>5etools</title>
 
-	<link rel="stylesheet" href="css/bootstrap.css?v=1.134.0">
-	<link rel="stylesheet" href="css/fontawesome.css?v=1.134.0">
-	<link rel="stylesheet" href="css/main.css?v=1.134.0">
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/fontawesome.css">
+	<link rel="stylesheet" href="css/main.css">
 
 	<!-- Favicons -->
 	<link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.115">
@@ -47,9 +47,11 @@
 	<!-- macOS Safari Pinned Tab and Touch Bar -->
 	<link rel="mask-icon" href="safari-pinned-tab.svg" color="#006bc4">
 
-	<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js?v=1.134.0");</script>
+	<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");</script>
 
-	<script type="text/javascript" src="js/header.js?v=1.134.0"></script>
+	<script type="text/javascript" src="js/styleswitch.js"></script>
+	<script type="text/javascript" src="js/navigation.js"></script>
+	<script type="text/javascript" src="js/browsercheck.js"></script>
 
 	<style>
 		table.home-table {
@@ -288,7 +290,7 @@
 </header>
 
 <nav class="container page__nav" id="navigation">
-	<ul class="nav nav-pills page__nav-inner" id="navbar">
+	<ul class="nav page__nav-inner" id="navbar">
 	</ul>
 </nav>
 
@@ -441,7 +443,7 @@ Unearthed Arcana content can be accessed by cycling the &quot;All Sources&quot; 
 
 		<h3>Use <a href="https://foundryvtt.com/" rel="noopener">Foundry</a>?</h3>
 		<p>No? <span class="help" title="Please note that Foundry Gaming, LLC. and The Norr Group Ltd. are in no way affiliated, and that Foundry Gaming, LLC. does not condone the use of their software in violation of your local laws.">Well, you should!</span> Foundry is a modernized, better-than replacement for Roll20 which prioritises modding support. It is the 5etools platform of choice for integrations. <b>As such, betteR20 will no longer be receiving updates beyond basic maintenance.</b> Instead, development efforts have gone towards creating an expanded set of tools for Foundry, in the form of the <b>Plutonium</b> module.</p>
-		<p>To find out how to install the module, <a href="https://wiki.5e.tools/index.php/FoundryTool_Install">visit the wiki</a>. See the <a href="plutonium.html">Plutonium Features</a> page for an overview of the functionality the module provides.</p>
+		<p>To install the module, copy the <a href="https://get.5e.tools/plutonium/module.json">manifest URL</a>, and paste it into Foundry's Install Module dialogue. See the <a href="plutonium.html">Plutonium Features</a> page for an overview of the functionality the module provides.</p>
 
 		<h3>Use Roll20?</h3>
 		<p class="text-danger"><i><b>Please note:</b> the 5etools Roll20 integration, betteR20, is <a href="https://wiki.5e.tools/index.php/BetteR20:maintenance_mode">no longer being actively developed</a>. Instead, development efforts are being focused on <a href="plutonium.html">Plutonium</a>, as described above.</i></p>
@@ -482,8 +484,16 @@ Unearthed Arcana content can be accessed by cycling the &quot;All Sources&quot; 
 <div class="cancer__footer-pad"></div>
 <!--5ETOOLS_SCRIPT_ANCHOR-->
 <!--5ETOOLS_AD_ADHESION-->
-<script type="text/javascript" src="js/shared.js?v=1.134.0"></script>
+<script type="text/javascript" src="js/parser.js"></script>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/utils-ui.js"></script>
 <script type="text/javascript" src="lib/localforage.js"></script>
+<script type="text/javascript" src="js/omnidexer.js"></script>
+<script type="text/javascript" src="js/omnisearch.js"></script>
+<script type="text/javascript" src="js/render.js"></script>
+<script type="text/javascript" src="js/render-dice.js"></script>
+<script type="text/javascript" src="js/scalecreature.js"></script>
+<script type="text/javascript" src="js/hist.js"></script>
 <script type="text/javascript" src="lib/jquery.js"></script>
 <script type="text/javascript" src="lib/elasticlunr.js"></script>
 <script>

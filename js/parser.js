@@ -281,7 +281,7 @@ Parser.crToXp = function (cr, {isDouble = false} = {}) {
 	if (cr != null && cr.xp) return Parser._addCommas(`${isDouble ? cr.xp * 2 : cr.xp}`);
 
 	const toConvert = cr ? (cr.cr || cr) : null;
-	if (toConvert === "Unknown" || toConvert == null || !Parser.XP_CHART_ALT[toConvert]) return "Unknown";
+	if (toConvert === "Unknown" || toConvert == null || !Parser.XP_CHART_ALT) return "Unknown";
 	if (toConvert === "0") return "0 or 10";
 	const xp = Parser.XP_CHART_ALT[toConvert];
 	return Parser._addCommas(`${isDouble ? 2 * xp : xp}`);
@@ -291,7 +291,7 @@ Parser.crToXpNumber = function (cr) {
 	if (cr != null && cr.xp) return cr.xp;
 	const toConvert = cr ? (cr.cr || cr) : cr;
 	if (toConvert === "Unknown" || toConvert == null) return null;
-	return Parser.XP_CHART_ALT[toConvert] ?? null;
+	return Parser.XP_CHART_ALT[toConvert];
 };
 
 LEVEL_TO_XP_EASY = [0, 25, 50, 75, 125, 250, 300, 350, 450, 550, 600, 800, 1000, 1100, 1250, 1400, 1600, 2000, 2100, 2400, 2800];
@@ -601,7 +601,7 @@ Parser.stringToCasedSlug = function (str) {
 	return str.replace(/[^\w ]+/g, "").replace(/ +/g, "-");
 };
 
-Parser.ITEM_SPELLCASTING_FOCUS_CLASSES = ["Artificer", "Bard", "Cleric", "Druid", "Paladin", "Ranger", "Sorcerer", "Warlock", "Wizard"];
+Parser.ITEM_SPELLCASTING_FOCUS_CLASSES = ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Sorcerer", "Warlock", "Wizard"];
 
 Parser.itemValueToFull = function (item, opts = {isShortForm: false, isSmallUnits: false}) {
 	return Parser._moneyToFull(item, "value", "valueMult", opts);
@@ -1025,7 +1025,7 @@ Parser.spRangeTypeToIcon = function (range) {
 
 Parser.spRangeToShortHtml = function (range) {
 	switch (range.type) {
-		case RNG_SPECIAL: return `<span class="fas fa-fw ${Parser.spRangeTypeToIcon(range.type)} help-subtle" title="Special"></span>`;
+		case RNG_SPECIAL: return `<span class="fas ${Parser.spRangeTypeToIcon(range.type)} help-subtle" title="Special"></span>`;
 		case RNG_POINT: return Parser.spRangeToShortHtml._renderPoint(range);
 		case RNG_LINE:
 		case RNG_CUBE:
@@ -1045,7 +1045,7 @@ Parser.spRangeToShortHtml._renderPoint = function (range) {
 		case RNG_UNLIMITED:
 		case RNG_UNLIMITED_SAME_PLANE:
 		case RNG_SPECIAL:
-		case RNG_TOUCH: return `<span class="fas fa-fw ${Parser.spRangeTypeToIcon(dist.type)} help-subtle" title="${Parser.spRangeTypeToFull(dist.type)}"></span>`;
+		case RNG_TOUCH: return `<span class="fas ${Parser.spRangeTypeToIcon(dist.type)} help-subtle" title="${Parser.spRangeTypeToFull(dist.type)}"></span>`;
 		case UNT_FEET:
 		case UNT_MILES:
 		default:
@@ -1054,10 +1054,10 @@ Parser.spRangeToShortHtml._renderPoint = function (range) {
 };
 Parser.spRangeToShortHtml._renderArea = function (range) {
 	const size = range.distance;
-	return `<span class="fas fa-fw ${Parser.spRangeTypeToIcon(RNG_SELF)} help-subtle" title="Self"></span> ${size.amount}<span class="ve-small">-${Parser.getSingletonUnit(size.type, true)}</span> ${Parser.spRangeToShortHtml._getAreaStyleString(range)}`;
+	return `<span class="fas ${Parser.spRangeTypeToIcon(RNG_SELF)} help-subtle" title="Self"></span> ${size.amount}<span class="ve-small">-${Parser.getSingletonUnit(size.type, true)}</span> ${Parser.spRangeToShortHtml._getAreaStyleString(range)}`;
 };
 Parser.spRangeToShortHtml._getAreaStyleString = function (range) {
-	return `<span class="fas fa-fw ${Parser.spRangeTypeToIcon(range.type)} help-subtle" title="${Parser.spRangeTypeToFull(range.type)}"></span>`
+	return `<span class="fas ${Parser.spRangeTypeToIcon(range.type)} help-subtle" title="${Parser.spRangeTypeToFull(range.type)}"></span>`
 };
 
 Parser.spRangeToFull = function (range) {
@@ -1522,12 +1522,12 @@ Parser.psiOrderToFull = (order) => {
 	return order === undefined ? Parser.PSI_ORDER_NONE : order;
 };
 
-Parser.prereqSpellToFull = function (spell, {isTextOnly = false} = {}) {
+Parser.prereqSpellToFull = function (spell) {
 	if (spell) {
 		const [text, suffix] = spell.split("#");
-		if (!suffix) return isTextOnly ? spell : Renderer.get().render(`{@spell ${spell}}`);
-		else if (suffix === "c") return (isTextOnly ? Renderer.stripTags : Renderer.get().render.bind(Renderer.get()))(`{@spell ${text}} cantrip`);
-		else if (suffix === "x") return (isTextOnly ? Renderer.stripTags : Renderer.get().render.bind(Renderer.get()))("{@spell hex} spell or a warlock feature that curses");
+		if (!suffix) return Renderer.get().render(`{@spell ${spell}}`);
+		else if (suffix === "c") return Renderer.get().render(`{@spell ${text}} cantrip`);
+		else if (suffix === "x") return Renderer.get().render("{@spell hex} spell or a warlock feature that curses");
 	} else return VeCt.STR_NONE;
 };
 
@@ -2283,6 +2283,7 @@ SRC_EEPC = "EEPC";
 SRC_EET = "EET";
 SRC_HotDQ = "HotDQ";
 SRC_LMoP = "LMoP";
+SRC_Mag = "Mag";
 SRC_MM = "MM";
 SRC_OotA = "OotA";
 SRC_PHB = "PHB";
@@ -2457,6 +2458,7 @@ Parser.SOURCE_JSON_TO_FULL[SRC_EEPC] = "Elemental Evil Player's Companion";
 Parser.SOURCE_JSON_TO_FULL[SRC_EET] = "Elemental Evil: Trinkets";
 Parser.SOURCE_JSON_TO_FULL[SRC_HotDQ] = "Hoard of the Dragon Queen";
 Parser.SOURCE_JSON_TO_FULL[SRC_LMoP] = "Lost Mine of Phandelver";
+Parser.SOURCE_JSON_TO_FULL[SRC_Mag] = "Dragon Magazine";
 Parser.SOURCE_JSON_TO_FULL[SRC_MM] = "Monster Manual";
 Parser.SOURCE_JSON_TO_FULL[SRC_OotA] = "Out of the Abyss";
 Parser.SOURCE_JSON_TO_FULL[SRC_PHB] = "Player's Handbook";
@@ -2611,6 +2613,7 @@ Parser.SOURCE_JSON_TO_ABV[SRC_EEPC] = "EEPC";
 Parser.SOURCE_JSON_TO_ABV[SRC_EET] = "EET";
 Parser.SOURCE_JSON_TO_ABV[SRC_HotDQ] = "HotDQ";
 Parser.SOURCE_JSON_TO_ABV[SRC_LMoP] = "LMoP";
+Parser.SOURCE_JSON_TO_ABV[SRC_Mag] = "Mag";
 Parser.SOURCE_JSON_TO_ABV[SRC_MM] = "MM";
 Parser.SOURCE_JSON_TO_ABV[SRC_OotA] = "OotA";
 Parser.SOURCE_JSON_TO_ABV[SRC_PHB] = "PHB";
@@ -2964,6 +2967,7 @@ Parser.SOURCES_ADVENTURES = new Set([
 Parser.SOURCES_CORE_SUPPLEMENTS = new Set(Object.keys(Parser.SOURCE_JSON_TO_FULL).filter(it => !Parser.SOURCES_ADVENTURES.has(it)));
 Parser.SOURCES_NON_STANDARD_WOTC = new Set([
 	SRC_OGA,
+	SRC_Mag,
 	SRC_LLK,
 	SRC_LR,
 	SRC_TTP,

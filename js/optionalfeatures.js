@@ -33,7 +33,7 @@ class OptionalFeaturesPage extends ListPage {
 
 		const source = Parser.sourceJsonToAbv(it.source);
 		const hash = UrlUtil.autoEncodeHash(it);
-		const prerequisite = Renderer.utils.getPrerequisiteHtml(it.prerequisite, {isListMode: true, blacklistKeys: new Set(["level"])});
+		const prerequisite = Renderer.utils.getPrerequisiteText(it.prerequisite, true, new Set(["level"]));
 		const level = Renderer.optionalfeature.getListPrerequisiteLevelText(it.prerequisite);
 
 		eleLi.innerHTML = `<a href="#${hash}" class="lst--border lst__row-inner">
@@ -80,7 +80,7 @@ class OptionalFeaturesPage extends ListPage {
 
 	getSublistItem (it, pinId) {
 		const hash = UrlUtil.autoEncodeHash(it);
-		const prerequisite = Renderer.utils.getPrerequisiteHtml(it.prerequisite, {isListMode: true, blacklistKeys: new Set(["level"])});
+		const prerequisite = Renderer.utils.getPrerequisiteText(it.prerequisite, true, new Set(["level"]));
 		const level = Renderer.optionalfeature.getListPrerequisiteLevelText(it.prerequisite);
 
 		const $ele = $(`<div class="lst__row lst__row--sublist flex-col">
@@ -128,7 +128,7 @@ class OptionalFeaturesPage extends ListPage {
 				.appendTo($wrpOptFeatType);
 		});
 
-		this._$pgContent.empty().append(RenderOptionalFeatures.$getRenderedOptionalFeature(it));
+		$(`#pagecontent`).empty().append(RenderOptionalFeatures.$getRenderedOptionalFeature(it));
 
 		ListUtil.updateSelected();
 	}

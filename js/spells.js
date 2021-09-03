@@ -148,21 +148,21 @@ class SpellsPage extends ListPage {
 
 	doLoadHash (id) {
 		Renderer.get().setFirstSection(true);
-		this._$pgContent.empty();
+		const $content = $("#pagecontent").empty();
 		const spell = this._dataList[id];
 
-		const buildStatsTab = () => {
-			this._$pgContent.append(RenderSpells.$getRenderedSpell(spell, SUBCLASS_LOOKUP));
-		};
+		function buildStatsTab () {
+			$content.append(RenderSpells.$getRenderedSpell(spell, SUBCLASS_LOOKUP));
+		}
 
-		const buildFluffTab = (isImageTab) => {
+		function buildFluffTab (isImageTab) {
 			return Renderer.utils.pBuildFluffTab({
 				isImageTab,
-				$content: this._$pgContent,
+				$content,
 				entity: spell,
 				pFnGetFluff: Renderer.spell.pGetFluff,
 			});
-		};
+		}
 
 		const tabMetas = [
 			new Renderer.utils.TabButton({
@@ -461,7 +461,10 @@ class SpellsPage extends ListPage {
 		});
 
 		const homebrew = await BrewUtil.pAddBrewData();
-		Renderer.spell.populateHomebrewLookup(homebrew);
+		BrewUtil.bind({pHandleBrew: () => {}}); // temporarily bind "do nothing" brew handler
+		await BrewUtil.pAddLocalBrewData(); // load local homebrew, so we can add any local spell classes
+		BrewUtil.bind({pHandleBrew: null}); // unbind temporary handler
+		Renderer.spell.populateHomebrewClassLookup(homebrew);
 
 		return {list: this._list, listSub: this._listSub};
 	}
