@@ -35,35 +35,41 @@ class PageFilter {
 		return this._filterBox;
 	}
 
+	trimState () { return this._filterBox.trimState_(); }
+
 	// region Helpers
 	static _getClassFilterItem ({className, classSource, isVariantClass, definedInSource}) {
 		const nm = className.split("(")[0].trim();
-		const variantSuffix = isVariantClass ? ` [${definedInSource ? Parser.sourceJsonToAbv(definedInSource) : "Unknown"}]` : ""
-		const sourceSuffix = (SourceUtil.isNonstandardSource(classSource || SRC_PHB) || BrewUtil.hasSourceJson(classSource || SRC_PHB))
-			? ` (${Parser.sourceJsonToAbv(classSource)})` : ""
+		const variantSuffix = isVariantClass ? ` [${definedInSource ? Parser.sourceJsonToAbv(definedInSource) : "Unknown"}]` : "";
+		const sourceSuffix = (
+			SourceUtil.isNonstandardSource(classSource || Parser.SRC_PHB)
+			|| (typeof PrereleaseUtil !== "undefined" && PrereleaseUtil.hasSourceJson(classSource || Parser.SRC_PHB))
+			|| (typeof BrewUtil2 !== "undefined" && BrewUtil2.hasSourceJson(classSource || Parser.SRC_PHB))
+		)
+			? ` (${Parser.sourceJsonToAbv(classSource)})` : "";
 		const name = `${nm}${variantSuffix}${sourceSuffix}`;
 
 		const opts = {
 			item: name,
 			userData: {
-				group: SourceUtil.getFilterGroup(classSource || SRC_PHB),
+				group: SourceUtil.getFilterGroup(classSource || Parser.SRC_PHB),
 			},
 		};
 
 		if (isVariantClass) {
 			opts.nest = definedInSource ? Parser.sourceJsonToFull(definedInSource) : "Unknown";
-			opts.userData.equivalentClassName = `${nm}${sourceSuffix}`
+			opts.userData.equivalentClassName = `${nm}${sourceSuffix}`;
 			opts.userData.definedInSource = definedInSource;
 		}
 
 		return new FilterItem(opts);
 	}
 
-	static _getSubclassFilterItem ({className, classSource, subclassShortName, subclassSource, subSubclassName, isVariantClass, definedInSource}) {
-		const group = SourceUtil.isSubclassReprinted(className, classSource, subclassShortName, subclassSource) || Parser.sourceJsonToFull(subclassSource).startsWith(UA_PREFIX) || Parser.sourceJsonToFull(subclassSource).startsWith(PS_PREFIX);
+	static _getSubclassFilterItem ({className, classSource, subclassShortName, subclassName, subclassSource, subSubclassName, isVariantClass, definedInSource}) {
+		const group = SourceUtil.isSubclassReprinted(className, classSource, subclassShortName, subclassSource) || Parser.sourceJsonToFull(subclassSource).startsWith(Parser.UA_PREFIX) || Parser.sourceJsonToFull(subclassSource).startsWith(Parser.PS_PREFIX);
 
 		const classFilterItem = this._getClassFilterItem({
-			className: subclassShortName,
+			className: subclassShortName || subclassName,
 			classSource: subclassSource,
 		});
 
@@ -75,12 +81,22 @@ class PageFilter {
 			},
 		});
 	}
+
+	static _isReprinted ({reprintedAs, tag, page, prop}) {
+		return reprintedAs?.length && reprintedAs.some(it => {
+			const {name, source} = DataUtil.generic.unpackUid(it?.uid ?? it, tag);
+			const hash = UrlUtil.URL_TO_HASH_BUILDER[page]({name, source});
+			return !ExcludeUtil.isExcluded(hash, prop, source, {isNoCount: true});
+		});
+	}
 	// endregion
 }
 
+globalThis.PageFilter = PageFilter;
+
 class ModalFilter {
 	static _$getFilterColumnHeaders (btnMeta) {
-		return btnMeta.map((it, i) => $(`<button class="col-${it.width} ${i === 0 ? "pl-0" : i === btnMeta.length ? "pr-0" : ""} ${it.disabled ? "" : "sort"} btn btn-default btn-xs" ${it.disabled ? "" : `data-sort="${it.sort}"`} ${it.title ? `title="${it.title}"` : ""} ${it.disabled ? "disabled" : ""}>${it.text}${it.disabled ? "" : ` <span class="caret_wrp"></span>`}</button>`));
+		return btnMeta.map((it, i) => $(`<button class="col-${it.width} ${i === 0 ? "pl-0" : i === btnMeta.length ? "pr-0" : ""} ${it.disabled ? "" : "sort"} btn btn-default btn-xs" ${it.disabled ? "" : `data-sort="${it.sort}"`} ${it.title ? `title="${it.title}"` : ""} ${it.disabled ? "disabled" : ""}>${it.text}</button>`));
 	}
 
 	/**
@@ -105,6 +121,8 @@ class ModalFilter {
 
 	get pageFilter () { return this._pageFilter; }
 
+	get allData () { return this._allData; }
+
 	_$getWrpList () { return $(`<div class="list ui-list__wrp overflow-x-hidden overflow-y-auto h-100 min-h-0"></div>`); }
 
 	_$getColumnHeaderPreviewAll (opts) {
@@ -126,29 +144,29 @@ class ModalFilter {
 
 		await this._pInit();
 
-		const $ovlLoading = $(`<div class="w-100 h-100 flex-vh-center"><i class="dnd-font ve-muted">Loading...</i></div>`).appendTo($wrp);
+		const $ovlLoading = $(`<div class="w-100 h-100 ve-flex-vh-center"><i class="dnd-font ve-muted">Loading...</i></div>`).appendTo($wrp);
 
 		const $iptSearch = (opts.$iptSearch || $(`<input class="form-control lst__search lst__search--no-border-h h-100" type="search" placeholder="Search...">`)).disableSpellcheck();
 		const $btnReset = opts.$btnReset || $(`<button class="btn btn-default">Reset</button>`);
-		const $dispNumVisible = $(`<div class="lst__wrp-search-visible no-events flex-vh-center"></div>`);
+		const $dispNumVisible = $(`<div class="lst__wrp-search-visible no-events ve-flex-vh-center"></div>`);
 
 		const $wrpIptSearch = $$`<div class="w-100 relative">
 			${$iptSearch}
-			<div class="lst__wrp-search-glass no-events flex-vh-center"><span class="glyphicon glyphicon-search"></span></div>
+			<div class="lst__wrp-search-glass no-events ve-flex-vh-center"><span class="glyphicon glyphicon-search"></span></div>
 			${$dispNumVisible}
-		</div>`
+		</div>`;
 
-		const $wrpFormTop = $$`<div class="flex input-group btn-group w-100 lst__form-top">${$wrpIptSearch}${$btnReset}</div>`;
+		const $wrpFormTop = $$`<div class="ve-flex input-group btn-group w-100 lst__form-top">${$wrpIptSearch}${$btnReset}</div>`;
 
 		const $wrpFormBottom = opts.$wrpMiniPills || $(`<div class="w-100"></div>`);
 
-		const $wrpFormHeaders = $(`<div class="input-group input-group--bottom flex no-shrink"></div>`);
+		const $wrpFormHeaders = $(`<div class="input-group input-group--bottom ve-flex no-shrink"></div>`);
 		const $cbSelAll = opts.isBuildUi || this._isRadio ? null : $(`<input type="checkbox">`);
 		const $btnSendAllToRight = opts.isBuildUi ? $(`<button class="btn btn-xxs btn-default col-1" title="Add All"><span class="glyphicon glyphicon-arrow-right"></span></button>`) : null;
 
 		if (!opts.isBuildUi) {
-			if (this._isRadio) $wrpFormHeaders.append(`<label class="btn btn-default btn-xs col-0-5 flex-vh-center" disabled></label>`);
-			else $$`<label class="btn btn-default btn-xs col-0-5 flex-vh-center">${$cbSelAll}</label>`.appendTo($wrpFormHeaders);
+			if (this._isRadio) $wrpFormHeaders.append(`<label class="btn btn-default btn-xs col-0-5 ve-flex-vh-center" disabled></label>`);
+			else $$`<label class="btn btn-default btn-xs col-0-5 ve-flex-vh-center">${$cbSelAll}</label>`.appendTo($wrpFormHeaders);
 		}
 
 		const $btnTogglePreviewAll = this._$getColumnHeaderPreviewAll(opts)
@@ -157,7 +175,7 @@ class ModalFilter {
 		this._$getColumnHeaders().forEach($ele => $wrpFormHeaders.append($ele));
 		if (opts.isBuildUi) $btnSendAllToRight.appendTo($wrpFormHeaders);
 
-		const $wrpForm = $$`<div class="flex-col w-100 mb-1">${$wrpFormTop}${$wrpFormBottom}${$wrpFormHeaders}</div>`;
+		const $wrpForm = $$`<div class="ve-flex-col w-100 mb-1">${$wrpFormTop}${$wrpFormBottom}${$wrpFormHeaders}</div>`;
 		const $wrpList = this._$getWrpList();
 
 		const $btnConfirm = opts.isBuildUi ? null : $(`<button class="btn btn-default">Confirm</button>`);
@@ -199,11 +217,10 @@ class ModalFilter {
 
 		const handleFilterChange = () => {
 			const f = this._pageFilter.filterBox.getValues();
-			this._list.filter(li => {
-				const it = this._allData[li.ix];
-				return this._pageFilter.toDisplay(f, it);
-			});
+			this._list.filter(li => this._isListItemMatchingFilter(f, li));
 		};
+
+		this._pageFilter.trimState();
 
 		this._pageFilter.filterBox.on(FilterBox.EVNT_VALCHANGE, handleFilterChange);
 		this._pageFilter.filterBox.render();
@@ -211,10 +228,10 @@ class ModalFilter {
 
 		$ovlLoading.remove();
 
-		const $wrpInner = $$`<div class="flex-col h-100">
+		const $wrpInner = $$`<div class="ve-flex-col h-100">
 			${$wrpForm}
 			${$wrpList}
-			${opts.isBuildUi ? null : $$`<hr class="hr-1"><div class="flex-vh-center">${$btnConfirm}</div>`}
+			${opts.isBuildUi ? null : $$`<hr class="hr-1"><div class="ve-flex-vh-center">${$btnConfirm}</div>`}
 		</div>`.appendTo($wrp.empty());
 
 		return {
@@ -226,7 +243,67 @@ class ModalFilter {
 			list: this._list,
 			$cbSelAll,
 			$btnSendAllToRight,
-		}
+		};
+	}
+
+	_isListItemMatchingFilter (f, li) { return this._isEntityItemMatchingFilter(f, this._allData[li.ix]); }
+	_isEntityItemMatchingFilter (f, it) { return this._pageFilter.toDisplay(f, it); }
+
+	async pPopulateHiddenWrapper () {
+		await this._pInit();
+
+		this._allData = this._allData || await this._pLoadAllData();
+
+		await this._pageFilter.pInitFilterBox({namespace: this._namespace});
+
+		this._allData.forEach(it => {
+			this._pageFilter.mutateAndAddToFilters(it);
+		});
+
+		this._pageFilter.trimState();
+	}
+
+	handleHiddenOpenButtonClick () {
+		this._pageFilter.filterBox.show();
+	}
+
+	handleHiddenResetButtonClick (evt) {
+		this._pageFilter.filterBox.reset(evt.shiftKey);
+	}
+
+	_getStateFromFilterExpression (filterExpression) {
+		const filterSubhashMeta = Renderer.getFilterSubhashes(Renderer.splitTagByPipe(filterExpression), this._namespace);
+		const subhashes = filterSubhashMeta.subhashes.map(it => `${it.key}${HASH_SUB_KV_SEP}${it.value}`);
+		const unpackedSubhashes = this.pageFilter.filterBox.unpackSubHashes(subhashes, {force: true});
+		return this.pageFilter.filterBox.getNextStateFromSubHashes({unpackedSubhashes});
+	}
+
+	/**
+	 * N.b.: assumes any preloading has already been done
+	 * @param filterExpression
+	 */
+	getItemsMatchingFilterExpression ({filterExpression}) {
+		const nxtStateOuter = this._getStateFromFilterExpression(filterExpression);
+
+		const f = this._pageFilter.filterBox.getValues({nxtStateOuter});
+		const filteredItems = this._filterCache.list.getFilteredItems({
+			items: this._filterCache.list.items,
+			fnFilter: li => this._isListItemMatchingFilter(f, li),
+		});
+
+		return this._filterCache.list.getSortedItems({items: filteredItems});
+	}
+
+	getEntitiesMatchingFilterExpression ({filterExpression}) {
+		const nxtStateOuter = this._getStateFromFilterExpression(filterExpression);
+
+		const f = this._pageFilter.filterBox.getValues({nxtStateOuter});
+		return this._allData.filter(this._isEntityItemMatchingFilter.bind(this, f));
+	}
+
+	getRenderedFilterExpression ({filterExpression}) {
+		const nxtStateOuter = this._getStateFromFilterExpression(filterExpression);
+		return this.pageFilter.filterBox.getDisplayState({nxtStateOuter});
 	}
 
 	/**
@@ -236,7 +313,7 @@ class ModalFilter {
 	async pGetUserSelection ({filterExpression = null} = {}) {
 		// eslint-disable-next-line no-async-promise-executor
 		return new Promise(async resolve => {
-			const {$modalInner, doClose} = this._getShowModal(resolve);
+			const {$modalInner, doClose} = await this._pGetShowModal(resolve);
 
 			await this.pPreloadHidden($modalInner);
 
@@ -257,12 +334,12 @@ class ModalFilter {
 				// endregion
 			});
 
-			this._filterCache.$iptSearch.focus();
+			await UiUtil.pDoForceFocus(this._filterCache.$iptSearch[0]);
 		});
 	}
 
-	_getShowModal (resolve) {
-		const {$modalInner, doClose} = UiUtil.getShowModal({
+	async _pGetShowModal (resolve) {
+		const {$modalInner, doClose} = await UiUtil.pGetShowModal({
 			isHeight100: true,
 			isWidth100: true,
 			title: `Filter/Search for ${this._modalTitle}`,
@@ -281,7 +358,7 @@ class ModalFilter {
 
 		const filterSubhashMeta = Renderer.getFilterSubhashes(Renderer.splitTagByPipe(filterExpression), this._namespace);
 		const subhashes = filterSubhashMeta.subhashes.map(it => `${it.key}${HASH_SUB_KV_SEP}${it.value}`);
-		this.pageFilter.filterBox.setFromSubHashes(subhashes, true);
+		this.pageFilter.filterBox.setFromSubHashes(subhashes, {force: true, $iptSearch: this._filterCache.$iptSearch});
 	}
 
 	_getNameStyle () { return `bold`; }
@@ -313,7 +390,11 @@ class ModalFilter {
 	async _getListItem () { throw new Error(`Unimplemented!`); }
 }
 
+globalThis.ModalFilter = ModalFilter;
+
 class FilterBox extends ProxyBase {
+	static TITLE_BTN_RESET = "Reset filters. SHIFT to reset everything.";
+
 	static selectFirstVisible (entryList) {
 		if (Hist.lastLoadedId == null && !Hist.initialLoad) {
 			Hist._freshLoad();
@@ -374,6 +455,7 @@ class FilterBox extends ProxyBase {
 		this._cachedState = null;
 
 		this._compSearch = BaseComponent.fromObject({search: ""});
+		this._metaIptSearch = null;
 
 		this._filters.forEach(f => f.filterBox = this);
 
@@ -394,9 +476,12 @@ class FilterBox extends ProxyBase {
 		return this;
 	}
 
-	off (identifier) {
+	off (identifier, fn = null) {
 		const [eventName, namespace] = identifier.split(".");
-		this._eventListeners[eventName] = (this._eventListeners[eventName] || []).filter(it => it.namespace !== namespace);
+		this._eventListeners[eventName] = (this._eventListeners[eventName] || []).filter(it => {
+			if (fn != null) return it.namespace !== namespace || it.fn !== fn;
+			return it.namespace !== namespace;
+		});
 		if (!this._eventListeners[eventName].length) delete this._eventListeners[eventName];
 		return this;
 	}
@@ -411,7 +496,7 @@ class FilterBox extends ProxyBase {
 	}
 	// endregion
 
-	_getNamespacedStorageKey () { return `${FilterBox._STORAGE_KEY}${this._namespace ? `.${this._namespace}` : ""}` }
+	_getNamespacedStorageKey () { return `${FilterBox._STORAGE_KEY}${this._namespace ? `.${this._namespace}` : ""}`; }
 	getNamespacedHashKey (k) { return `${k || "_".repeat(FilterUtil.SUB_HASH_PREFIX_LENGTH)}${this._namespace ? `.${this._namespace}` : ""}`; }
 
 	async pGetStoredActiveSources () {
@@ -471,6 +556,10 @@ class FilterBox extends ProxyBase {
 		await StorageUtil.pSetForPage(this._getNamespacedStorageKey(), this._getSaveableState());
 	}
 
+	trimState_ () {
+		this._filters.forEach(f => f.trimState_());
+	}
+
 	render () {
 		if (this._isRendered) {
 			// already rendered previously; simply update the filters
@@ -479,47 +568,53 @@ class FilterBox extends ProxyBase {
 		}
 		this._isRendered = true;
 
-		if (!this._$wrpMiniPills) {
-			this._$wrpMiniPills = $(`<div class="fltr__mini-view btn-group"></div>`).insertAfter(this._$wrpFormTop);
-		} else {
-			this._$wrpMiniPills.addClass("fltr__mini-view");
+		if (this._$wrpFormTop || this._$wrpMiniPills) {
+			if (!this._$wrpMiniPills) {
+				this._$wrpMiniPills = $(`<div class="fltr__mini-view btn-group"></div>`).insertAfter(this._$wrpFormTop);
+			} else {
+				this._$wrpMiniPills.addClass("fltr__mini-view");
+			}
 		}
 
 		if (this._$btnReset) {
 			this._$btnReset
-				.title("Reset filters. SHIFT to reset everything.")
+				.title(FilterBox.TITLE_BTN_RESET)
 				.click((evt) => this.reset(evt.shiftKey));
 		}
 
-		if (!this._$btnToggleSummaryHidden) {
-			this._$btnToggleSummaryHidden = $(`<button class="btn btn-default ${this._isCompact ? "p-2" : ""}" title="Toggle Filter Summary"><span class="glyphicon glyphicon-resize-small"></span></button>`)
-				.prependTo(this._$wrpFormTop);
-		} else if (!this._$btnToggleSummaryHidden.parent().length) {
-			this._$btnToggleSummaryHidden.prependTo(this._$wrpFormTop);
+		if (this._$wrpFormTop || this._$btnToggleSummaryHidden) {
+			if (!this._$btnToggleSummaryHidden) {
+				this._$btnToggleSummaryHidden = $(`<button class="btn btn-default ${this._isCompact ? "p-2" : ""}" title="Toggle Filter Summary"><span class="glyphicon glyphicon-resize-small"></span></button>`)
+					.prependTo(this._$wrpFormTop);
+			} else if (!this._$btnToggleSummaryHidden.parent().length) {
+				this._$btnToggleSummaryHidden.prependTo(this._$wrpFormTop);
+			}
+			this._$btnToggleSummaryHidden
+				.click(() => {
+					this._meta.isSummaryHidden = !this._meta.isSummaryHidden;
+					this._doSaveStateThrottled();
+				});
+			const summaryHiddenHook = () => {
+				this._$btnToggleSummaryHidden.toggleClass("active", !!this._meta.isSummaryHidden);
+				this._$wrpMiniPills.toggleClass("ve-hidden", !!this._meta.isSummaryHidden);
+			};
+			this._addHook("meta", "isSummaryHidden", summaryHiddenHook);
+			summaryHiddenHook();
 		}
-		this._$btnToggleSummaryHidden
-			.click(() => {
-				this._meta.isSummaryHidden = !this._meta.isSummaryHidden;
-				this._doSaveStateThrottled();
-			});
-		const summaryHiddenHook = () => {
-			this._$btnToggleSummaryHidden.toggleClass("active", !!this._meta.isSummaryHidden);
-			this._$wrpMiniPills.toggleClass("ve-hidden", !!this._meta.isSummaryHidden);
-		};
-		this._addHook("meta", "isSummaryHidden", summaryHiddenHook);
-		summaryHiddenHook();
 
-		if (!this._$btnOpen) {
-			this._$btnOpen = $(`<button class="btn btn-default ${this._isCompact ? "px-2" : ""}">Filter</button>`)
-				.prependTo(this._$wrpFormTop);
-		} else if (!this._$btnOpen.parent().length) {
-			this._$btnOpen.prependTo(this._$wrpFormTop);
+		if (this._$wrpFormTop || this._$btnOpen) {
+			if (!this._$btnOpen) {
+				this._$btnOpen = $(`<button class="btn btn-default ${this._isCompact ? "px-2" : ""}">Filter</button>`)
+					.prependTo(this._$wrpFormTop);
+			} else if (!this._$btnOpen.parent().length) {
+				this._$btnOpen.prependTo(this._$wrpFormTop);
+			}
+			this._$btnOpen.click(() => this.show());
 		}
-		this._$btnOpen.click(() => this.show());
 
 		const sourceFilter = this._filters.find(it => it.header === FilterBox.SOURCE_HEADER);
 		if (sourceFilter) {
-			const selFnAlt = (val) => !SourceUtil.isNonstandardSource(val) && !BrewUtil.hasSourceJson(val);
+			const selFnAlt = (val) => !SourceUtil.isNonstandardSource(val) && !PrereleaseUtil.hasSourceJson(val) && !BrewUtil2.hasSourceJson(val);
 			const hkSelFn = () => {
 				if (this._meta.isBrewDefaultHidden) sourceFilter.setTempFnSel(selFnAlt);
 				else sourceFilter.setTempFnSel(null);
@@ -529,25 +624,26 @@ class FilterBox extends ProxyBase {
 			hkSelFn();
 		}
 
-		this._filters.map((f, i) => f.$renderMinis({filterBox: this, isFirst: i === 0, $wrpMini: this._$wrpMiniPills}));
+		if (this._$wrpMiniPills) this._filters.map((f, i) => f.$renderMinis({filterBox: this, isFirst: i === 0, $wrpMini: this._$wrpMiniPills}));
 	}
 
-	_render_renderModal () {
+	async _render_pRenderModal () {
 		this._isModalRendered = true;
 
-		this._modalMeta = UiUtil.getShowModal({
+		this._modalMeta = await UiUtil.pGetShowModal({
 			isHeight100: true,
 			isWidth100: true,
 			isUncappedHeight: true,
 			isIndestructible: true,
 			isClosed: true,
 			isEmpty: true,
+			title: "Filter", // Not shown due toe `isEmpty`, but useful for external overrides
 			cbClose: (isDataEntered) => this._pHandleHide(!isDataEntered),
 		});
 
 		const $children = this._filters.map((f, i) => f.$render({filterBox: this, isFirst: i === 0, $wrpMini: this._$wrpMiniPills}));
 
-		const metaIptSearch = ComponentUiUtil.$getIptStr(
+		this._metaIptSearch = ComponentUiUtil.$getIptStr(
 			this._compSearch, "search",
 			{decorationRight: "clear", asMeta: true, html: `<input class="form-control input-xs" placeholder="Search...">`},
 		);
@@ -561,24 +657,28 @@ class FilterBox extends ProxyBase {
 		const $btnHideAllFilters = $(`<button class="btn btn-xs btn-default">Hide All</button>`)
 			.click(() => this.hideAllFilters());
 
-		const $btnReset = $(`<button class="btn btn-xs btn-default mr-3" title="Reset filters. SHIFT to reset everything.">Reset</button>`)
+		const $btnReset = $(`<button class="btn btn-xs btn-default mr-3" title="${FilterBox.TITLE_BTN_RESET}">Reset</button>`)
 			.click(evt => this.reset(evt.shiftKey));
 
 		const $btnSettings = $(`<button class="btn btn-xs btn-default mr-3"><span class="glyphicon glyphicon-cog"></span></button>`)
-			.click(() => this._openSettingsModal());
+			.click(() => this._pOpenSettingsModal());
 
 		const $btnSaveAlt = $(`<button class="btn btn-xs btn-primary" title="Save"><span class="glyphicon glyphicon-ok"></span></button>`)
 			.click(() => this._modalMeta.doClose(true));
 
 		const $wrpBtnCombineFilters = $(`<div class="btn-group mr-3"></div>`);
 		const $btnCombineFilterSettings = $(`<button class="btn btn-xs btn-default"><span class="glyphicon glyphicon-cog"></span></button>`)
-			.click(() => this._openCombineAsModal());
+			.click(() => this._pOpenCombineAsModal());
 
-		const $btnCombineFiltersAs = $(`<button class="btn btn-xs btn-default"></button>`)
-			.appendTo($wrpBtnCombineFilters)
-			.click(() => this._meta.modeCombineFilters = FilterBox._COMBINE_MODES.getNext(this._meta.modeCombineFilters));
+		const btnCombineFiltersAs = e_({
+			tag: "button",
+			clazz: `btn btn-xs btn-default`,
+			click: () => this._meta.modeCombineFilters = FilterBox._COMBINE_MODES.getNext(this._meta.modeCombineFilters),
+			title: `"AND" requires every filter to match. "OR" requires any filter to match. "Custom" allows you to specify a combination (every "AND" filter must match; only one "OR" filter must match) .`,
+		}).appendTo($wrpBtnCombineFilters[0]);
+
 		const hook = () => {
-			$btnCombineFiltersAs.text(this._meta.modeCombineFilters === "custom" ? this._meta.modeCombineFilters.uppercaseFirst() : this._meta.modeCombineFilters.toUpperCase());
+			btnCombineFiltersAs.innerText = this._meta.modeCombineFilters === "custom" ? this._meta.modeCombineFilters.uppercaseFirst() : this._meta.modeCombineFilters.toUpperCase();
 			if (this._meta.modeCombineFilters === "custom") $wrpBtnCombineFilters.append($btnCombineFilterSettings);
 			else $btnCombineFilterSettings.detach();
 			this._doSaveStateThrottled();
@@ -592,17 +692,17 @@ class FilterBox extends ProxyBase {
 		const $btnCancel = $(`<button class="btn btn-default fltr__btn-close">Cancel</button>`)
 			.click(() => this._modalMeta.doClose(false));
 
-		$$(this._modalMeta.$modal)`<div class="split mb-2 mt-2 flex-v-center mobile__flex-col">
-			<div class="flex-v-baseline mobile__flex-col">
+		$$(this._modalMeta.$modal)`<div class="split mb-2 mt-2 ve-flex-v-center mobile__ve-flex-col">
+			<div class="ve-flex-v-baseline mobile__ve-flex-col">
 				<h4 class="m-0 mr-2 mobile__mb-2">Filters</h4>
-				${metaIptSearch.$wrp.addClass("mobile__mb-2")}
+				${this._metaIptSearch.$wrp.addClass("mobile__mb-2")}
 			</div>
-			<div class="flex-v-center mobile__flex-col">
-				<div class="flex-v-center mobile__m-1">
+			<div class="ve-flex-v-center mobile__ve-flex-col">
+				<div class="ve-flex-v-center mobile__m-1">
 					<div class="mr-2">Combine as</div>
 					${$wrpBtnCombineFilters}
 				</div>
-				<div class="flex-v-center mobile__m-1">
+				<div class="ve-flex-v-center mobile__m-1">
 					<div class="btn-group mr-2">
 						${$btnShowAllFilters}
 						${$btnHideAllFilters}
@@ -620,11 +720,11 @@ class FilterBox extends ProxyBase {
 			${$children}
 		</div>
 		<hr class="my-1 w-100">
-		<div class="w-100 flex-vh-center my-1">${$btnSave}${$btnCancel}</div>`;
+		<div class="w-100 ve-flex-vh-center my-1">${$btnSave}${$btnCancel}</div>`;
 	}
 
-	_openSettingsModal () {
-		const {$modalInner} = UiUtil.getShowModal({title: "Settings"});
+	async _pOpenSettingsModal () {
+		const {$modalInner} = await UiUtil.pGetShowModal({title: "Settings"});
 
 		UiUtil.$getAddModalRowCb($modalInner, "Deselect Homebrew Sources by Default", this._meta, "isBrewDefaultHidden");
 
@@ -645,8 +745,8 @@ class FilterBox extends ProxyBase {
 			});
 	}
 
-	_openCombineAsModal () {
-		const {$modalInner} = UiUtil.getShowModal({title: "Filter Combination Logic"});
+	async _pOpenCombineAsModal () {
+		const {$modalInner} = await UiUtil.pGetShowModal({title: "Filter Combination Logic"});
 		const $btnReset = $(`<button class="btn btn-xs btn-default">Reset</button>`)
 			.click(() => {
 				Object.keys(this._combineAs).forEach(k => this._combineAs[k] = "and");
@@ -656,9 +756,9 @@ class FilterBox extends ProxyBase {
 		const $sels = this._filters.map(f => UiUtil.$getAddModalRowSel($modalInner, f.header, this._combineAs, f.header, ["and", "or"], {fnDisplay: (it) => it.toUpperCase()}));
 	}
 
-	getValues () {
+	getValues ({nxtStateOuter = null} = {}) {
 		const outObj = {};
-		this._filters.forEach(f => Object.assign(outObj, f.getValues()));
+		this._filters.forEach(f => Object.assign(outObj, f.getValues({nxtState: nxtStateOuter?.filters})));
 		return outObj;
 	}
 
@@ -666,20 +766,38 @@ class FilterBox extends ProxyBase {
 		(this._$wrpFormTop ? this._$wrpFormTop[0] : this._$btnOpen[0]).addEventListener(type, listener);
 	}
 
+	_mutNextState_reset_meta ({tgt}) {
+		Object.assign(tgt, this._getDefaultMeta());
+	}
+
+	_mutNextState_minisHidden ({tgt}) {
+		Object.assign(tgt, this._getDefaultMinisHidden(tgt));
+	}
+
+	_mutNextState_combineAs ({tgt}) {
+		Object.assign(tgt, this._getDefaultCombineAs(tgt));
+	}
+
 	_reset_meta () {
-		Object.assign(this._meta, this._getDefaultMeta());
+		const nxtBoxState = this._getNextBoxState_base();
+		this._mutNextState_reset_meta({tgt: nxtBoxState.meta});
+		this._setBoxStateFromNextBoxState(nxtBoxState);
 	}
 
 	_reset_minisHidden () {
-		Object.keys(this._minisHidden).forEach(k => this._minisHidden[k] = false);
+		const nxtBoxState = this._getNextBoxState_base();
+		this._mutNextState_minisHidden({tgt: nxtBoxState.minisHidden});
+		this._setBoxStateFromNextBoxState(nxtBoxState);
 	}
 
 	_reset_combineAs () {
-		Object.keys(this._combineAs).forEach(k => this._combineAs[k] = "and");
+		const nxtBoxState = this._getNextBoxState_base();
+		this._mutNextState_combineAs({tgt: nxtBoxState.combineAs});
+		this._setBoxStateFromNextBoxState(nxtBoxState);
 	}
 
 	reset (isResetAll) {
-		this._filters.forEach(f => f.reset(isResetAll));
+		this._filters.forEach(f => f.reset({isResetAll}));
 		if (isResetAll) {
 			this._reset_meta();
 			this._reset_minisHidden();
@@ -689,10 +807,11 @@ class FilterBox extends ProxyBase {
 		this.fireChangeEvent();
 	}
 
-	show () {
-		if (!this._isModalRendered) this._render_renderModal();
+	async show () {
+		if (!this._isModalRendered) await this._render_pRenderModal();
 		this._cachedState = this._getSaveableState();
 		this._modalMeta.doOpen();
+		if (this._metaIptSearch?.$ipt) this._metaIptSearch.$ipt.focus();
 	}
 
 	async _pHandleHide (isCancel = false) {
@@ -730,7 +849,8 @@ class FilterBox extends ProxyBase {
 		this._filters.forEach(f => f.hide());
 	}
 
-	setFromSubHashes (subHashes, force = false) {
+	unpackSubHashes (subHashes, {force = false} = {}) {
+		// TODO(unpack) refactor
 		const unpacked = {};
 		subHashes.forEach(s => {
 			const unpackedPart = UrlUtil.unpackSubHash(s, true);
@@ -739,14 +859,16 @@ class FilterBox extends ProxyBase {
 			unpackedPart[k] = {clean: unpackedPart[k], raw: s};
 			Object.assign(unpacked, unpackedPart);
 		});
+
 		const urlHeaderToFilter = {};
 		this._filters.forEach(f => {
 			const childFilters = f.getChildFilters();
 			if (childFilters.length) childFilters.forEach(f => urlHeaderToFilter[f.header.toLowerCase()] = f);
 			urlHeaderToFilter[f.header.toLowerCase()] = f;
 		});
-		const updatedUrlHeaders = new Set();
-		const consumed = new Set();
+
+		const urlHeadersUpdated = new Set();
+		const subHashesConsumed = new Set();
 		let filterInitialSearch;
 
 		const filterBoxState = {};
@@ -761,50 +883,121 @@ class FilterBox extends ProxyBase {
 
 				if (FilterUtil.SUB_HASH_PREFIXES.has(prefix) && urlHeaderToFilter[urlHeader]) {
 					(statePerFilter[urlHeader] = statePerFilter[urlHeader] || {})[prefix] = data.clean;
-					updatedUrlHeaders.add(urlHeader);
-					consumed.add(data.raw);
-				} else if (Object.values(FilterBox._SUB_HASH_PREFIXES).includes(prefix)) {
+					urlHeadersUpdated.add(urlHeader);
+					subHashesConsumed.add(data.raw);
+					return;
+				}
+
+				if (Object.values(FilterBox._SUB_HASH_PREFIXES).includes(prefix)) {
 					// special case for the search """state"""
 					if (prefix === VeCt.FILTER_BOX_SUB_HASH_SEARCH_PREFIX) filterInitialSearch = data.clean[0];
 					else filterBoxState[prefix] = data.clean;
-					consumed.add(data.raw);
-				} else if (FilterUtil.SUB_HASH_PREFIXES.has(prefix)) throw new Error(`Could not find filter with header ${urlHeader} for subhash ${data.raw}`)
+					subHashesConsumed.add(data.raw);
+					return;
+				}
+
+				if (FilterUtil.SUB_HASH_PREFIXES.has(prefix)) throw new Error(`Could not find filter with header ${urlHeader} for subhash ${data.raw}`);
 			});
 
-		if (consumed.size || force) {
-			this._setFromSubHashState(urlHeaderToFilter, filterBoxState);
+		if (!subHashesConsumed.size && !force) return null;
 
-			Object.entries(statePerFilter).forEach(([urlHeader, state]) => {
-				const filter = urlHeaderToFilter[urlHeader];
-				filter.setFromSubHashState(state);
-			});
-
-			// reset any other state/meta state/etc
-			Object.keys(urlHeaderToFilter)
-				.filter(k => !updatedUrlHeaders.has(k))
-				.forEach(k => {
-					const filter = urlHeaderToFilter[k];
-					filter.resetShallow(true);
-				});
-
-			const [link] = Hist.getHashParts();
-
-			const outSub = [];
-			Object.values(unpacked)
-				.filter(v => !consumed.has(v.raw))
-				.forEach(v => outSub.push(v.raw));
-
-			Hist.setSuppressHistory(true);
-			Hist.replaceHistoryHash(`${link}${outSub.length ? `${HASH_PART_SEP}${outSub.join(HASH_PART_SEP)}` : ""}`);
-
-			if (filterInitialSearch && this._$iptSearch) this._$iptSearch.val(filterInitialSearch).change().keydown().keyup();
-			this.fireChangeEvent();
-			Hist.hashChange();
-			return outSub;
-		} else return subHashes;
+		return {
+			urlHeaderToFilter,
+			filterBoxState,
+			statePerFilter,
+			urlHeadersUpdated,
+			unpacked,
+			subHashesConsumed,
+			filterInitialSearch,
+		};
 	}
 
-	_setFromSubHashState (urlHeaderToFilter, filterBoxState) {
+	setFromSubHashes (subHashes, {force = false, $iptSearch = null} = {}) {
+		const unpackedSubhashes = this.unpackSubHashes(subHashes, {force});
+
+		if (unpackedSubhashes == null) return subHashes;
+
+		const {
+			unpacked,
+			subHashesConsumed,
+			filterInitialSearch,
+		} = unpackedSubhashes;
+
+		// region Update filter state
+		const {box: nxtStateBox, filters: nxtStatesFilters} = this.getNextStateFromSubHashes({unpackedSubhashes});
+
+		this._setBoxStateFromNextBoxState(nxtStateBox);
+
+		this._filters
+			.flatMap(f => [
+				f,
+				...f.getChildFilters(),
+			])
+			.filter(filter => nxtStatesFilters[filter.header])
+			.forEach(filter => filter.setStateFromNextState(nxtStatesFilters));
+		// endregion
+
+		// region Update search input value
+		if (filterInitialSearch && ($iptSearch || this._$iptSearch)) ($iptSearch || this._$iptSearch).val(filterInitialSearch).change().keydown().keyup().trigger("instantKeyup");
+		// endregion
+
+		// region Re-assemble and return remaining subhashes
+		const [link] = Hist.getHashParts();
+
+		const outSub = [];
+		Object.values(unpacked)
+			.filter(v => !subHashesConsumed.has(v.raw))
+			.forEach(v => outSub.push(v.raw));
+
+		Hist.setSuppressHistory(true);
+		Hist.replaceHistoryHash(`${link}${outSub.length ? `${HASH_PART_SEP}${outSub.join(HASH_PART_SEP)}` : ""}`);
+
+		this.fireChangeEvent();
+		Hist.hashChange({isBlankFilterLoad: true});
+		return outSub;
+		// endregion
+	}
+
+	getNextStateFromSubHashes ({unpackedSubhashes}) {
+		const {
+			urlHeaderToFilter,
+			filterBoxState,
+			statePerFilter,
+			urlHeadersUpdated,
+		} = unpackedSubhashes;
+
+		const nxtStateBox = this._getNextBoxStateFromSubHashes(urlHeaderToFilter, filterBoxState);
+
+		const nxtStateFilters = {};
+
+		Object.entries(statePerFilter)
+			.forEach(([urlHeader, state]) => {
+				const filter = urlHeaderToFilter[urlHeader];
+				Object.assign(nxtStateFilters, filter.getNextStateFromSubhashState(state));
+			});
+
+		// reset any other state/meta state/etc
+		Object.keys(urlHeaderToFilter)
+			.filter(k => !urlHeadersUpdated.has(k))
+			.forEach(k => {
+				const filter = urlHeaderToFilter[k];
+				Object.assign(nxtStateFilters, filter.getNextStateFromSubhashState(null));
+			});
+
+		return {box: nxtStateBox, filters: nxtStateFilters};
+	}
+
+	_getNextBoxState_base () {
+		return {
+			meta: MiscUtil.copyFast(this.__meta),
+			minisHidden: MiscUtil.copyFast(this.__minisHidden),
+			combineAs: MiscUtil.copyFast(this.__combineAs),
+		};
+	}
+
+	_getNextBoxStateFromSubHashes (urlHeaderToFilter, filterBoxState) {
+		const nxtBoxState = this._getNextBoxState_base();
+
 		let hasMeta = false;
 		let hasMinisHidden = false;
 		let hasCombineAs = false;
@@ -815,37 +1008,45 @@ class FilterBox extends ProxyBase {
 				case "meta": {
 					hasMeta = true;
 					const data = vals.map(v => UrlUtil.mini.decompress(v));
-					Object.keys(this._getDefaultMeta()).forEach((k, i) => this._meta[k] = data[i]);
+					Object.keys(this._getDefaultMeta()).forEach((k, i) => nxtBoxState.meta[k] = data[i]);
 					break;
 				}
 				case "minisHidden": {
 					hasMinisHidden = true;
-					Object.keys(this._minisHidden).forEach(k => this._minisHidden[k] = false);
+					Object.keys(nxtBoxState.minisHidden).forEach(k => nxtBoxState.minisHidden[k] = false);
 					vals.forEach(v => {
 						const [urlHeader, isHidden] = v.split("=");
 						const filter = urlHeaderToFilter[urlHeader];
 						if (!filter) throw new Error(`Could not find filter with name "${urlHeader}"`);
-						this._minisHidden[filter.header] = !!Number(isHidden);
+						nxtBoxState.minisHidden[filter.header] = !!Number(isHidden);
 					});
 					break;
 				}
 				case "combineAs": {
 					hasCombineAs = true;
-					Object.keys(this._combineAs).forEach(k => this._combineAs[k] = "and");
+					Object.keys(nxtBoxState.combineAs).forEach(k => nxtBoxState.combineAs[k] = "and");
 					vals.forEach(v => {
 						const [urlHeader, ixCombineMode] = v.split("=");
 						const filter = urlHeaderToFilter[urlHeader];
 						if (!filter) throw new Error(`Could not find filter with name "${urlHeader}"`);
-						this._combineAs[filter.header] = FilterBox._COMBINE_MODES[ixCombineMode] || FilterBox._COMBINE_MODES[0];
+						nxtBoxState.combineAs[filter.header] = FilterBox._COMBINE_MODES[ixCombineMode] || FilterBox._COMBINE_MODES[0];
 					});
 					break;
 				}
 			}
 		});
 
-		if (!hasMeta) this._reset_meta();
-		if (!hasMinisHidden) this._reset_minisHidden();
-		if (!hasCombineAs) this._reset_combineAs();
+		if (!hasMeta) this._mutNextState_reset_meta({tgt: nxtBoxState.meta});
+		if (!hasMinisHidden) this._mutNextState_minisHidden({tgt: nxtBoxState.minisHidden});
+		if (!hasCombineAs) this._mutNextState_combineAs({tgt: nxtBoxState.combineAs});
+
+		return nxtBoxState;
+	}
+
+	_setBoxStateFromNextBoxState (nxtBoxState) {
+		this._proxyAssignSimple("meta", nxtBoxState.meta, true);
+		this._proxyAssignSimple("minisHidden", nxtBoxState.minisHidden, true);
+		this._proxyAssignSimple("combineAs", nxtBoxState.combineAs, true);
 	}
 
 	/**
@@ -892,8 +1093,21 @@ class FilterBox extends ProxyBase {
 		return out.length ? out : null;
 	}
 
+	getFilterTag () {
+		const parts = this._filters.map(f => f.getFilterTagPart()).filter(Boolean);
+		return `{@filter |${UrlUtil.getCurrentPage().replace(/\.html$/, "")}|${parts.join("|")}}`;
+	}
+
+	getDisplayState ({nxtStateOuter = null} = {}) {
+		return this._filters
+			.map(filter => filter.getDisplayStatePart({nxtState: nxtStateOuter?.filters}))
+			.filter(Boolean)
+			.join("; ");
+	}
+
 	setFromValues (values) {
 		this._filters.forEach(it => it.setFromValues(values));
+		this.fireChangeEvent();
 	}
 
 	toDisplay (boxState, ...entryVals) {
@@ -925,10 +1139,10 @@ class FilterBox extends ProxyBase {
 					const f = filters[i];
 					if (!this._combineAs[f.header] || this._combineAs[f.header] === "and") { // default to "and" if undefined
 						andFilters.push(f);
-						andValues.push(entryVals[i])
+						andValues.push(entryVals[i]);
 					} else {
 						orFilters.push(f);
-						orValues.push(entryVals[i])
+						orValues.push(entryVals[i]);
 					}
 				}
 
@@ -962,6 +1176,18 @@ class FilterBox extends ProxyBase {
 		const out = MiscUtil.copy(FilterBox._DEFAULT_META);
 		if (this._isCompact) out.isSummaryHidden = true;
 		return out;
+	}
+
+	_getDefaultMinisHidden (minisHidden) {
+		if (!minisHidden) throw new Error(`Missing "minisHidden" argument!`);
+		return Object.keys(minisHidden)
+			.mergeMap(k => ({[k]: false}));
+	}
+
+	_getDefaultCombineAs (combineAs) {
+		if (!combineAs) throw new Error(`Missing "combineAs" argument!`);
+		return Object.keys(combineAs)
+			.mergeMap(k => ({[k]: "and"}));
 	}
 }
 FilterBox.EVNT_VALCHANGE = "valchange";
@@ -1042,37 +1268,57 @@ class FilterBase extends BaseComponent {
 
 	getBaseSaveableState () { return {meta: {...this.__meta}}; }
 
-	resetBase () {
-		Object.assign(this._meta, MiscUtil.copy(this.getDefaultMeta()));
+	_getNextState_base () {
+		return {
+			[this.header]: {
+				state: MiscUtil.copyFast(this.__state),
+				meta: MiscUtil.copyFast(this.__meta),
+			},
+		};
+	}
+
+	setStateFromNextState (nxtState) {
+		this._proxyAssignSimple("state", nxtState[this.header].state, true);
+		this._proxyAssignSimple("meta", nxtState[this.header].meta, true);
+	}
+
+	reset ({isResetAll = false} = {}) {
+		const nxtState = this._getNextState_base();
+		this._mutNextState_reset(nxtState, {isResetAll});
+		this.setStateFromNextState(nxtState);
+	}
+
+	_mutNextState_resetBase (nxtState, {isResetAll = false} = {}) {
+		Object.assign(nxtState[this.header].meta, MiscUtil.copy(this.getDefaultMeta()));
 	}
 
 	getMetaSubHashes () {
-		const defaultMeta = this.getDefaultMeta();
-		const anyNotDefault = Object.keys(defaultMeta).find(k => this._meta[k] !== defaultMeta[k]);
-		if (anyNotDefault) {
-			const serMeta = Object.keys(defaultMeta).map(k => UrlUtil.mini.compress(this._meta[k] === undefined ? defaultMeta[k] : this._meta[k]));
-			return [UrlUtil.packSubHash(this.getSubHashPrefix("meta", this.header), serMeta)]
-		} else return null;
+		const compressedMeta = this._getCompressedMeta();
+		if (!compressedMeta) return null;
+		return [UrlUtil.packSubHash(this.getSubHashPrefix("meta", this.header), compressedMeta)];
 	}
 
-	setMetaFromSubHashState (state) {
-		const hasMeta = this._doApplyMeta(state, this.getDefaultMeta());
-		if (!hasMeta) this.resetBase();
+	_mutNextState_meta_fromSubHashState (nxtState, subHashState) {
+		const hasMeta = this._mutNextState_meta_fromSubHashState_mutGetHasMeta(nxtState, subHashState, this.getDefaultMeta());
+		if (!hasMeta) this._mutNextState_resetBase(nxtState);
 	}
 
-	_doApplyMeta (state, defaultMeta) {
+	_mutNextState_meta_fromSubHashState_mutGetHasMeta (nxtState, state, defaultMeta) {
 		let hasMeta = false;
-		Object.entries(state).forEach(([k, vals]) => {
-			const prop = FilterBase.getProp(k);
-			if (prop === "meta") {
+
+		Object.entries(state)
+			.forEach(([k, vals]) => {
+				const prop = FilterBase.getProp(k);
+				if (prop !== "meta") return;
+
 				hasMeta = true;
 				const data = vals.map(v => UrlUtil.mini.decompress(v));
 				Object.keys(defaultMeta).forEach((k, i) => {
-					if (data[i] !== undefined) this._meta[k] = data[i];
-					else this._meta[k] = defaultMeta[k];
+					if (data[i] !== undefined) nxtState[this.header].meta[k] = data[i];
+					else nxtState[this.header].meta[k] = defaultMeta[k];
 				});
-			}
-		});
+			});
+
 		return hasMeta;
 	}
 
@@ -1093,7 +1339,7 @@ class FilterBase extends BaseComponent {
 	_getBtnMobToggleControls (wrpControls) {
 		const btnMobToggleControls = e_({
 			tag: "button",
-			clazz: `btn btn-xs btn-default mobile__visible ml-2 px-3`,
+			clazz: `btn btn-xs btn-default mobile__visible ml-auto px-3 mr-2`,
 			html: `<span class="glyphicon glyphicon-option-vertical"></span>`,
 			click: () => this._meta.isMobileHeaderHidden = !this._meta.isMobileHeaderHidden,
 		});
@@ -1118,11 +1364,29 @@ class FilterBase extends BaseComponent {
 		return vals[this.header]._isActive;
 	}
 
+	_getCompressedMeta ({isStripUiKeys = false} = {}) {
+		const defaultMeta = this.getDefaultMeta();
+		const isAnyNotDefault = Object.keys(defaultMeta).some(k => this._meta[k] !== defaultMeta[k]);
+		if (!isAnyNotDefault) return null;
+
+		let keys = Object.keys(defaultMeta);
+
+		if (isStripUiKeys) {
+			// Always pop the trailing n keys, as these are all UI options, which we don't want to embed in @filter tags
+			const popCount = Object.keys(FilterBase._DEFAULT_META).length;
+			if (popCount) keys = keys.slice(0, -popCount);
+		}
+
+		// Pop keys from the end if they match the default value
+		while (keys.length && defaultMeta[keys.last()] === this._meta[keys.last()]) keys.pop();
+
+		return keys.map(k => UrlUtil.mini.compress(this._meta[k] === undefined ? defaultMeta[k] : this._meta[k]));
+	}
+
 	$render () { throw new Error(`Unimplemented!`); }
 	$renderMinis () { throw new Error(`Unimplemented!`); }
-	getValues () { throw new Error(`Unimplemented!`); }
-	reset () { throw new Error(`Unimplemented!`); }
-	resetShallow () { throw new Error(`Unimplemented!`); }
+	getValues ({nxtState = null} = {}) { throw new Error(`Unimplemented!`); }
+	_mutNextState_reset () { throw new Error(`Unimplemented!`); }
 	update () { throw new Error(`Unimplemented!`); }
 	toDisplay () { throw new Error(`Unimplemented!`); }
 	addItem () { throw new Error(`Unimplemented!`); }
@@ -1130,10 +1394,13 @@ class FilterBase extends BaseComponent {
 	getSaveableState () { throw new Error(`Unimplemented!`); }
 	setStateFromLoaded () { throw new Error(`Unimplemented!`); }
 	getSubHashes () { throw new Error(`Unimplemented!`); }
-	setFromSubHashState () { throw new Error(`Unimplemented!`); }
+	getNextStateFromSubhashState () { throw new Error(`Unimplemented!`); }
 	setFromValues () { throw new Error(`Unimplemented!`); }
 	handleSearch () { throw new Error(`Unimplemented`); }
+	getFilterTagPart () { throw new Error(`Unimplemented`); }
+	getDisplayStatePart ({nxtState = null} = {}) { throw new Error(`Unimplemented`); }
 	_doTeardown () { /* No-op */ }
+	trimState_ () { /* No-op */ }
 }
 FilterBase._DEFAULT_META = {
 	isHidden: false,
@@ -1191,7 +1458,7 @@ class Filter extends FilterBase {
 	 * @param [opts.umbrellaItems] Items which should, when set active, show everything in the filter. E.g. "All".
 	 * @param [opts.umbrellaExcludes] Items which should ignore the state of any `umbrellaItems`
 	 * @param [opts.isSortByDisplayItems] If items should be sorted by their display value, rather than their internal value.
-	 * @param [opts.isSrdFilter] If this filter's items include the "SRD" tag.
+	 * @param [opts.isMiscFilter] If this is the Misc. filter (containing "SRD" and "Basic Rules" tags).
 	 */
 	constructor (opts) {
 		super(opts);
@@ -1211,7 +1478,9 @@ class Filter extends FilterBase {
 		this._umbrellaItems = Filter._getAsFilterItems(opts.umbrellaItems);
 		this._umbrellaExcludes = Filter._getAsFilterItems(opts.umbrellaExcludes);
 		this._isSortByDisplayItems = !!opts.isSortByDisplayItems;
-		this._isSrdFilter = !!opts.isSrdFilter;
+		this._isReprintedFilter = !!opts.isMiscFilter && this._items.some(it => it.item === "Reprinted");
+		this._isSrdFilter = !!opts.isMiscFilter && this._items.some(it => it.item === "SRD");
+		this._isBasicRulesFilter = !!opts.isMiscFilter && this._items.some(it => it.item === "Basic Rules");
 
 		Filter._validateItemNests(this._items, this._nests);
 
@@ -1229,7 +1498,9 @@ class Filter extends FilterBase {
 		this._pillGroupsMeta = {};
 	}
 
+	get isReprintedFilter () { return this._isReprintedFilter; }
 	get isSrdFilter () { return this._isSrdFilter; }
+	get isBasicRulesFilter () { return this._isBasicRulesFilter; }
 
 	getSaveableState () {
 		return {
@@ -1250,17 +1521,24 @@ class Filter extends FilterBase {
 		}
 	}
 
+	_getStateNotDefault ({nxtState = null} = {}) {
+		const state = nxtState?.[this.header]?.state || this.__state;
+
+		return Object.entries(state)
+			.filter(([k, v]) => {
+				if (k.startsWith("_")) return false;
+				const defState = this._getDefaultState(k);
+				return defState !== v;
+			});
+	}
+
 	getSubHashes () {
 		const out = [];
 
 		const baseMeta = this.getMetaSubHashes();
 		if (baseMeta) out.push(...baseMeta);
 
-		const areNotDefaultState = Object.entries(this._state).filter(([k, v]) => {
-			if (k.startsWith("_")) return false;
-			const defState = this._getDefaultState(k);
-			return defState !== v;
-		});
+		const areNotDefaultState = this._getStateNotDefault();
 		if (areNotDefaultState.length) {
 			// serialize state as `key=value` pairs
 			const serPillStates = areNotDefaultState.map(([k, v]) => `${k.toUrlified()}=${v}`);
@@ -1277,8 +1555,56 @@ class Filter extends FilterBase {
 		if (!out.length) return null;
 
 		// Always extend default state
-		out.push(UrlUtil.packSubHash(this.getSubHashPrefix("options", this.header), ["extend"]))
+		out.push(UrlUtil.packSubHash(this.getSubHashPrefix("options", this.header), ["extend"]));
 		return out;
+	}
+
+	getFilterTagPart () {
+		const areNotDefaultState = this._getStateNotDefault();
+		const compressedMeta = this._getCompressedMeta({isStripUiKeys: true});
+
+		// If _any_ value is non-default, we need to include _all_ values in the tag
+		// The same goes for meta values
+		if (!areNotDefaultState.length && !compressedMeta) return null;
+
+		const pt = Object.entries(this._state)
+			.filter(([k]) => !k.startsWith("_"))
+			.filter(([, v]) => v)
+			.map(([k, v]) => `${v === 2 ? "!" : ""}${k}`)
+			.join(";")
+			.toLowerCase();
+
+		return [
+			this.header.toLowerCase(),
+			pt,
+			compressedMeta ? compressedMeta.join(HASH_SUB_LIST_SEP) : null,
+		]
+			.filter(it => it != null)
+			.join("=");
+	}
+
+	getDisplayStatePart ({nxtState = null} = {}) {
+		const state = nxtState?.[this.header]?.state || this.__state;
+
+		const areNotDefaultState = this._getStateNotDefault({nxtState});
+
+		// If _any_ value is non-default, we need to include _all_ values in the tag
+		if (!areNotDefaultState.length) return null;
+
+		const ptState = Object.entries(state)
+			.filter(([k]) => !k.startsWith("_"))
+			.filter(([, v]) => v)
+			.map(([k, v]) => {
+				const item = this._items.find(item => `${item.item}` === k);
+				if (!item) return null; // Should never occur
+				return `${v === 2 ? "not " : ""}${this._displayFn ? this._displayFn(item.item, item) : item.item}`;
+			})
+			.filter(Boolean)
+			.join(", ");
+
+		if (!ptState) return null;
+
+		return `${this.header}: ${ptState}`;
 	}
 
 	/**
@@ -1305,8 +1631,20 @@ class Filter extends FilterBase {
 		return new FilterTransientOptions(opts);
 	}
 
-	setFromSubHashState (state) {
-		this.setMetaFromSubHashState(state);
+	setStateFromNextState (nxtState) {
+		super.setStateFromNextState(nxtState);
+		this._proxyAssignSimple("nestsHidden", nxtState[this.header].nestsHidden, true);
+	}
+
+	getNextStateFromSubhashState (state) {
+		const nxtState = this._getNextState_base();
+
+		if (state == null) {
+			this._mutNextState_reset(nxtState);
+			return nxtState;
+		}
+
+		this._mutNextState_meta_fromSubHashState(nxtState, state);
 		const transientOptions = this._getOptionsFromSubHashState(state);
 
 		let hasState = false;
@@ -1317,43 +1655,40 @@ class Filter extends FilterBase {
 			switch (prop) {
 				case "state": {
 					hasState = true;
-					const nxtState = {};
-
 					if (transientOptions.isExtendDefaultState) {
-						Object.keys(this._state).forEach(k => nxtState[k] = this._getDefaultState(k));
+						Object.keys(nxtState[this.header].state).forEach(k => nxtState[this.header].state[k] = this._getDefaultState(k));
 					} else {
 						// This allows e.g. @filter tags to cleanly specify their sources
-						Object.keys(this._state).forEach(k => nxtState[k] = 0);
+						Object.keys(nxtState[this.header].state).forEach(k => nxtState[this.header].state[k] = 0);
 					}
 
 					vals.forEach(v => {
 						const [statePropLower, state] = v.split("=");
-						const stateProp = Object.keys(this._state).find(k => k.toLowerCase() === statePropLower);
-						if (stateProp) nxtState[stateProp] = Number(state);
+						const stateProp = Object.keys(nxtState[this.header].state).find(k => k.toLowerCase() === statePropLower);
+						if (stateProp) nxtState[this.header].state[stateProp] = Number(state);
 					});
-					this._setState(nxtState);
 					break;
 				}
 				case "nestsHidden": {
 					hasNestsHidden = true;
-					const nxtNestsHidden = {};
-					Object.keys(this._nestsHidden).forEach(k => {
+					Object.keys(nxtState[this.header].nestsHidden).forEach(k => {
 						const nestKey = Object.keys(this._nests).find(it => k.toLowerCase() === it.toLowerCase());
-						nxtNestsHidden[k] = this._nests[nestKey] && this._nests[nestKey].isHidden;
+						nxtState[this.header].nestsHidden[k] = this._nests[nestKey] && this._nests[nestKey].isHidden;
 					});
 					vals.forEach(v => {
 						const [nestNameLower, state] = v.split("=");
-						const nestName = Object.keys(this._nestsHidden).find(k => k.toLowerCase() === nestNameLower);
-						if (nestName) nxtNestsHidden[nestName] = !!Number(state);
+						const nestName = Object.keys(nxtState[this.header].nestsHidden).find(k => k.toLowerCase() === nestNameLower);
+						if (nestName) nxtState[this.header].nestsHidden[nestName] = !!Number(state);
 					});
-					this._proxyAssign("nestsHidden", "_nestsHidden", "__nestsHidden", nxtNestsHidden, true);
 					break;
 				}
 			}
 		});
 
-		if (!hasState) this.reset();
-		if (!hasNestsHidden) this._resetNestsHidden();
+		if (!hasState) this._mutNextState_reset(nxtState);
+		if (!hasNestsHidden && this._nests) this._mutNextState_resetNestsHidden({tgt: nxtState[this.header].nestsHidden});
+
+		return nxtState;
 	}
 
 	setFromValues (values) {
@@ -1365,8 +1700,9 @@ class Filter extends FilterBase {
 
 	setValue (k, v) { this._state[k] = v; }
 
-	_resetNestsHidden () {
-		if (this._nests) Object.entries(this._nests).forEach(([nestName, nestMeta]) => this._nestsHidden[nestName] = !!nestMeta.isHidden);
+	_mutNextState_resetNestsHidden ({tgt}) {
+		if (!this._nests) return;
+		Object.entries(this._nests).forEach(([nestName, nestMeta]) => tgt[nestName] = !!nestMeta.isHidden);
 	}
 
 	_defaultItemState (item) {
@@ -1376,33 +1712,24 @@ class Filter extends FilterBase {
 
 	_getDefaultState (k) { return this._deselFn && this._deselFn(k) ? 2 : this._selFn && this._selFn(k) ? 1 : 0; }
 
+	_getDisplayText (item) {
+		return this._displayFn ? this._displayFn(item.item, item) : item.item;
+	}
+
 	_getPill (item) {
-		const displayText = this._displayFn ? this._displayFn(item.item, item) : item.item;
+		const displayText = this._getDisplayText(item);
 
 		const btnPill = e_({
 			tag: "div",
 			clazz: "fltr__pill",
 			html: displayText,
-			click: evt => {
-				if (evt.shiftKey) {
-					const nxtState = {};
-					Object.keys(this._state).forEach(k => nxtState[k] = 0);
-					this._proxyAssign("state", "_state", "__state", nxtState, true);
-				}
-
-				if (++this._state[item.item] > 2) this._state[item.item] = 0;
-			},
-			contextmenu: (evt) => {
-				evt.preventDefault();
-
-				if (--this._state[item.item] < 0) this._state[item.item] = 2;
-			},
+			click: evt => this._getPill_handleClick({evt, item}),
+			contextmenu: evt => this._getPill_handleContextmenu({evt, item}),
 		});
 
 		const hook = () => {
 			const val = FilterBox._PILL_STATES[this._state[item.item]];
 			btnPill.attr("state", val);
-			if (item.pFnChange) item.pFnChange(item.item, val);
 		};
 		this._addHook("state", item.item, hook);
 		hook();
@@ -1410,6 +1737,24 @@ class Filter extends FilterBase {
 		item.searchText = displayText.toLowerCase();
 
 		return btnPill;
+	}
+
+	_getPill_handleClick ({evt, item}) {
+		if (evt.shiftKey) {
+			this._doSetPillsClear();
+		}
+
+		if (++this._state[item.item] > 2) this._state[item.item] = 0;
+	}
+
+	_getPill_handleContextmenu ({evt, item}) {
+		evt.preventDefault();
+
+		if (evt.shiftKey) {
+			this._doSetPillsClear();
+		}
+
+		if (--this._state[item.item] < 0) this._state[item.item] = 2;
 	}
 
 	setTempFnSel (tempFnSel) {
@@ -1424,7 +1769,7 @@ class Filter extends FilterBase {
 			const isDefaultSel = this._selFn && this._selFn(it.item);
 			it.btnMini
 				.toggleClass("fltr__mini-pill--default-desel", isDefaultDesel)
-				.toggleClass("fltr__mini-pill--default-sel", isDefaultSel)
+				.toggleClass("fltr__mini-pill--default-sel", isDefaultSel);
 		});
 	}
 
@@ -1442,7 +1787,12 @@ class Filter extends FilterBase {
 			},
 		}).attr("state", FilterBox._PILL_STATES[this._state[item.item]]);
 
-		const hook = () => btnMini.attr("state", FilterBox._PILL_STATES[this._state[item.item]]);
+		const hook = () => {
+			const val = FilterBox._PILL_STATES[this._state[item.item]];
+			btnMini.attr("state", val);
+			// Bind change handlers in the mini-pill render step, as the mini-pills should always be available.
+			if (item.pFnChange) item.pFnChange(item.item, val);
+		};
 		this._addHook("state", item.item, hook);
 
 		const hideHook = () => btnMini.toggleClass("ve-hidden", this._filterBox.isMinisHidden(this.header));
@@ -1452,21 +1802,30 @@ class Filter extends FilterBase {
 	}
 
 	_doSetPillsAll () {
-		Object.keys(this._state).forEach(k => {
-			if (this._state[k] !== 1) this._state[k] = 1;
-		});
+		this._proxyAssignSimple(
+			"state",
+			Object.keys(this._state)
+				.mergeMap(k => ({[k]: 1})),
+			true,
+		);
 	}
 
 	_doSetPillsClear () {
-		Object.keys(this._state).forEach(k => {
-			if (this._state[k] !== 0) this._state[k] = 0;
-		});
+		this._proxyAssignSimple(
+			"state",
+			Object.keys(this._state)
+				.mergeMap(k => ({[k]: 0})),
+			true,
+		);
 	}
 
 	_doSetPillsNone () {
-		Object.keys(this._state).forEach(k => {
-			if (this._state[k] !== 2) this._state[k] = 2;
-		});
+		this._proxyAssignSimple(
+			"state",
+			Object.keys(this._state)
+				.mergeMap(k => ({[k]: 2})),
+			true,
+		);
 	}
 
 	_doSetPinsDefault () {
@@ -1501,11 +1860,11 @@ class Filter extends FilterBase {
 
 		const wrpStateBtnsOuter = e_({
 			tag: "div",
-			clazz: "flex-v-center fltr__h-wrp-state-btns-outer",
+			clazz: "ve-flex-v-center fltr__h-wrp-state-btns-outer",
 			children: [
 				e_({
 					tag: "div",
-					clazz: "btn-group flex-v-center w-100",
+					clazz: "btn-group ve-flex-v-center w-100",
 					children: [
 						btnAll,
 						btnClear,
@@ -1517,13 +1876,13 @@ class Filter extends FilterBase {
 		});
 		this._getHeaderControls_addExtraStateBtns(opts, wrpStateBtnsOuter);
 
-		const wrpSummary = e_({tag: "div", clazz: "flex-vh-center ve-hidden"});
+		const wrpSummary = e_({tag: "div", clazz: "ve-flex-vh-center ve-hidden"});
 
 		const btnCombineBlue = e_({
 			tag: "button",
 			clazz: `btn btn-default ${opts.isMulti ? "btn-xxs" : "btn-xs"} fltr__h-btn-logic--blue fltr__h-btn-logic w-100`,
 			click: () => this._meta.combineBlue = Filter._getNextCombineMode(this._meta.combineBlue),
-			title: `Positive matches mode for this filter. AND requires all blues to match, OR requires at least one blue to match, XOR requires exactly one blue to match.`,
+			title: `Blue match mode for this filter. "AND" requires all blues to match, "OR" requires at least one blue to match, "XOR" requires exactly one blue to match.`,
 		});
 		const hookCombineBlue = () => e_({ele: btnCombineBlue, text: `${this._meta.combineBlue}`.toUpperCase()});
 		this._addHook("meta", "combineBlue", hookCombineBlue);
@@ -1533,7 +1892,7 @@ class Filter extends FilterBase {
 			tag: "button",
 			clazz: `btn btn-default ${opts.isMulti ? "btn-xxs" : "btn-xs"} fltr__h-btn-logic--red fltr__h-btn-logic w-100`,
 			click: () => this._meta.combineRed = Filter._getNextCombineMode(this._meta.combineRed),
-			title: `Negative match mode for this filter. AND requires all reds to match, OR requires at least one red to match, XOR requires exactly one red to match.`,
+			title: `Red match mode for this filter. "AND" requires all reds to match, "OR" requires at least one red to match, "XOR" requires exactly one red to match.`,
 		});
 		const hookCombineRed = () => e_({ele: btnCombineRed, text: `${this._meta.combineRed}`.toUpperCase()});
 		this._addHook("meta", "combineRed", hookCombineRed);
@@ -1570,11 +1929,11 @@ class Filter extends FilterBase {
 
 		return e_({
 			tag: "div",
-			clazz: `flex-v-center fltr__h-wrp-btns-outer`,
+			clazz: `ve-flex-v-center fltr__h-wrp-btns-outer`,
 			children: [
 				wrpSummary,
 				wrpStateBtnsOuter,
-				e_({tag: "span", clazz: `btn-group ml-2 flex-v-center`, children: [btnCombineBlue, btnCombineRed]}),
+				e_({tag: "span", clazz: `btn-group ml-2 ve-flex-v-center`, children: [btnCombineBlue, btnCombineRed]}),
 				btnShowHide,
 			],
 		});
@@ -1593,13 +1952,13 @@ class Filter extends FilterBase {
 	 */
 	$render (opts) {
 		this._filterBox = opts.filterBox;
-		this.__wrpMiniPills = e_({ele: opts.$wrpMini[0]});
+		this.__wrpMiniPills = opts.$wrpMini ? e_({ele: opts.$wrpMini[0]}) : null;
 
 		const wrpControls = this._getHeaderControls(opts);
 
 		if (this._nests) {
 			const wrpNestHead = e_({tag: "div", clazz: "fltr__wrp-pills--sub"}).appendTo(this.__wrpPills);
-			this.__$wrpNestHeadInner = e_({tag: "div", clazz: "flex flex-wrap"}).appendTo(wrpNestHead);
+			this.__$wrpNestHeadInner = e_({tag: "div", clazz: "ve-flex ve-flex-wrap fltr__container-pills"}).appendTo(wrpNestHead);
 
 			const wrpNestHeadSummary = e_({tag: "div", clazz: "fltr__summary_nest"}).appendTo(wrpNestHead);
 
@@ -1643,7 +2002,11 @@ class Filter extends FilterBase {
 		this.__$wrpFilter = $$`<div>
 			${opts.isFirst ? "" : `<div class="fltr__dropdown-divider ${opts.isMulti ? "fltr__dropdown-divider--indented" : ""} mb-1"></div>`}
 			<div class="split fltr__h ${this._minimalUi ? "fltr__minimal-hide" : ""} mb-1">
-				<div class="ml-2 fltr__h-text flex-h-center">${opts.isMulti ? `<span class="mr-2">\u2012</span>` : ""}${this._getRenderedHeader()}${btnMobToggleControls}</div>
+				<div class="fltr__h-text ve-flex-h-center mobile__w-100">
+					${opts.isMulti ? `<span class="mr-2">\u2012</span>` : ""}
+					${this._getRenderedHeader()}
+					${btnMobToggleControls}
+				</div>
 				${wrpControls}
 			</div>
 			${this.__wrpPills}
@@ -1662,19 +2025,27 @@ class Filter extends FilterBase {
 	 * @param opts.isMulti The name of the MultiFilter this filter belongs to, if any.
 	 */
 	$renderMinis (opts) {
+		if (!opts.$wrpMini) return;
+
 		this._filterBox = opts.filterBox;
 		this.__wrpMiniPills = e_({ele: opts.$wrpMini[0]});
 
-		this.__wrpPills = e_({tag: "div", clazz: `fltr__wrp-pills ${this._groupFn ? "fltr__wrp-subs" : ""}`});
-		const hook = () => this.__wrpPills.toggleVe(!this._meta.isHidden);
-		this._addHook("meta", "isHidden", hook);
-		hook();
+		this._renderMinis_initWrpPills();
 
 		this._doRenderMiniPills();
 	}
 
-	getValues () {
-		const state = MiscUtil.copy(this._state);
+	_renderMinis_initWrpPills () {
+		this.__wrpPills = e_({tag: "div", clazz: `fltr__wrp-pills ${this._groupFn ? "fltr__wrp-subs" : "fltr__container-pills"}`});
+		const hook = () => this.__wrpPills.toggleVe(!this._meta.isHidden);
+		this._addHook("meta", "isHidden", hook);
+		hook();
+	}
+
+	getValues ({nxtState = null} = {}) {
+		const state = MiscUtil.copy(nxtState?.[this.header]?.state || this.__state);
+		const meta = nxtState?.[this.header]?.meta || this.__meta;
+
 		// remove state for any currently-absent filters
 		Object.keys(state).filter(k => !this._items.some(it => `${it.item}` === k)).forEach(k => delete state[k]);
 		const out = {...state};
@@ -1686,24 +2057,31 @@ class Filter extends FilterBase {
 			const totalKey = v === 0 ? "ignored" : v === 1 ? "yes" : "no";
 			out._totals[totalKey]++;
 		});
-		out._combineBlue = this._meta.combineBlue;
-		out._combineRed = this._meta.combineRed;
+		out._combineBlue = meta.combineBlue;
+		out._combineRed = meta.combineRed;
 		return {[this.header]: out};
 	}
 
-	reset (isResetAll) {
-		if (isResetAll) {
-			this.resetBase();
-			this._resetNestsHidden();
-		} else {
-			// Always reset "AND/OR" states
-			Object.assign(this._meta, {combineBlue: Filter._DEFAULT_META.combineBlue, combineRed: Filter._DEFAULT_META.combineRed});
-		}
-		Object.keys(this._state).forEach(k => delete this._state[k]);
-		this._items.forEach(it => this._defaultItemState(it));
+	_getNextState_base () {
+		return {
+			[this.header]: {
+				...super._getNextState_base()[this.header],
+				nestsHidden: MiscUtil.copyFast(this.__nestsHidden),
+			},
+		};
 	}
 
-	resetShallow () { return this.reset(); }
+	_mutNextState_reset (nxtState, {isResetAll = false} = {}) {
+		if (isResetAll) {
+			this._mutNextState_resetBase(nxtState);
+			this._mutNextState_resetNestsHidden({tgt: nxtState[this.header].nestsHidden});
+		} else {
+			// Always reset "AND/OR" states
+			Object.assign(nxtState[this.header].meta, {combineBlue: Filter._DEFAULT_META.combineBlue, combineRed: Filter._DEFAULT_META.combineRed});
+		}
+		Object.keys(nxtState[this.header].state).forEach(k => delete nxtState[this.header].state[k]);
+		this._items.forEach(item => nxtState[this.header].state[item.item] = this._getDefaultState(item.item));
+	}
 
 	_doRenderPills () {
 		if (this._itemSortFn) this._items.sort(this._isSortByDisplayItems && this._displayFn ? (a, b) => this._itemSortFn(this._displayFn(a.item, a), this._displayFn(b.item, b)) : this._itemSortFn);
@@ -1733,7 +2111,7 @@ class Filter extends FilterBase {
 			existingMeta.wrpPills.appendTo(this.__wrpPills);
 			existingMeta.isAttached = true;
 		}
-		if (existingMeta) return
+		if (existingMeta) return;
 
 		this._pillGroupsMeta[group] = {
 			hrDivider: this._doRenderPills_doRenderWrpGroup_getHrDivider(group).appendTo(this.__wrpPills),
@@ -1777,7 +2155,7 @@ class Filter extends FilterBase {
 	}
 
 	_doRenderPills_doRenderWrpGroup_getHrDivider () { return e_({tag: "hr", clazz: `fltr__dropdown-divider--sub hr-2 mx-3`}); }
-	_doRenderPills_doRenderWrpGroup_getWrpPillsSub () { return e_({tag: "div", clazz: `fltr__wrp-pills--sub`}); }
+	_doRenderPills_doRenderWrpGroup_getWrpPillsSub () { return e_({tag: "div", clazz: `fltr__wrp-pills--sub fltr__container-pills`}); }
 
 	_doRenderMiniPills () {
 		// create a list view so we can freely sort
@@ -1787,10 +2165,12 @@ class Filter extends FilterBase {
 			view.sort(this._isSortByDisplayItems && this._displayFn ? (a, b) => fnSort(this._displayFn(a.item, a), this._displayFn(b.item, b)) : fnSort);
 		}
 
-		view.forEach(it => {
-			// re-append existing elements to sort them
-			(it.btnMini = it.btnMini || this._getBtnMini(it)).appendTo(this.__wrpMiniPills);
-		});
+		if (this.__wrpMiniPills) {
+			view.forEach(it => {
+				// re-append existing elements to sort them
+				(it.btnMini = it.btnMini || this._getBtnMini(it)).appendTo(this.__wrpMiniPills);
+			});
+		}
 	}
 
 	_doToggleDisplay () {
@@ -1867,10 +2247,14 @@ class Filter extends FilterBase {
 
 	addItem (item) {
 		if (item == null) return;
+
 		if (item instanceof Array) {
 			const len = item.length;
 			for (let i = 0; i < len; ++i) this.addItem(item[i]);
-		} else if (!this.__itemsSet.has(item.item || item)) {
+			return;
+		}
+
+		if (!this.__itemsSet.has(item.item || item)) {
 			item = item instanceof FilterItem ? item : new FilterItem({item});
 			Filter._validateItemNest(item, this._nests);
 
@@ -2082,6 +2466,302 @@ class FilterTransientOptions {
 	}
 }
 
+class SearchableFilter extends Filter {
+	constructor (opts) {
+		super(opts);
+
+		this._compSearch = BaseComponent.fromObject({
+			search: "",
+			searchTermParent: "",
+		});
+	}
+
+	handleSearch (searchTerm) {
+		const out = super.handleSearch(searchTerm);
+
+		this._compSearch._state.searchTermParent = searchTerm;
+
+		return out;
+	}
+
+	_getPill (item) {
+		const btnPill = super._getPill(item);
+
+		const hkIsVisible = () => {
+			if (this._compSearch._state.searchTermParent) return btnPill.toggleClass("fltr__hidden--inactive", false);
+
+			btnPill.toggleClass("fltr__hidden--inactive", this._state[item.item] === 0);
+		};
+		this._addHook("state", item.item, hkIsVisible);
+		this._compSearch._addHookBase("searchTermParent", hkIsVisible);
+		hkIsVisible();
+
+		return btnPill;
+	}
+
+	_getPill_handleClick ({evt, item}) {
+		if (this._compSearch._state.searchTermParent) return super._getPill_handleClick({evt, item});
+
+		this._state[item.item] = 0;
+	}
+
+	_getPill_handleContextmenu ({evt, item}) {
+		if (this._compSearch._state.searchTermParent) return super._getPill_handleContextmenu({evt, item});
+
+		evt.preventDefault();
+		this._state[item.item] = 0;
+	}
+
+	_$render_getRowBtn ({fnsCleanup, $iptSearch, item, subtype, state}) {
+		const handleClick = evt => {
+			evt.stopPropagation();
+			evt.preventDefault();
+
+			// Keep the dropdown open
+			$iptSearch.focus();
+
+			if (evt.shiftKey) {
+				this._doSetPillsClear();
+			}
+
+			if (this._state[item.item] === state) this._state[item.item] = 0;
+			else this._state[item.item] = state;
+		};
+
+		const btn = e_({
+			tag: "div",
+			clazz: `no-shrink clickable fltr-search__btn-activate fltr-search__btn-activate--${subtype} ve-flex-vh-center`,
+			click: evt => handleClick(evt),
+			contextmenu: evt => handleClick(evt),
+			mousedown: evt => {
+				evt.stopPropagation();
+				evt.preventDefault();
+			},
+		});
+
+		const hkIsActive = () => {
+			btn.innerText = this._state[item.item] === state ? "×" : "";
+		};
+		this._addHookBase(item.item, hkIsActive);
+		hkIsActive();
+		fnsCleanup.push(() => this._removeHookBase(item.item, hkIsActive));
+
+		return btn;
+	}
+
+	$render (opts) {
+		const $out = super.$render(opts);
+
+		const $iptSearch = ComponentUiUtil.$getIptStr(
+			this._compSearch,
+			"search",
+			{
+				html: `<input class="form-control form-control--minimal input-xs" placeholder="Search...">`,
+			},
+		);
+
+		const wrpValues = e_({
+			tag: "div",
+			clazz: "overflow-y-auto bt-0 absolute fltr-search__wrp-values",
+		});
+
+		const fnsCleanup = [];
+		const rowMetas = [];
+
+		this._$render_bindSearchHandler_keydown({$iptSearch, fnsCleanup, rowMetas});
+		this._$render_bindSearchHandler_focus({$iptSearch, fnsCleanup, rowMetas, wrpValues});
+		this._$render_bindSearchHandler_blur({$iptSearch});
+
+		const $wrp = $$`<div class="fltr-search__wrp-search ve-flex-col relative mt-1 mx-2p mb-1">
+			${$iptSearch}
+			${wrpValues}
+		</div>`.prependTo(this.__wrpPills);
+
+		const hkParentSearch = () => {
+			$wrp.toggleVe(!this._compSearch._state.searchTermParent);
+		};
+		this._compSearch._addHookBase("searchTermParent", hkParentSearch);
+		hkParentSearch();
+
+		return $out;
+	}
+
+	_$render_bindSearchHandler_keydown ({$iptSearch, rowMetas}) {
+		$iptSearch
+			.on("keydown", evt => {
+				switch (evt.key) {
+					case "Escape": evt.stopPropagation(); return $iptSearch.blur();
+
+					case "ArrowDown": {
+						evt.preventDefault();
+						const visibleRowMetas = rowMetas.filter(it => it.isVisible);
+						if (!visibleRowMetas.length) return;
+						visibleRowMetas[0].row.focus();
+						break;
+					}
+
+					case "Enter": {
+						const visibleRowMetas = rowMetas.filter(it => it.isVisible);
+						if (!visibleRowMetas.length) return;
+						if (evt.shiftKey) this._doSetPillsClear();
+						this._state[visibleRowMetas[0].item.item] = (evt.ctrlKey || evt.metaKey) ? 2 : 1;
+						$iptSearch.blur();
+						break;
+					}
+				}
+			});
+	}
+
+	_$render_bindSearchHandler_focus ({$iptSearch, fnsCleanup, rowMetas, wrpValues}) {
+		$iptSearch
+			.on("focus", () => {
+				fnsCleanup
+					.splice(0, fnsCleanup.length)
+					.forEach(fn => fn());
+
+				rowMetas.splice(0, rowMetas.length);
+
+				wrpValues.innerHTML = "";
+
+				rowMetas.push(
+					...this._items
+						.map(item => this._$render_bindSearchHandler_focus_getRowMeta({$iptSearch, fnsCleanup, rowMetas, wrpValues, item})),
+				);
+
+				this._$render_bindSearchHandler_focus_addHookSearch({rowMetas, fnsCleanup});
+
+				wrpValues.scrollIntoView({block: "nearest", inline: "nearest"});
+			});
+	}
+
+	_$render_bindSearchHandler_focus_getRowMeta ({$iptSearch, fnsCleanup, rowMetas, wrpValues, item}) {
+		const dispName = this._getDisplayText(item);
+
+		const eleName = e_({
+			tag: "div",
+			clazz: "fltr-search__disp-name ml-2",
+		});
+
+		const btnBlue = this._$render_getRowBtn({
+			fnsCleanup,
+			$iptSearch,
+			item,
+			subtype: "yes",
+			state: 1,
+		});
+		btnBlue.addClass("br-0");
+		btnBlue.addClass("btr-0");
+		btnBlue.addClass("bbr-0");
+
+		const btnRed = this._$render_getRowBtn({
+			fnsCleanup,
+			$iptSearch,
+			item,
+			subtype: "no",
+			state: 2,
+		});
+		btnRed.addClass("bl-0");
+		btnRed.addClass("btl-0");
+		btnRed.addClass("bbl-0");
+
+		const row = e_({
+			tag: "div",
+			clazz: "py-1p px-2 ve-flex-v-center fltr-search__wrp-row",
+			children: [
+				btnBlue,
+				btnRed,
+				eleName,
+			],
+			attrs: {
+				tabindex: "0",
+			},
+			keydown: evt => {
+				switch (evt.key) {
+					case "Escape": evt.stopPropagation(); return row.blur();
+
+					case "ArrowDown": {
+						evt.preventDefault();
+						const visibleRowMetas = rowMetas.filter(it => it.isVisible);
+						if (!visibleRowMetas.length) return;
+						const ixCur = visibleRowMetas.indexOf(out);
+						const nxt = visibleRowMetas[ixCur + 1];
+						if (nxt) nxt.row.focus();
+						break;
+					}
+
+					case "ArrowUp": {
+						evt.preventDefault();
+						const visibleRowMetas = rowMetas.filter(it => it.isVisible);
+						if (!visibleRowMetas.length) return;
+						const ixCur = visibleRowMetas.indexOf(out);
+						const prev = visibleRowMetas[ixCur - 1];
+						if (prev) return prev.row.focus();
+						$iptSearch.focus();
+						break;
+					}
+
+					case "Enter": {
+						if (evt.shiftKey) this._doSetPillsClear();
+						this._state[item.item] = (evt.ctrlKey || evt.metaKey) ? 2 : 1;
+						row.blur();
+						break;
+					}
+				}
+			},
+		});
+
+		wrpValues.appendChild(row);
+
+		const out = {
+			isVisible: true,
+			item,
+			row,
+			dispName,
+			eleName,
+		};
+
+		return out;
+	}
+
+	_$render_bindSearchHandler_focus_addHookSearch ({rowMetas, fnsCleanup}) {
+		const hkSearch = () => {
+			const searchTerm = this._compSearch._state.search.toLowerCase();
+
+			rowMetas.forEach(({item, row}) => {
+				row.isVisible = item.searchText.includes(searchTerm);
+				row.toggleVe(row.isVisible);
+			});
+
+			// region Underline matching part
+			if (!this._compSearch._state.search) {
+				rowMetas.forEach(({dispName, eleName}) => eleName.textContent = dispName);
+				return;
+			}
+
+			const re = new RegExp(this._compSearch._state.search.qq().escapeRegexp(), "gi");
+
+			rowMetas.forEach(({dispName, eleName}) => {
+				eleName.innerHTML = dispName
+					.qq()
+					.replace(re, (...m) => `<u>${m[0]}</u>`);
+			});
+			// endregion
+		};
+		this._compSearch._addHookBase("search", hkSearch);
+		hkSearch();
+		fnsCleanup.push(() => this._compSearch._removeHookBase("search", hkSearch));
+	}
+
+	_$render_bindSearchHandler_blur ({$iptSearch}) {
+		$iptSearch
+			.on("blur", () => {
+				this._compSearch._state.search = "";
+			});
+	}
+}
+
+globalThis.SearchableFilter = SearchableFilter;
+
 class SourceFilterItem extends FilterItem {
 	/**
 	 * @param options
@@ -2094,14 +2774,32 @@ class SourceFilterItem extends FilterItem {
 }
 
 class SourceFilter extends Filter {
+	static _SORT_ITEMS_MINI (a, b) {
+		a = a.item ?? a;
+		b = b.item ?? b;
+		const valA = BrewUtil2.hasSourceJson(a) ? 2 : (SourceUtil.isNonstandardSource(a) || PrereleaseUtil.hasSourceJson(a)) ? 1 : 0;
+		const valB = BrewUtil2.hasSourceJson(b) ? 2 : (SourceUtil.isNonstandardSource(b) || PrereleaseUtil.hasSourceJson(b)) ? 1 : 0;
+		return SortUtil.ascSort(valA, valB) || SortUtil.ascSortLower(Parser.sourceJsonToFull(a), Parser.sourceJsonToFull(b));
+	}
+
+	static _getDisplayHtmlMini (item) {
+		item = item.item || item;
+		const isBrewSource = BrewUtil2.hasSourceJson(item);
+		const isNonStandardSource = !isBrewSource && (SourceUtil.isNonstandardSource(item) || PrereleaseUtil.hasSourceJson(item));
+		return `<span ${isBrewSource ? `title="(Homebrew)"` : isNonStandardSource ? `title="(UA/Etc.)"` : ""} class="glyphicon ${isBrewSource ? `glyphicon-glass` : isNonStandardSource ? `glyphicon-file` : `glyphicon-book`}"></span> ${Parser.sourceJsonToAbv(item)}`;
+	}
+
 	constructor (opts) {
 		opts = opts || {};
 
 		opts.header = opts.header === undefined ? FilterBox.SOURCE_HEADER : opts.header;
 		opts.displayFn = opts.displayFn === undefined ? item => Parser.sourceJsonToFullCompactPrefix(item.item || item) : opts.displayFn;
+		opts.displayFnMini = opts.displayFnMini === undefined ? SourceFilter._getDisplayHtmlMini.bind(SourceFilter) : opts.displayFnMini;
+		opts.displayFnTitle = opts.displayFnTitle === undefined ? item => Parser.sourceJsonToFull(item.item || item) : opts.displayFnTitle;
+		opts.itemSortFnMini = opts.itemSortFnMini === undefined ? SourceFilter._SORT_ITEMS_MINI.bind(SourceFilter) : opts.itemSortFnMini;
 		opts.itemSortFn = opts.itemSortFn === undefined ? (a, b) => SortUtil.ascSortLower(Parser.sourceJsonToFull(a.item), Parser.sourceJsonToFull(b.item)) : opts.itemSortFn;
 		opts.groupFn = opts.groupFn === undefined ? SourceUtil.getFilterGroup : opts.groupFn;
-		opts.selFn = opts.selFn === undefined ? PageFilter.defaultSourceSelFn : opts.selFn
+		opts.selFn = opts.selFn === undefined ? PageFilter.defaultSourceSelFn : opts.selFn;
 
 		super(opts);
 
@@ -2177,6 +2875,11 @@ class SourceFilter extends Filter {
 			new ContextUtil.Action(
 				"Select SRD Sources",
 				() => this._doSetPinsSrd(),
+				{title: `Select System Reference Document Sources.`},
+			),
+			new ContextUtil.Action(
+				"Select Basic Rules Sources",
+				() => this._doSetPinsBasicRules(),
 			),
 			null,
 			new ContextUtil.Action(
@@ -2189,6 +2892,7 @@ class SourceFilter extends Filter {
 			clazz: `btn btn-default ${opts.isMulti ? "btn-xxs" : "btn-xs"}`,
 			html: `<span class="glyphicon glyphicon-option-vertical"></span>`,
 			click: evt => ContextUtil.pOpenMenu(evt, menu),
+			title: "Other Options",
 		});
 
 		const btnOnlyPrimary = e_({
@@ -2206,7 +2910,7 @@ class SourceFilter extends Filter {
 
 		e_({
 			tag: "div",
-			clazz: `btn-group mr-2 w-100 flex-v-center mobile__m-1 mobile__mb-2`,
+			clazz: `btn-group mr-2 w-100 ve-flex-v-center mobile__m-1 mobile__mb-2`,
 			children: [
 				btnSupplements,
 				btnAdventures,
@@ -2242,13 +2946,35 @@ class SourceFilter extends Filter {
 	}
 
 	_doSetPinsSrd () {
-		SourceFilter._SRD_SOURCES = SourceFilter._SRD_SOURCES || new Set([SRC_PHB, SRC_MM, SRC_DMG]);
+		SourceFilter._SRD_SOURCES = SourceFilter._SRD_SOURCES || new Set([Parser.SRC_PHB, Parser.SRC_MM, Parser.SRC_DMG]);
 
 		Object.keys(this._state).forEach(k => this._state[k] = SourceFilter._SRD_SOURCES.has(k) ? 1 : 0);
 
 		const srdFilter = this._filterBox.filters.find(it => it.isSrdFilter);
-		if (!srdFilter) return;
-		srdFilter.setValue("SRD", 1);
+		if (srdFilter) srdFilter.setValue("SRD", 1);
+
+		const basicRulesFilter = this._filterBox.filters.find(it => it.isBasicRulesFilter);
+		if (basicRulesFilter) basicRulesFilter.setValue("Basic Rules", 0);
+
+		// also disable "Reprinted" otherwise some Deities are missing
+		const reprintedFilter = this._filterBox.filters.find(it => it.isReprintedFilter);
+		if (reprintedFilter) reprintedFilter.setValue("Reprinted", 0);
+	}
+
+	_doSetPinsBasicRules () {
+		SourceFilter._BASIC_RULES_SOURCES = SourceFilter._BASIC_RULES_SOURCES || new Set([Parser.SRC_PHB, Parser.SRC_MM, Parser.SRC_DMG]);
+
+		Object.keys(this._state).forEach(k => this._state[k] = SourceFilter._BASIC_RULES_SOURCES.has(k) ? 1 : 0);
+
+		const basicRulesFilter = this._filterBox.filters.find(it => it.isBasicRulesFilter);
+		if (basicRulesFilter) basicRulesFilter.setValue("Basic Rules", 1);
+
+		const srdFilter = this._filterBox.filters.find(it => it.isSrdFilter);
+		if (srdFilter) srdFilter.setValue("SRD", 0);
+
+		// also disable "Reprinted" otherwise some Deities are missing
+		const reprintedFilter = this._filterBox.filters.find(it => it.isReprintedFilter);
+		if (reprintedFilter) reprintedFilter.setValue("Reprinted", 0);
 	}
 
 	static getCompleteFilterSources (ent) {
@@ -2279,7 +3005,7 @@ class SourceFilter extends Filter {
 
 		const wrpWrpSlider = e_({
 			tag: "div",
-			clazz: `"w-100 flex pt-2 pb-5 mb-2 mt-1 fltr-src__wrp-slider`,
+			clazz: `"w-100 ve-flex pt-2 pb-5 mb-2 mt-1 fltr-src__wrp-slider`,
 			children: [
 				wrpSlider,
 			],
@@ -2314,7 +3040,7 @@ class SourceFilter extends Filter {
 					.filter(k => SourceUtil.isNonstandardSource(k))
 					.forEach(k => {
 						const sourceDate = Parser.sourceJsonToDate(k);
-						nxtState[k] = allowedDateSet.has(sourceDate) ? 1 : 0
+						nxtState[k] = allowedDateSet.has(sourceDate) ? 1 : 0;
 					});
 				this._proxyAssign("state", "_state", "__state", nxtState);
 			},
@@ -2365,7 +3091,7 @@ class SourceFilter extends Filter {
 
 		const grpBtnsActive = e_({
 			tag: "div",
-			clazz: `flex-v-center btn-group`,
+			clazz: `ve-flex-v-center btn-group`,
 			children: [
 				btnCancel,
 				btnConfirm,
@@ -2374,7 +3100,7 @@ class SourceFilter extends Filter {
 
 		const grpBtnsInactive = e_({
 			tag: "div",
-			clazz: `flex-v-center btn-group`,
+			clazz: `ve-flex-v-center btn-group`,
 			children: [
 				btnClear,
 				btnShowSlider,
@@ -2383,12 +3109,12 @@ class SourceFilter extends Filter {
 
 		return e_({
 			tag: "div",
-			clazz: `flex-col w-100`,
+			clazz: `ve-flex-col w-100`,
 			children: [
 				super._doRenderPills_doRenderWrpGroup_getHrDivider(),
 				e_({
 					tag: "div",
-					clazz: `mb-1 flex-h-right`,
+					clazz: `mb-1 ve-flex-h-right`,
 					children: [
 						grpBtnsActive,
 						grpBtnsInactive,
@@ -2426,15 +3152,706 @@ class SourceFilter extends Filter {
 	getDefaultMeta () {
 		// Key order is important, as @filter tags depend on it
 		return {
-			...super.getDefaultMeta(),
 			...SourceFilter._DEFAULT_META,
+			...super.getDefaultMeta(),
 		};
 	}
 }
 SourceFilter._DEFAULT_META = {
 	isIncludeOtherSources: false,
-}
+};
 SourceFilter._SRD_SOURCES = null;
+SourceFilter._BASIC_RULES_SOURCES = null;
+
+class AbilityScoreFilter extends FilterBase {
+	static _MODIFIER_SORT_OFFSET = 10000; // Arbitrarily large value
+
+	constructor (opts) {
+		super(opts);
+
+		this._items = [];
+		this._isItemsDirty = false;
+		this._itemsLookup = {}; // Cache items for fast lookup
+		this._seenUids = {};
+
+		this.__$wrpFilter = null;
+		this.__wrpPills = null;
+		this.__wrpPillsRows = {};
+		this.__wrpMiniPills = null;
+
+		this._maxMod = 2;
+		this._minMod = 0;
+
+		// region Init state
+		Parser.ABIL_ABVS.forEach(ab => {
+			const itemAnyIncrease = new AbilityScoreFilter.FilterItem({isAnyIncrease: true, ability: ab});
+			const itemAnyDecrease = new AbilityScoreFilter.FilterItem({isAnyDecrease: true, ability: ab});
+			this._items.push(itemAnyIncrease, itemAnyDecrease);
+			this._itemsLookup[itemAnyIncrease.uid] = itemAnyIncrease;
+			this._itemsLookup[itemAnyDecrease.uid] = itemAnyDecrease;
+			if (this.__state[itemAnyIncrease.uid] == null) this.__state[itemAnyIncrease.uid] = 0;
+			if (this.__state[itemAnyDecrease.uid] == null) this.__state[itemAnyDecrease.uid] = 0;
+		});
+
+		for (let i = this._minMod; i <= this._maxMod; ++i) {
+			if (i === 0) continue;
+			Parser.ABIL_ABVS.forEach(ab => {
+				const item = new AbilityScoreFilter.FilterItem({modifier: i, ability: ab});
+				this._items.push(item);
+				this._itemsLookup[item.uid] = item;
+				if (this.__state[item.uid] == null) this.__state[item.uid] = 0;
+			});
+		}
+		// endregion
+	}
+
+	/**
+	 * @param opts Options.
+	 * @param opts.filterBox The FilterBox to which this filter is attached.
+	 * @param opts.isFirst True if this is visually the first filter in the box.
+	 * @param opts.$wrpMini The form mini-view element.
+	 * @param opts.isMulti The name of the MultiFilter this filter belongs to, if any.
+	 */
+	$render (opts) {
+		this._filterBox = opts.filterBox;
+		this.__wrpMiniPills = e_({ele: opts.$wrpMini[0]});
+
+		const wrpControls = this._getHeaderControls(opts);
+
+		this.__wrpPills = e_({tag: "div", clazz: `fltr__wrp-pills overflow-x-auto ve-flex-col w-100`});
+		const hook = () => this.__wrpPills.toggleVe(!this._meta.isHidden);
+		this._addHook("meta", "isHidden", hook);
+		hook();
+
+		this._doRenderPills();
+
+		// FIXME refactor this so we're not stealing the private method
+		const btnMobToggleControls = Filter.prototype._getBtnMobToggleControls.bind(this)(wrpControls);
+
+		this.__$wrpFilter = $$`<div>
+			${opts.isFirst ? "" : `<div class="fltr__dropdown-divider ${opts.isMulti ? "fltr__dropdown-divider--indented" : ""} mb-1"></div>`}
+			<div class="split fltr__h mb-1">
+				<div class="ml-2 fltr__h-text ve-flex-h-center">${opts.isMulti ? `<span class="mr-2">\u2012</span>` : ""}${this._getRenderedHeader()}${btnMobToggleControls}</div>
+				${wrpControls}
+			</div>
+			${this.__wrpPills}
+		</div>`;
+
+		this.update(); // Force an update, to properly mute/unmute our pills
+
+		return this.__$wrpFilter;
+	}
+
+	_getHeaderControls (opts) {
+		const btnClear = e_({
+			tag: "button",
+			clazz: `btn btn-default ${opts.isMulti ? "btn-xxs" : "btn-xs"} fltr__h-btn--clear w-100`,
+			click: () => this._doSetPillsClear(),
+			html: "Clear",
+		});
+
+		const wrpStateBtnsOuter = e_({
+			tag: "div",
+			clazz: "ve-flex-v-center fltr__h-wrp-state-btns-outer",
+			children: [
+				e_({
+					tag: "div",
+					clazz: "btn-group ve-flex-v-center w-100",
+					children: [
+						btnClear,
+					],
+				}),
+			],
+		});
+
+		const wrpSummary = e_({tag: "div", clazz: "ve-flex-vh-center ve-hidden"});
+
+		const btnShowHide = e_({
+			tag: "button",
+			clazz: `btn btn-default ${opts.isMulti ? "btn-xxs" : "btn-xs"} ml-2`,
+			click: () => this._meta.isHidden = !this._meta.isHidden,
+			html: "Hide",
+		});
+		const hookShowHide = () => {
+			e_({ele: btnShowHide}).toggleClass("active", this._meta.isHidden);
+			wrpStateBtnsOuter.toggleVe(!this._meta.isHidden);
+
+			// TODO
+			// region Render summary
+			const cur = this.getValues()[this.header];
+
+			const htmlSummary = [
+				cur._totals?.yes
+					? `<span class="fltr__summary_item fltr__summary_item--include" title="${cur._totals.yes} hidden &quot;required&quot; tags">${cur._totals.yes}</span>`
+					: null,
+			].filter(Boolean).join("");
+			e_({ele: wrpSummary, html: htmlSummary}).toggleVe(this._meta.isHidden);
+			// endregion
+		};
+		this._addHook("meta", "isHidden", hookShowHide);
+		hookShowHide();
+
+		return e_({
+			tag: "div",
+			clazz: `ve-flex-v-center fltr__h-wrp-btns-outer`,
+			children: [
+				wrpSummary,
+				wrpStateBtnsOuter,
+				btnShowHide,
+			],
+		});
+	}
+
+	_doRenderPills () {
+		this._items.sort(this.constructor._ascSortItems.bind(this.constructor));
+
+		if (!this.__wrpPills) return;
+		this._items.forEach(it => {
+			if (!it.rendered) it.rendered = this._getPill(it);
+			if (!it.isAnyIncrease && !it.isAnyDecrease) it.rendered.toggleClass("fltr__pill--muted", !this._seenUids[it.uid]);
+
+			if (!this.__wrpPillsRows[it.ability]) {
+				this.__wrpPillsRows[it.ability] = {
+					row: e_({
+						tag: "div",
+						clazz: "ve-flex-v-center w-100 my-1",
+						children: [
+							e_({
+								tag: "div",
+								clazz: "mr-3 text-right fltr__label-ability-score no-shrink no-grow",
+								text: Parser.attAbvToFull(it.ability),
+							}),
+						],
+					}).appendTo(this.__wrpPills),
+					searchText: Parser.attAbvToFull(it.ability).toLowerCase(),
+				};
+			}
+
+			it.rendered.appendTo(this.__wrpPillsRows[it.ability].row);
+		});
+	}
+
+	_getPill (item) {
+		const unsetRow = () => {
+			const nxtState = {};
+			for (let i = this._minMod; i <= this._maxMod; ++i) {
+				if (!i || i === item.modifier) continue;
+				const siblingUid = AbilityScoreFilter.FilterItem.getUid_({ability: item.ability, modifier: i});
+				nxtState[siblingUid] = 0;
+			}
+
+			if (!item.isAnyIncrease) nxtState[AbilityScoreFilter.FilterItem.getUid_({ability: item.ability, isAnyIncrease: true})] = 0;
+			if (!item.isAnyDecrease) nxtState[AbilityScoreFilter.FilterItem.getUid_({ability: item.ability, isAnyDecrease: true})] = 0;
+
+			this._proxyAssignSimple("state", nxtState);
+		};
+
+		const btnPill = e_({
+			tag: "div",
+			clazz: `fltr__pill fltr__pill--ability-bonus px-2`,
+			html: item.getPillDisplayHtml(),
+			click: evt => {
+				if (evt.shiftKey) {
+					const nxtState = {};
+					Object.keys(this._state).forEach(k => nxtState[k] = 0);
+					this._proxyAssign("state", "_state", "__state", nxtState, true);
+				}
+
+				this._state[item.uid] = this._state[item.uid] ? 0 : 1;
+				if (this._state[item.uid]) unsetRow();
+			},
+			contextmenu: (evt) => {
+				evt.preventDefault();
+
+				this._state[item.uid] = this._state[item.uid] ? 0 : 1;
+				if (this._state[item.uid]) unsetRow();
+			},
+		});
+
+		const hook = () => {
+			const val = FilterBox._PILL_STATES[this._state[item.uid] || 0];
+			btnPill.attr("state", val);
+		};
+		this._addHook("state", item.uid, hook);
+		hook();
+
+		return btnPill;
+	}
+
+	_doRenderMiniPills () {
+		// create a list view so we can freely sort
+		this._items.slice(0)
+			.sort(this.constructor._ascSortMiniPills.bind(this.constructor))
+			.forEach(it => {
+				// re-append existing elements to sort them
+				(it.btnMini = it.btnMini || this._getBtnMini(it)).appendTo(this.__wrpMiniPills);
+			});
+	}
+
+	_getBtnMini (item) {
+		const btnMini = e_({
+			tag: "div",
+			clazz: `fltr__mini-pill ${this._filterBox.isMinisHidden(this.header) ? "ve-hidden" : ""}`,
+			text: item.getMiniPillDisplayText(),
+			title: `Filter: ${this.header}`,
+			click: () => {
+				this._state[item.uid] = 0;
+				this._filterBox.fireChangeEvent();
+			},
+		}).attr("state", FilterBox._PILL_STATES[this._state[item.uid] || 0]);
+
+		const hook = () => btnMini.attr("state", FilterBox._PILL_STATES[this._state[item.uid] || 0]);
+		this._addHook("state", item.uid, hook);
+
+		const hideHook = () => btnMini.toggleClass("ve-hidden", this._filterBox.isMinisHidden(this.header));
+		this._filterBox.registerMinisHiddenHook(this.header, hideHook);
+
+		return btnMini;
+	}
+
+	static _ascSortItems (a, b) {
+		return SortUtil.ascSort(Number(b.isAnyIncrease), Number(a.isAnyIncrease))
+			|| SortUtil.ascSortAtts(a.ability, b.ability)
+			// Offset ability scores to ensure they're all in positive space. This forces the "any decrease" section to
+			//   appear last.
+			|| SortUtil.ascSort(b.modifier ? b.modifier + AbilityScoreFilter._MODIFIER_SORT_OFFSET : b.modifier, a.modifier ? a.modifier + AbilityScoreFilter._MODIFIER_SORT_OFFSET : a.modifier)
+			|| SortUtil.ascSort(Number(b.isAnyDecrease), Number(a.isAnyDecrease));
+	}
+
+	static _ascSortMiniPills (a, b) {
+		return SortUtil.ascSort(Number(b.isAnyIncrease), Number(a.isAnyIncrease))
+			|| SortUtil.ascSort(Number(b.isAnyDecrease), Number(a.isAnyDecrease))
+			// Offset ability scores to ensure they're all in positive space. This forces the "any decrease" section to
+			//   appear last.
+			|| SortUtil.ascSort(b.modifier ? b.modifier + AbilityScoreFilter._MODIFIER_SORT_OFFSET : b.modifier, a.modifier ? a.modifier + AbilityScoreFilter._MODIFIER_SORT_OFFSET : a.modifier)
+			|| SortUtil.ascSortAtts(a.ability, b.ability);
+	}
+
+	/**
+	 * @param opts Options.
+	 * @param opts.filterBox The FilterBox to which this filter is attached.
+	 * @param opts.isFirst True if this is visually the first filter in the box.
+	 * @param opts.$wrpMini The form mini-view element.
+	 * @param opts.isMulti The name of the MultiFilter this filter belongs to, if any.
+	 */
+	$renderMinis (opts) {
+		this._filterBox = opts.filterBox;
+		this.__wrpMiniPills = e_({ele: opts.$wrpMini[0]});
+
+		this._doRenderMiniPills();
+	}
+
+	getValues ({nxtState = null} = {}) {
+		const out = {
+			_totals: {yes: 0},
+		};
+
+		const state = nxtState?.[this.header]?.state || this.__state;
+
+		Object.entries(state)
+			.filter(([, value]) => value)
+			.forEach(([uid]) => {
+				out._totals.yes++;
+				out[uid] = true;
+			});
+
+		return {[this.header]: out};
+	}
+
+	_mutNextState_reset (nxtState, {isResetAll = false} = {}) {
+		Object.keys(nxtState[this.header].state).forEach(k => delete nxtState[this.header].state[k]);
+	}
+
+	update () {
+		if (this._isItemsDirty) {
+			this._isItemsDirty = false;
+
+			this._doRenderPills();
+		}
+
+		// always render the mini-pills, to ensure the overall order in the grid stays correct (shared between multiple filters)
+		this._doRenderMiniPills();
+	}
+
+	_doSetPillsClear () {
+		Object.keys(this._state).forEach(k => {
+			if (this._state[k] !== 0) this._state[k] = 0;
+		});
+	}
+
+	toDisplay (boxState, entryVal) {
+		const filterState = boxState[this.header];
+		if (!filterState) return true;
+
+		const activeItems = Object.keys(filterState)
+			.filter(it => !it.startsWith("_"))
+			.map(it => this._itemsLookup[it])
+			.filter(Boolean);
+
+		if (!activeItems.length) return true;
+		if ((!entryVal || !entryVal.length) && activeItems.length) return false;
+
+		return entryVal.some(abilObject => {
+			const cpyAbilObject = MiscUtil.copy(abilObject);
+			const vewActiveItems = [...activeItems];
+
+			// region Stage 1. Exact ability score match.
+			Parser.ABIL_ABVS.forEach(ab => {
+				if (!cpyAbilObject[ab] || !vewActiveItems.length) return;
+
+				const ixExact = vewActiveItems.findIndex(it => it.ability === ab && it.modifier === cpyAbilObject[ab]);
+				if (~ixExact) return vewActiveItems.splice(ixExact, 1);
+			});
+			if (!vewActiveItems.length) return true;
+			// endregion
+
+			// region Stage 2. "Choice" ability score match
+			if (cpyAbilObject.choose?.from) {
+				const amount = cpyAbilObject.choose.amount || 1;
+				const count = cpyAbilObject.choose.count || 1;
+
+				for (let i = 0; i < count; ++i) {
+					if (!vewActiveItems.length) break;
+
+					const ix = vewActiveItems.findIndex(it => cpyAbilObject.choose.from.includes(it.ability) && amount === it.modifier);
+					if (~ix) {
+						const [cpyActiveItem] = vewActiveItems.splice(ix, 1);
+						cpyAbilObject.choose.from = cpyAbilObject.choose.from.filter(it => it !== cpyActiveItem.ability);
+					}
+				}
+			} else if (cpyAbilObject.choose?.weighted?.weights && cpyAbilObject.choose?.weighted?.from) {
+				cpyAbilObject.choose.weighted.weights.forEach(weight => {
+					const ix = vewActiveItems.findIndex(it => cpyAbilObject.choose.weighted.from.includes(it.ability) && weight === it.modifier);
+					if (~ix) {
+						const [cpyActiveItem] = vewActiveItems.splice(ix, 1);
+						cpyAbilObject.choose.weighted.from = cpyAbilObject.choose.weighted.from.filter(it => it !== cpyActiveItem.ability);
+					}
+				});
+			}
+			if (!vewActiveItems.length) return true;
+			// endregion
+
+			// region Stage 3. "Any" ability score match
+			Parser.ABIL_ABVS.forEach(ab => {
+				if (!cpyAbilObject[ab] || !vewActiveItems.length) return;
+
+				const ix = vewActiveItems.findIndex(it => it.ability === ab && ((cpyAbilObject[ab] > 0 && it.isAnyIncrease) || (cpyAbilObject[ab] < 0 && it.isAnyDecrease)));
+				if (~ix) return vewActiveItems.splice(ix, 1);
+			});
+			if (!vewActiveItems.length) return true;
+
+			if (cpyAbilObject.choose?.from) {
+				const amount = cpyAbilObject.choose.amount || 1;
+				const count = cpyAbilObject.choose.count || 1;
+
+				for (let i = 0; i < count; ++i) {
+					if (!vewActiveItems.length) return true;
+
+					const ix = vewActiveItems.findIndex(it => cpyAbilObject.choose.from.includes(it.ability) && ((amount > 0 && it.isAnyIncrease) || (amount < 0 && it.isAnyDecrease)));
+					if (~ix) {
+						const [cpyActiveItem] = vewActiveItems.splice(ix, 1);
+						cpyAbilObject.choose.from = cpyAbilObject.choose.from.filter(it => it !== cpyActiveItem.ability);
+					}
+				}
+			} else if (cpyAbilObject.choose?.weighted?.weights && cpyAbilObject.choose?.weighted?.from) {
+				cpyAbilObject.choose.weighted.weights.forEach(weight => {
+					if (!vewActiveItems.length) return;
+
+					const ix = vewActiveItems.findIndex(it => cpyAbilObject.choose.weighted.from.includes(it.ability) && ((weight > 0 && it.isAnyIncrease) || (weight < 0 && it.isAnyDecrease)));
+					if (~ix) {
+						const [cpyActiveItem] = vewActiveItems.splice(ix, 1);
+						cpyAbilObject.choose.weighted.from = cpyAbilObject.choose.weighted.from.filter(it => it !== cpyActiveItem.ability);
+					}
+				});
+			}
+			return !vewActiveItems.length;
+			// endregion
+		});
+	}
+
+	addItem (abilArr) {
+		if (!abilArr?.length) return;
+
+		// region Update our min/max scores
+		let nxtMaxMod = this._maxMod;
+		let nxtMinMod = this._minMod;
+
+		abilArr.forEach(abilObject => {
+			Parser.ABIL_ABVS.forEach(ab => {
+				if (abilObject[ab] != null) {
+					nxtMaxMod = Math.max(nxtMaxMod, abilObject[ab]);
+					nxtMinMod = Math.min(nxtMinMod, abilObject[ab]);
+
+					const uid = AbilityScoreFilter.FilterItem.getUid_({ability: ab, modifier: abilObject[ab]});
+					if (!this._seenUids[uid]) this._isItemsDirty = true;
+					this._seenUids[uid] = true;
+				}
+			});
+
+			if (abilObject.choose?.from) {
+				const amount = abilObject.choose.amount || 1;
+				nxtMaxMod = Math.max(nxtMaxMod, amount);
+				nxtMinMod = Math.min(nxtMinMod, amount);
+
+				abilObject.choose.from.forEach(ab => {
+					const uid = AbilityScoreFilter.FilterItem.getUid_({ability: ab, modifier: amount});
+					if (!this._seenUids[uid]) this._isItemsDirty = true;
+					this._seenUids[uid] = true;
+				});
+			}
+
+			if (abilObject.choose?.weighted?.weights) {
+				nxtMaxMod = Math.max(nxtMaxMod, ...abilObject.choose.weighted.weights);
+				nxtMinMod = Math.min(nxtMinMod, ...abilObject.choose.weighted.weights);
+
+				abilObject.choose.weighted.from.forEach(ab => {
+					abilObject.choose.weighted.weights.forEach(weight => {
+						const uid = AbilityScoreFilter.FilterItem.getUid_({ability: ab, modifier: weight});
+						if (!this._seenUids[uid]) this._isItemsDirty = true;
+						this._seenUids[uid] = true;
+					});
+				});
+			}
+		});
+		// endregion
+
+		// region If we have a new max score, populate items
+		if (nxtMaxMod > this._maxMod) {
+			for (let i = this._maxMod + 1; i <= nxtMaxMod; ++i) {
+				if (i === 0) continue;
+				Parser.ABIL_ABVS.forEach(ab => {
+					const item = new AbilityScoreFilter.FilterItem({modifier: i, ability: ab});
+					this._items.push(item);
+					this._itemsLookup[item.uid] = item;
+					if (this.__state[item.uid] == null) this.__state[item.uid] = 0;
+				});
+			}
+
+			this._isItemsDirty = true;
+			this._maxMod = nxtMaxMod;
+		}
+		// endregion
+
+		// region If we have a new min score, populate items
+		if (nxtMinMod < this._minMod) {
+			for (let i = nxtMinMod; i < this._minMod; ++i) {
+				if (i === 0) continue;
+				Parser.ABIL_ABVS.forEach(ab => {
+					const item = new AbilityScoreFilter.FilterItem({modifier: i, ability: ab});
+					this._items.push(item);
+					this._itemsLookup[item.uid] = item;
+					if (this.__state[item.uid] == null) this.__state[item.uid] = 0;
+				});
+			}
+
+			this._isItemsDirty = true;
+			this._minMod = nxtMinMod;
+		}
+		// endregion
+	}
+
+	getSaveableState () {
+		return {
+			[this.header]: {
+				...this.getBaseSaveableState(),
+				state: {...this.__state},
+			},
+		};
+	}
+
+	setStateFromLoaded (filterState) {
+		if (!filterState || !filterState[this.header]) return;
+		const toLoad = filterState[this.header];
+		this.setBaseStateFromLoaded(toLoad);
+		Object.assign(this._state, toLoad.state);
+	}
+
+	getSubHashes () {
+		const out = [];
+
+		const baseMeta = this.getMetaSubHashes();
+		if (baseMeta) out.push(...baseMeta);
+
+		const areNotDefaultState = Object.entries(this._state).filter(([k, v]) => {
+			if (k.startsWith("_")) return false;
+			return !!v;
+		});
+		if (areNotDefaultState.length) {
+			// serialize state as `key=value` pairs
+			const serPillStates = areNotDefaultState.map(([k, v]) => `${k.toUrlified()}=${v}`);
+			out.push(UrlUtil.packSubHash(this.getSubHashPrefix("state", this.header), serPillStates));
+		}
+
+		if (!out.length) return null;
+
+		return out;
+	}
+
+	getNextStateFromSubhashState (state) {
+		const nxtState = this._getNextState_base();
+
+		if (state == null) {
+			this._mutNextState_reset(nxtState);
+			return nxtState;
+		}
+
+		let hasState = false;
+
+		Object.entries(state).forEach(([k, vals]) => {
+			const prop = FilterBase.getProp(k);
+			switch (prop) {
+				case "state": {
+					hasState = true;
+					Object.keys(nxtState[this.header].state).forEach(k => nxtState[this.header].state[k] = 0);
+
+					vals.forEach(v => {
+						const [statePropLower, state] = v.split("=");
+						const stateProp = Object.keys(nxtState[this.header].state).find(k => k.toLowerCase() === statePropLower);
+						if (stateProp) nxtState[this.header].state[stateProp] = Number(state) ? 1 : 0;
+					});
+					break;
+				}
+			}
+		});
+
+		if (!hasState) this._mutNextState_reset(nxtState);
+
+		return nxtState;
+	}
+
+	setFromValues (values) {
+		if (!values[this.header]) return;
+		const nxtState = {};
+		Object.keys(this._state).forEach(k => nxtState[k] = 0);
+		Object.assign(nxtState, values[this.header]);
+	}
+
+	handleSearch (searchTerm) {
+		const isHeaderMatch = this.header.toLowerCase().includes(searchTerm);
+
+		if (isHeaderMatch) {
+			Object.values(this.__wrpPillsRows).forEach(meta => meta.row.removeClass("fltr__hidden--search"));
+
+			if (this.__$wrpFilter) this.__$wrpFilter.toggleClass("fltr__hidden--search", false);
+
+			return true;
+		}
+
+		// Simply display all if the user searched a "+x" or "-x" value; we don't care if this produces false positives.
+		const isModNumber = /^[-+]\d*$/.test(searchTerm);
+
+		let visibleCount = 0;
+		Object.values(this.__wrpPillsRows).forEach(({row, searchText}) => {
+			const isVisible = isModNumber || searchText.includes(searchTerm);
+			row.toggleClass("fltr__hidden--search", !isVisible);
+			if (isVisible) visibleCount++;
+		});
+
+		if (this.__$wrpFilter) this.__$wrpFilter.toggleClass("fltr__hidden--search", visibleCount === 0);
+
+		return visibleCount !== 0;
+	}
+
+	_doTeardown () {
+		this._items.forEach(it => {
+			if (it.rendered) it.rendered.detach();
+			if (it.btnMini) it.btnMini.detach();
+		});
+
+		Object.values(this.__wrpPillsRows).forEach(meta => meta.row.detach());
+	}
+
+	_getStateNotDefault () {
+		return Object.entries(this._state)
+			.filter(([, v]) => !!v);
+	}
+
+	getFilterTagPart () {
+		const areNotDefaultState = this._getStateNotDefault();
+		const compressedMeta = this._getCompressedMeta({isStripUiKeys: true});
+
+		// If _any_ value is non-default, we need to include _all_ values in the tag
+		// The same goes for meta values
+		if (!areNotDefaultState.length && !compressedMeta) return null;
+
+		const pt = Object.entries(this._state)
+			.filter(([, v]) => !!v)
+			.map(([k, v]) => `${v === 2 ? "!" : ""}${k}`)
+			.join(";")
+			.toLowerCase();
+
+		return [
+			this.header.toLowerCase(),
+			pt,
+			compressedMeta ? compressedMeta.join(HASH_SUB_LIST_SEP) : null,
+		]
+			.filter(it => it != null)
+			.join("=");
+	}
+
+	getDisplayStatePart ({nxtState = null} = {}) {
+		const state = nxtState?.[this.header]?.state || this.__state;
+
+		const areNotDefaultState = this._getStateNotDefault({nxtState});
+
+		// If _any_ value is non-default, we need to include _all_ values in the tag
+		// The same goes for meta values
+		if (!areNotDefaultState.length) return null;
+
+		const ptState = Object.entries(state)
+			.filter(([, v]) => !!v)
+			.map(([k, v]) => {
+				const item = this._items.find(item => item.uid === k);
+				if (!item) return null; // Should never occur
+				return `${v === 2 ? "not " : ""}${item.getMiniPillDisplayText()}`;
+			})
+			.join(", ");
+
+		return `${this.header}: ${ptState}`;
+	}
+}
+
+globalThis.AbilityScoreFilter = AbilityScoreFilter;
+
+AbilityScoreFilter.FilterItem = class {
+	static getUid_ ({ability = null, isAnyIncrease = false, isAnyDecrease = false, modifier = null}) {
+		return `${Parser.attAbvToFull(ability)} ${modifier != null ? UiUtil.intToBonus(modifier) : (isAnyIncrease ? `+any` : isAnyDecrease ? `-any` : "?")}`;
+	}
+
+	constructor ({isAnyIncrease = false, isAnyDecrease = false, modifier = null, ability = null}) {
+		if (isAnyIncrease && isAnyDecrease) throw new Error(`Invalid arguments!`);
+		if ((isAnyIncrease || isAnyDecrease) && modifier != null) throw new Error(`Invalid arguments!`);
+
+		this._ability = ability;
+		this._modifier = modifier;
+		this._isAnyIncrease = isAnyIncrease;
+		this._isAnyDecrease = isAnyDecrease;
+		this._uid = AbilityScoreFilter.FilterItem.getUid_({
+			isAnyIncrease: this._isAnyIncrease,
+			isAnyDecrease: this._isAnyDecrease,
+			modifier: this._modifier,
+			ability: this._ability,
+		});
+	}
+
+	get ability () { return this._ability; }
+	get modifier () { return this._modifier; }
+	get isAnyIncrease () { return this._isAnyIncrease; }
+	get isAnyDecrease () { return this._isAnyDecrease; }
+	get uid () { return this._uid; }
+
+	getMiniPillDisplayText () {
+		if (this._isAnyIncrease) return `+Any ${Parser.attAbvToFull(this._ability)}`;
+		if (this._isAnyDecrease) return `\u2012Any ${Parser.attAbvToFull(this._ability)}`;
+		return `${UiUtil.intToBonus(this._modifier, {isPretty: true})} ${Parser.attAbvToFull(this._ability)}`;
+	}
+
+	getPillDisplayHtml () {
+		if (this._isAnyIncrease) return `+Any`;
+		if (this._isAnyDecrease) return `\u2012Any`;
+		return UiUtil.intToBonus(this._modifier, {isPretty: true});
+	}
+};
 
 class RangeFilter extends FilterBase {
 	/**
@@ -2443,12 +3860,17 @@ class RangeFilter extends FilterBase {
 	 * @param [opts.headerHelp] Filter header help text (tooltip)
 	 * @param [opts.min] Minimum slider value.
 	 * @param [opts.max] Maximum slider value.
+	 * @param [opts.isSparse] If this slider should only display known values, rather than a continual range.
 	 * @param [opts.isLabelled] If this slider has labels.
 	 * @param [opts.labels] Initial labels to populate this filter with.
 	 * @param [opts.isAllowGreater] If this slider should allow all items greater than its max.
-	 * @param [opts.suffix] Suffix to add to numbers displayed above slider.
+	 * @param [opts.isRequireFullRangeMatch] If range values, e.g. `[1, 5]`, must be entirely within the slider's
+	 * selected range in order to be produce a positive `toDisplay` result.
+	 * @param [opts.suffix] Suffix to add to number displayed above slider.
 	 * @param [opts.labelSortFn] Function used to sort labels if new labels are added. Defaults to ascending alphabetical.
-	 * @param [opts.labelDisplayFn] Function which converts a lable to a display value.
+	 * @param [opts.labelDisplayFn] Function which converts a label to a display value.
+	 * @param [opts.displayFn] Function which converts a (non-label) value to a display value.
+	 * @param [opts.displayFnTooltip] Function which converts a (non-label) value to a tooltip display value.
 	 */
 	constructor (opts) {
 		super(opts);
@@ -2458,13 +3880,15 @@ class RangeFilter extends FilterBase {
 
 		this._min = Number(opts.min || 0);
 		this._max = Number(opts.max || 0);
-		this._hasPredefinedMin = opts.min != null;
-		this._hasPredefinedMax = opts.max != null;
 		this._labels = opts.isLabelled ? opts.labels : null;
 		this._isAllowGreater = !!opts.isAllowGreater;
+		this._isRequireFullRangeMatch = !!opts.isRequireFullRangeMatch;
+		this._sparseValues = opts.isSparse ? [] : null;
 		this._suffix = opts.suffix;
 		this._labelSortFn = opts.labelSortFn === undefined ? SortUtil.ascSort : opts.labelSortFn;
 		this._labelDisplayFn = opts.labelDisplayFn;
+		this._displayFn = opts.displayFn;
+		this._displayFnTooltip = opts.displayFnTooltip;
 
 		this._filterBox = null;
 		Object.assign(
@@ -2478,13 +3902,18 @@ class RangeFilter extends FilterBase {
 		);
 		this.__$wrpFilter = null;
 		this.__$wrpMini = null;
-		this._$slider = null;
+		this._slider = null;
 
 		this._labelSearchCache = null;
 
 		this._$btnMiniGt = null;
 		this._$btnMiniLt = null;
 		this._$btnMiniEq = null;
+
+		// region Trimming
+		this._seenMin = this._min;
+		this._seenMax = this._max;
+		// endregion
 	}
 
 	set isUseDropdowns (val) { this._meta.isUseDropdowns = !!val; }
@@ -2499,48 +3928,42 @@ class RangeFilter extends FilterBase {
 	}
 
 	setStateFromLoaded (filterState) {
-		if (filterState && filterState[this.header]) {
-			const toLoad = filterState[this.header];
+		if (!filterState?.[this.header]) return;
 
-			// region Ensure the provided min/max are a lower/upper bounds for the range to be set
-			if (this._hasPredefinedMax) {
-				const tgt = (toLoad.state || {});
+		const toLoad = filterState[this.header];
 
-				if (tgt.max == null) tgt.max = this._max;
-				else if (tgt.max > this._max) tgt.max = this._max;
+		// region Ensure to-be-loaded state is populated with sensible data
+		const tgt = (toLoad.state || {});
 
-				if (tgt.curMax == null) tgt.curMax = tgt.max;
-				else if (tgt.curMax > tgt.max) tgt.curMax = tgt.max;
-			}
-
-			if (this._hasPredefinedMin) {
-				const tgt = (toLoad.state || {});
-
-				if (tgt.min == null) tgt.min = this._min;
-				else if (tgt.min < this._min) tgt.min = this._min;
-
-				if (tgt.curMin == null) tgt.curMin = tgt.min;
-				else if (tgt.curMin < tgt.min) tgt.curMin = tgt.min;
-			}
-			// endregion
-
-			this.setBaseStateFromLoaded(toLoad);
-
-			// Reduce the maximum/minimum ranges to their current values +/-1
-			//   This allows the range filter to recover from being stretched out by homebrew
-			//   The off-by-one trick is to prevent later filter expansion from assuming the filters are set to their min/max
-			if (toLoad.state && !this._labels) {
-				if (!this._hasPredefinedMax && toLoad.state.curMax != null && toLoad.state.max != null) {
-					if (toLoad.state.curMax + 1 < toLoad.state.max) toLoad.state.max = toLoad.state.curMax + 1;
-				}
-
-				if (!this._hasPredefinedMin && toLoad.state.curMin != null && toLoad.state.min != null) {
-					if (toLoad.state.curMin - 1 > toLoad.state.min) toLoad.state.min = toLoad.state.curMin - 1;
-				}
-			}
-
-			Object.assign(this._state, toLoad.state);
+		if (tgt.max == null) tgt.max = this._max;
+		else if (this._max > tgt.max) {
+			if (tgt.max === tgt.curMax) tgt.curMax = this._max; // If it's set to "max", respect this
+			tgt.max = this._max;
 		}
+
+		if (tgt.curMax == null) tgt.curMax = tgt.max;
+		else if (tgt.curMax > tgt.max) tgt.curMax = tgt.max;
+
+		if (tgt.min == null) tgt.min = this._min;
+		else if (this._min < tgt.min) {
+			if (tgt.min === tgt.curMin) tgt.curMin = this._min; // If it's set to "min", respect this
+			tgt.min = this._min;
+		}
+
+		if (tgt.curMin == null) tgt.curMin = tgt.min;
+		else if (tgt.curMin < tgt.min) tgt.curMin = tgt.min;
+		// endregion
+
+		this.setBaseStateFromLoaded(toLoad);
+
+		Object.assign(this._state, toLoad.state);
+	}
+
+	trimState_ () {
+		if (this._seenMin <= this._state.min && this._seenMax >= this._state.max) return;
+
+		const nxtState = {min: this._seenMin, curMin: this._seenMin, max: this._seenMax, curMax: this._seenMax};
+		this._proxyAssignSimple("state", nxtState);
 	}
 
 	getSubHashes () {
@@ -2560,8 +3983,47 @@ class RangeFilter extends FilterBase {
 		return out.length ? out : null;
 	}
 
-	setFromSubHashState (state) {
-		this.setMetaFromSubHashState(state);
+	_isAtDefaultPosition ({nxtState = null} = {}) {
+		const state = nxtState?.[this.header]?.state || this.__state;
+		return state.min === state.curMin && state.max === state.curMax;
+	}
+
+	// `meta` is not included, as it is used purely for UI
+	getFilterTagPart () {
+		if (this._isAtDefaultPosition()) return null;
+
+		if (!this._labels) {
+			if (this._state.curMin === this._state.curMax) return `${this.header}=[${this._state.curMin}]`;
+			return `${this.header}=[${this._state.curMin};${this._state.curMax}]`;
+		}
+
+		if (this._state.curMin === this._state.curMax) {
+			const label = this._labels[this._state.curMin];
+			return `${this.header}=[&${label}]`;
+		}
+
+		const labelLow = this._labels[this._state.curMin];
+		const labelHigh = this._labels[this._state.curMax];
+		return `${this.header}=[&${labelLow};&${labelHigh}]`;
+	}
+
+	getDisplayStatePart ({nxtState = null} = {}) {
+		if (this._isAtDefaultPosition({nxtState})) return null;
+
+		const {summary} = this._getDisplaySummary({nxtState});
+
+		return `${this.header}: ${summary}`;
+	}
+
+	getNextStateFromSubhashState (state) {
+		const nxtState = this._getNextState_base();
+
+		if (state == null) {
+			this._mutNextState_reset(nxtState);
+			return nxtState;
+		}
+
+		this._mutNextState_meta_fromSubHashState(nxtState, state);
 
 		let hasState = false;
 
@@ -2582,12 +4044,12 @@ class RangeFilter extends FilterBase {
 
 					switch (prop) {
 						case "min":
-							if (num < this._state.min) this._state.min = num;
-							this._state.curMin = Math.max(this._state.min, num);
+							if (num < nxtState[this.header].state.min) nxtState[this.header].state.min = num;
+							nxtState[this.header].state.curMin = Math.max(nxtState[this.header].state.min, num);
 							break;
 						case "max":
-							if (num > this._state.max) this._state.max = num;
-							this._state.curMax = Math.min(this._state.max, num);
+							if (num > nxtState[this.header].state.max) nxtState[this.header].state.max = num;
+							nxtState[this.header].state.curMax = Math.min(nxtState[this.header].state.max, num);
 							break;
 						default: throw new Error(`Unknown prop "${prop}"`);
 					}
@@ -2595,19 +4057,21 @@ class RangeFilter extends FilterBase {
 			}
 		});
 
-		if (!hasState) this.reset();
+		if (!hasState) this._mutNextState_reset(nxtState);
+
+		return nxtState;
 	}
 
 	setFromValues (values) {
-		if (values[this.header]) {
-			const vals = values[this.header];
+		if (!values[this.header]) return;
 
-			if (vals.min != null) this._state.curMin = Math.max(this._state.min, vals.min);
-			else this._state.curMin = this._state.min;
+		const vals = values[this.header];
 
-			if (vals.max != null) this._state.curMax = Math.max(this._state.max, vals.max);
-			else this._state.curMax = this._state.max;
-		}
+		if (vals.min != null) this._state.curMin = Math.max(this._state.min, vals.min);
+		else this._state.curMin = this._state.min;
+
+		if (vals.max != null) this._state.curMax = Math.max(this._state.max, vals.max);
+		else this._state.curMax = this._state.max;
 	}
 
 	_$getHeaderControls () {
@@ -2623,7 +4087,7 @@ class RangeFilter extends FilterBase {
 		const $btnReset = $(`<button class="btn btn-default btn-xs">Reset</button>`).click(() => this.reset());
 		const $wrpBtns = $$`<div>${$btnForceMobile}${$btnReset}</div>`;
 
-		const $wrpSummary = $(`<div class="flex-v-center fltr__summary_item fltr__summary_item--include"></div>`).hideVe();
+		const $wrpSummary = $(`<div class="ve-flex-v-center fltr__summary_item fltr__summary_item--include"></div>`).hideVe();
 
 		const $btnShowHide = $(`<button class="btn btn-default btn-xs ml-2 ${this._meta.isHidden ? "active" : ""}">Hide</button>`)
 			.click(() => this._meta.isHidden = !this._meta.isHidden);
@@ -2633,23 +4097,38 @@ class RangeFilter extends FilterBase {
 			$wrpSummary.toggleVe(this._meta.isHidden);
 
 			// render summary
-			const cur = this.getValues()[this.header];
-
-			const isRange = !cur.isMinVal && !cur.isMaxVal;
-			const isCapped = !cur.isMinVal || !cur.isMaxVal;
+			const {summaryTitle, summary} = this._getDisplaySummary();
 			$wrpSummary
-				.title(isRange ? `Hidden range` : isCapped ? `Hidden limit` : "")
-				.text(isRange ? `${cur.min}-${cur.max}` : !cur.isMinVal ? `≥ ${cur.min}` : !cur.isMaxVal ? `≤ ${cur.max}` : "")
+				.title(summaryTitle)
+				.text(summary);
 		};
 		this._addHook("meta", "isHidden", hkIsHidden);
 		hkIsHidden();
 
 		return $$`
-		<div class="flex-v-center">
+		<div class="ve-flex-v-center">
 			${$wrpBtns}
 			${$wrpSummary}
 			${$btnShowHide}
 		</div>`;
+	}
+
+	_getDisplaySummary ({nxtState = null} = {}) {
+		const cur = this.getValues({nxtState})[this.header];
+
+		const isRange = !cur.isMinVal && !cur.isMaxVal;
+		const isCapped = !cur.isMinVal || !cur.isMaxVal;
+
+		return {
+			summaryTitle: isRange ? `Hidden range` : isCapped ? `Hidden limit` : "",
+			summary: isRange ? `${this._getDisplayText(cur.min)}-${this._getDisplayText(cur.max)}` : !cur.isMinVal ? `≥ ${this._getDisplayText(cur.min)}` : !cur.isMaxVal ? `≤ ${this._getDisplayText(cur.max)}` : "",
+		};
+	}
+
+	_getDisplayText (value, {isBeyondMax = false, isTooltip = false} = {}) {
+		value = `${this._labels ? this._labelDisplayFn ? this._labelDisplayFn(this._labels[value]) : this._labels[value] : (isTooltip && this._displayFnTooltip) ? this._displayFnTooltip(value) : this._displayFn ? this._displayFn(value) : value}${isBeyondMax ? "+" : ""}`;
+		if (this._suffix) value += this._suffix;
+		return value;
 	}
 
 	/**
@@ -2676,44 +4155,48 @@ class RangeFilter extends FilterBase {
 		hookHidden();
 
 		// region Slider
+		// ensure sparse values are correctly constrained
+		if (this._sparseValues?.length) {
+			const sparseMin = this._sparseValues[0];
+			if (this._state.min < sparseMin) {
+				this._state.curMin = Math.max(this._state.curMin, sparseMin);
+				this._state.min = sparseMin;
+			}
+
+			const sparseMax = this._sparseValues.last();
+			if (this._state.max > sparseMax) {
+				this._state.curMax = Math.min(this._state.curMax, sparseMax);
+				this._state.max = sparseMax;
+			}
+		}
+
 		// prepare slider options
 		const getSliderOpts = () => {
+			const fnDisplay = (val, {isTooltip = false} = {}) => {
+				return this._getDisplayText(val, {isBeyondMax: this._isAllowGreater && val === this._state.max, isTooltip});
+			};
+
 			return {
 				propMin: "min",
 				propMax: "max",
 				propCurMin: "curMin",
 				propCurMax: "curMax",
-				fnDisplay: (val) => {
-					let out;
-
-					if (this._labels) {
-						if (this._labelSortFn) this._labels.sort(this._labelSortFn);
-
-						const labels = this._labelDisplayFn ? this._labels.map(it => this._labelDisplayFn(it)) : this._labels;
-
-						out = labels[val] ?? val;
-					} else if (this._isAllowGreater && val === this._state.max) {
-						out = `${val}+`;
-					} else {
-						out = val;
-					}
-
-					if (this._suffix) out += this._suffix;
-
-					return out;
-				},
+				fnDisplay: (val) => fnDisplay(val),
+				fnDisplayTooltip: (val) => fnDisplay(val, {isTooltip: true}),
+				sparseValues: this._sparseValues,
 			};
 		};
 
 		const hkUpdateLabelSearchCache = () => {
-			if (!this._labels) return this._labelSearchCache = null;
-			this._labelSearchCache = (this._labelDisplayFn ? this._labels.map(it => this._labelDisplayFn(it)) : this._labels).join(" -- ").toLowerCase();
+			if (this._labels) return this._doUpdateLabelSearchCache();
+			this._labelSearchCache = null;
 		};
 		this._addHook("state", "curMin", hkUpdateLabelSearchCache);
 		this._addHook("state", "curMax", hkUpdateLabelSearchCache);
 		hkUpdateLabelSearchCache();
 
-		this._$slider = ComponentUiUtil.$getSliderRange(this, getSliderOpts()).appendTo($wrpSlider);
+		this._slider = new ComponentUiUtil.RangeSlider({comp: this, ...getSliderOpts()});
+		$wrpSlider.append(this._slider.get());
 		// endregion
 
 		// region Dropdowns
@@ -2737,7 +4220,7 @@ class RangeFilter extends FilterBase {
 				this._state.curMax = max;
 			},
 		});
-		$$`<div class="flex-v-center w-100 px-3 py-1">${selMin}${selMax}</div>`.appendTo($wrpDropdowns);
+		$$`<div class="ve-flex-v-center w-100 px-3 py-1">${selMin}${selMax}</div>`.appendTo($wrpDropdowns);
 		// endregion
 
 		const handleCurUpdate = () => {
@@ -2760,11 +4243,11 @@ class RangeFilter extends FilterBase {
 		handleLimitUpdate();
 
 		if (opts.isMulti) {
-			this._$slider.addClass("ve-grow");
+			this._slider.get().classList.add("ve-grow");
 			$wrpSlider.addClass("ve-grow");
 			$wrpDropdowns.addClass("ve-grow");
 
-			return this.__$wrpFilter = $$`<div class="flex">
+			return this.__$wrpFilter = $$`<div class="ve-flex">
 				<div class="fltr__range-inline-label">${this._getRenderedHeader()}</div>
 				${$wrpSlider}
 				${$wrpDropdowns}
@@ -2772,10 +4255,10 @@ class RangeFilter extends FilterBase {
 		} else {
 			const btnMobToggleControls = this._getBtnMobToggleControls($wrpControls);
 
-			return this.__$wrpFilter = $$`<div class="flex-col">
+			return this.__$wrpFilter = $$`<div class="ve-flex-col">
 				${opts.isFirst ? "" : `<div class="fltr__dropdown-divider mb-1"></div>`}
 				<div class="split fltr__h ${this._minimalUi ? "fltr__minimal-hide" : ""} mb-1">
-					<div class="fltr__h-text flex-h-center">${this._getRenderedHeader()}${btnMobToggleControls}</div>
+					<div class="fltr__h-text ve-flex-h-center">${this._getRenderedHeader()}${btnMobToggleControls}</div>
 					${$wrpControls}
 				</div>
 				${$wrpSlider}
@@ -2785,6 +4268,8 @@ class RangeFilter extends FilterBase {
 	}
 
 	$renderMinis (opts) {
+		if (!opts.$wrpMini) return;
+
 		this._filterBox = opts.filterBox;
 		this.__$wrpMini = opts.$wrpMini;
 
@@ -2826,17 +4311,17 @@ class RangeFilter extends FilterBase {
 				this._$btnMiniLt.attr("state", FilterBox._PILL_STATES[0]);
 
 				this._$btnMiniEq
-					.attr("state", this._state.min === this._state.curMin && this._state.max === this._state.curMax ? FilterBox._PILL_STATES[0] : FilterBox._PILL_STATES[1])
-					.text(`${this.header} = ${this._labels ? this._labels[this._state.curMin] : this._state.curMin}`);
+					.attr("state", this._isAtDefaultPosition() ? FilterBox._PILL_STATES[0] : FilterBox._PILL_STATES[1])
+					.text(`${this.header} = ${this._getDisplayText(this._state.curMin, {isBeyondMax: this._isAllowGreater && this._state.curMin === this._state.max})}`);
 			} else {
 				if (this._state.min !== this._state.curMin) {
 					this._$btnMiniGt.attr("state", FilterBox._PILL_STATES[1])
-						.text(`${this.header} ≥ ${this._labels ? this._labels[this._state.curMin] : this._state.curMin}${this._suffix || ""}`);
+						.text(`${this.header} ≥ ${this._getDisplayText(this._state.curMin)}`);
 				} else this._$btnMiniGt.attr("state", FilterBox._PILL_STATES[0]);
 
 				if (this._state.max !== this._state.curMax) {
 					this._$btnMiniLt.attr("state", FilterBox._PILL_STATES[1])
-						.text(`${this.header} ≤ ${this._labels ? this._labels[this._state.curMax] : this._state.curMax}${this._suffix || ""}`);
+						.text(`${this.header} ≤ ${this._getDisplayText(this._state.curMax)}`);
 				} else this._$btnMiniLt.attr("state", FilterBox._PILL_STATES[0]);
 
 				this._$btnMiniEq.attr("state", FilterBox._PILL_STATES[0]);
@@ -2871,26 +4356,28 @@ class RangeFilter extends FilterBase {
 		return sel;
 	}
 
-	getValues () {
+	getValues ({nxtState = null} = {}) {
+		const state = nxtState?.[this.header]?.state || this.__state;
+
 		const out = {
-			isMaxVal: this._state.max === this._state.curMax,
-			isMinVal: this._state.min === this._state.curMin,
-			max: this._state.curMax,
-			min: this._state.curMin,
+			isMaxVal: state.max === state.curMax,
+			isMinVal: state.min === state.curMin,
+			max: state.curMax,
+			min: state.curMin,
 		};
 		out._isActive = !(out.isMinVal && out.isMaxVal);
 		return {[this.header]: out};
 	}
 
-	reset (isResetAll) {
-		if (isResetAll) this.resetBase();
-		this._state.curMin = this._state.min;
-		this._state.curMax = this._state.max;
+	_mutNextState_reset (nxtState, {isResetAll = false} = {}) {
+		if (isResetAll) this._mutNextState_resetBase(nxtState, {isResetAll});
+		nxtState[this.header].state.curMin = nxtState[this.header].state.min;
+		nxtState[this.header].state.curMax = nxtState[this.header].state.max;
 	}
 
-	resetShallow (isResetAll) { return this.reset(); }
-
 	update () {
+		if (!this.__$wrpMini) return;
+
 		// (labels will be automatically updated by the slider handlers)
 		// always render the mini-pills, to ensure the overall order in the grid stays correct (shared between multiple filters)
 		if (this._$btnMiniGt) this.__$wrpMini.append(this._$btnMiniGt);
@@ -2907,14 +4394,28 @@ class RangeFilter extends FilterBase {
 
 		if (this._labels) {
 			const slice = this._labels.slice(filterState.min, filterState.max + 1);
-			if (entryVal instanceof Array) {
-				return !!entryVal.find(it => slice.includes(it));
-			} else {
-				return slice.includes(entryVal);
+
+			// Special case for "isAllowGreater" filters, which assumes the labels are numerical values
+			if (this._isAllowGreater) {
+				if (filterState.max === this._state.max && entryVal > this._state.max) return true;
+
+				const sliceMin = Math.min(...slice);
+				const sliceMax = Math.max(...slice);
+
+				if (entryVal instanceof Array) return entryVal.some(it => it >= sliceMin && it <= sliceMax);
+				return entryVal >= sliceMin && entryVal <= sliceMax;
 			}
+
+			if (entryVal instanceof Array) return entryVal.some(it => slice.includes(it));
+			return slice.includes(entryVal);
 		} else {
-			// If any of the item's values are in the range, return true
-			if (entryVal instanceof Array) return entryVal.some(ev => this._toDisplay_isToDisplayEntry(filterState, ev));
+			if (entryVal instanceof Array) {
+				// If we require a full match on the range, take the lowest/highest input and test them against our min/max
+				if (this._isRequireFullRangeMatch) return filterState.min <= entryVal[0] && filterState.max >= entryVal.last();
+
+				// Otherwise, If any of the item's values are in the range, return true
+				return entryVal.some(ev => this._toDisplay_isToDisplayEntry(filterState, ev));
+			}
 			return this._toDisplay_isToDisplayEntry(filterState, entryVal);
 		}
 	}
@@ -2928,24 +4429,44 @@ class RangeFilter extends FilterBase {
 
 	addItem (item) {
 		if (item == null) return;
-		if (item instanceof Array) return item.forEach(it => this.addItem(it));
+
+		if (item instanceof Array) {
+			const len = item.length;
+			for (let i = 0; i < len; ++i) this.addItem(item[i]);
+			return;
+		}
 
 		if (this._labels) {
-			if (!this._labels.some(it => it === item)) {
-				this._labels.push(item);
-				// Fake an update to trigger label handling
-			}
+			if (!this._labels.some(it => it === item)) this._labels.push(item);
 
-			this._labelSearchCache = this._labels.join(" -- ").toLowerCase();
+			this._doUpdateLabelSearchCache();
 
+			// Fake an update to trigger label handling
 			this._addItem_addNumber(this._labels.length - 1);
 		} else {
 			this._addItem_addNumber(item);
 		}
 	}
 
+	_doUpdateLabelSearchCache () {
+		this._labelSearchCache = [...new Array(Math.max(0, this._max - this._min))]
+			.map((_, i) => i + this._min)
+			.map(val => this._getDisplayText(val, {isBeyondMax: this._isAllowGreater && val === this._state.max, isTooltip: true}))
+			.join(" -- ")
+			.toLowerCase();
+	}
+
 	_addItem_addNumber (number) {
 		if (number == null || isNaN(number)) return;
+
+		this._seenMin = Math.min(this._seenMin, number);
+		this._seenMax = Math.max(this._seenMax, number);
+
+		if (this._sparseValues && !this._sparseValues.includes(number)) {
+			this._sparseValues.push(number);
+			this._sparseValues.sort(SortUtil.ascSort);
+		}
+
 		if (number >= this._state.min && number <= this._state.max) return; // it's already in the range
 		if (this._state.min == null && this._state.max == null) this._state.min = this._state.max = number;
 		else {
@@ -2961,7 +4482,11 @@ class RangeFilter extends FilterBase {
 	}
 
 	getDefaultMeta () {
-		const out = {...RangeFilter._DEFAULT_META, ...super.getDefaultMeta()};
+		// Key order is important, as @filter tags depend on it
+		const out = {
+			...RangeFilter._DEFAULT_META,
+			...super.getDefaultMeta(),
+		};
 		if (Renderer.hover.isSmallScreen()) out.isUseDropdowns = true;
 		return out;
 	}
@@ -3032,6 +4557,11 @@ class OptionsFilter extends FilterBase {
 		Object.assign(this._state, toAssign);
 	}
 
+	_getStateNotDefault () {
+		return Object.entries(this._state)
+			.filter(([k, v]) => this._defaultState[k] !== v);
+	}
+
 	getSubHashes () {
 		const out = [];
 
@@ -3050,8 +4580,32 @@ class OptionsFilter extends FilterBase {
 		return out.length ? out : null;
 	}
 
-	setFromSubHashState (state) {
-		this.setMetaFromSubHashState(state);
+	// `meta` is not included, as it is used purely for UI
+	getFilterTagPart () {
+		const areNotDefaultState = this._getStateNotDefault();
+		if (!areNotDefaultState.length) return null;
+
+		const pt = areNotDefaultState
+			.map(([k, v]) => `${v ? "" : "!"}${k}`)
+			.join(";").toLowerCase();
+
+		return `${this.header.toLowerCase()}=::${pt}::`;
+	}
+
+	getDisplayStatePart ({nxtState = null} = {}) {
+		/* Implement if required */
+		return null;
+	}
+
+	getNextStateFromSubhashState (state) {
+		const nxtState = this._getNextState_base();
+
+		if (state == null) {
+			this._mutNextState_reset(nxtState);
+			return nxtState;
+		}
+
+		this._mutNextState_meta_fromSubHashState(nxtState, state);
 
 		let hasState = false;
 
@@ -3067,11 +4621,13 @@ class OptionsFilter extends FilterBase {
 				const casedProp = Object.keys(this._defaultState).find(k => k.toLowerCase() === prop);
 				if (!casedProp) return;
 
-				if (this._defaultState[casedProp] != null && typeof val === typeof this._defaultState[casedProp]) this._state[casedProp] = val;
+				if (this._defaultState[casedProp] != null && typeof val === typeof this._defaultState[casedProp]) nxtState[this.header].state[casedProp] = val;
 			});
 		});
 
-		if (!hasState) this.reset();
+		if (!hasState) this._mutNextState_reset(nxtState);
+
+		return nxtState;
 	}
 
 	setFromValues (values) {
@@ -3102,15 +4658,15 @@ class OptionsFilter extends FilterBase {
 		const $wrpButtons = $$`<div>${$btns}</div>`;
 
 		if (opts.isMulti) {
-			return this.__$wrpFilter = $$`<div class="flex">
+			return this.__$wrpFilter = $$`<div class="ve-flex">
 				<div class="fltr__range-inline-label">${this._getRenderedHeader()}</div>
 				${$wrpButtons}
 			</div>`;
 		} else {
-			return this.__$wrpFilter = $$`<div class="flex-col">
+			return this.__$wrpFilter = $$`<div class="ve-flex-col">
 				${opts.isFirst ? "" : `<div class="fltr__dropdown-divider mb-1"></div>`}
 				<div class="split fltr__h ${this._minimalUi ? "fltr__minimal-hide" : ""} mb-1">
-					<div class="fltr__h-text flex-h-center">${this._getRenderedHeader()}</div>
+					<div class="fltr__h-text ve-flex-h-center">${this._getRenderedHeader()}</div>
 					${$wrpControls}
 				</div>
 				${$wrpButtons}
@@ -3119,6 +4675,8 @@ class OptionsFilter extends FilterBase {
 	}
 
 	$renderMinis (opts) {
+		if (!opts.$wrpMini) return;
+
 		this._filterBox = opts.filterBox;
 		this.__$wrpMini = opts.$wrpMini;
 
@@ -3170,9 +4728,9 @@ class OptionsFilter extends FilterBase {
 
 	_$getHeaderControls () {
 		const $btnReset = $(`<button class="btn btn-default btn-xs">Reset</button>`).click(() => this.reset());
-		const $wrpBtns = $$`<div class="flex-v-center">${$btnReset}</div>`;
+		const $wrpBtns = $$`<div class="ve-flex-v-center">${$btnReset}</div>`;
 
-		const $wrpSummary = $(`<div class="flex-v-center fltr__summary_item fltr__summary_item--include"></div>`).hideVe();
+		const $wrpSummary = $(`<div class="ve-flex-v-center fltr__summary_item fltr__summary_item--include"></div>`).hideVe();
 
 		const $btnShowHide = $(`<button class="btn btn-default btn-xs ml-2 ${this._meta.isHidden ? "active" : ""}">Hide</button>`)
 			.click(() => this._meta.isHidden = !this._meta.isHidden);
@@ -3186,34 +4744,34 @@ class OptionsFilter extends FilterBase {
 
 			$wrpSummary
 				.title(`${cntNonDefault} non-default option${cntNonDefault === 1 ? "" : "s"} selected`)
-				.text(cntNonDefault)
+				.text(cntNonDefault);
 		};
 		this._addHook("meta", "isHidden", hkIsHidden);
 		hkIsHidden();
 
 		return $$`
-		<div class="flex-v-center">
+		<div class="ve-flex-v-center">
 			${$wrpBtns}
 			${$wrpSummary}
 			${$btnShowHide}
 		</div>`;
 	}
 
-	getValues () {
+	getValues ({nxtState = null} = {}) {
+		const state = nxtState?.[this.header]?.state || this.__state;
+
 		const out = Object.entries(this._defaultState)
-			.mergeMap(([k, v]) => ({[k]: this._state[k] == null ? v : this._state[k]}));
-		out._isActive = Object.entries(this._defaultState).some(([k, v]) => this._state[k] != null && this._state[k] !== v);
+			.mergeMap(([k, v]) => ({[k]: state[k] == null ? v : state[k]}));
+		out._isActive = Object.entries(this._defaultState).some(([k, v]) => state[k] != null && state[k] !== v);
 		return {
 			[this.header]: out,
 		};
 	}
 
-	reset (isResetAll) {
-		if (isResetAll) this.resetBase();
-		this._proxyAssignSimple("state", MiscUtil.copy(this._defaultState));
+	_mutNextState_reset (nxtState, {isResetAll = false} = {}) {
+		if (isResetAll) this._mutNextState_resetBase(nxtState, {isResetAll});
+		Object.assign(nxtState[this.header].state, MiscUtil.copy(this._defaultState));
 	}
-
-	resetShallow (isResetAll) { return this.reset(); }
 
 	update () { /* No-op */ }
 
@@ -3229,7 +4787,11 @@ class OptionsFilter extends FilterBase {
 	}
 
 	getDefaultMeta () {
-		return {...OptionsFilter._DEFAULT_META, ...super.getDefaultMeta()}
+		// Key order is important, as @filter tags depend on it
+		return {
+			...OptionsFilter._DEFAULT_META,
+			...super.getDefaultMeta(),
+		};
 	}
 
 	handleSearch (searchTerm) {
@@ -3295,10 +4857,9 @@ class MultiFilter extends FilterBase {
 		const baseMeta = this.getMetaSubHashes();
 		if (baseMeta) out.push(...baseMeta);
 
-		const anyNotDefault = Object.keys(this._defaultState).find(k => this._state[k] !== this._defaultState[k]);
-		if (anyNotDefault) {
-			const serState = Object.keys(this._defaultState).map(k => UrlUtil.mini.compress(this._state[k] === undefined ? this._defaultState[k] : this._state[k]));
-			out.push(UrlUtil.packSubHash(this.getSubHashPrefix("state", this.header), serState));
+		const anyNotDefault = this._getStateNotDefault();
+		if (anyNotDefault.length) {
+			out.push(UrlUtil.packSubHash(this.getSubHashPrefix("state", this.header), this._getCompressedState()));
 		}
 
 		// each getSubHashes should return an array of arrays, or null
@@ -3307,8 +4868,52 @@ class MultiFilter extends FilterBase {
 		return out.length ? out : null;
 	}
 
-	setFromSubHashState (state) {
-		this.setMetaFromSubHashState(state);
+	_getStateNotDefault () {
+		return Object.entries(this._defaultState)
+			.filter(([k, v]) => this._state[k] !== v);
+	}
+
+	// `meta` is not included, as it is used purely for UI
+	getFilterTagPart () {
+		return [
+			this._getFilterTagPart_self(),
+			...this._filters.map(it => it.getFilterTagPart()).filter(Boolean),
+		]
+			.filter(it => it != null)
+			.join("|");
+	}
+
+	_getFilterTagPart_self () {
+		const areNotDefaultState = this._getStateNotDefault();
+		if (!areNotDefaultState.length) return null;
+
+		return `${this.header.toLowerCase()}=${this._getCompressedState().join(HASH_SUB_LIST_SEP)}`;
+	}
+
+	getDisplayStatePart ({nxtState = null} = {}) {
+		return this._filters.map(it => it.getDisplayStatePart({nxtState}))
+			.filter(Boolean)
+			.join(", ");
+	}
+
+	_getCompressedState () {
+		return Object.keys(this._defaultState)
+			.map(k => UrlUtil.mini.compress(this._state[k] === undefined ? this._defaultState[k] : this._state[k]));
+	}
+
+	setStateFromNextState (nxtState) {
+		super.setStateFromNextState(nxtState);
+	}
+
+	getNextStateFromSubhashState (state) {
+		const nxtState = this._getNextState_base();
+
+		if (state == null) {
+			this._mutNextState_reset_self(nxtState);
+			return nxtState;
+		}
+
+		this._mutNextState_meta_fromSubHashState(nxtState, state);
 
 		let hasState = false;
 
@@ -3317,11 +4922,13 @@ class MultiFilter extends FilterBase {
 			if (prop === "state") {
 				hasState = true;
 				const data = vals.map(v => UrlUtil.mini.decompress(v));
-				Object.keys(this._defaultState).forEach((k, i) => this._state[k] = data[i]);
+				Object.keys(this._defaultState).forEach((k, i) => nxtState[this.header].state[k] = data[i]);
 			}
 		});
 
-		if (!hasState) this._reset();
+		if (!hasState) this._mutNextState_reset_self(nxtState);
+
+		return nxtState;
 	}
 
 	setFromValues (values) {
@@ -3359,7 +4966,7 @@ class MultiFilter extends FilterBase {
 			click: () => this._filters.forEach(it => it.reset()),
 		});
 
-		const wrpBtns = e_({tag: "div", clazz: "flex", children: [btnForceMobile, btnResetAll].filter(Boolean)});
+		const wrpBtns = e_({tag: "div", clazz: "ve-flex", children: [btnForceMobile, btnResetAll].filter(Boolean)});
 		this._getHeaderControls_addExtraStateBtns(opts, wrpBtns);
 
 		const btnShowHide = e_({
@@ -3368,7 +4975,7 @@ class MultiFilter extends FilterBase {
 			text: "Hide",
 			click: () => this._meta.isHidden = !this._meta.isHidden,
 		});
-		const wrpControls = e_({tag: "div", clazz: "flex-v-center", children: [wrpSummary, wrpBtns, btnShowHide]});
+		const wrpControls = e_({tag: "div", clazz: "ve-flex-v-center", children: [wrpSummary, wrpBtns, btnShowHide]});
 
 		const hookShowHide = () => {
 			wrpBtns.toggleVe(!this._meta.isHidden);
@@ -3390,9 +4997,14 @@ class MultiFilter extends FilterBase {
 	_getHeaderControls_addExtraStateBtns (opts, wrpStateBtnsOuter) {}
 
 	$render (opts) {
-		const $btnAndOr = $(`<div class="fltr__group-comb-toggle ve-muted"></div>`)
-			.click(() => this._state.mode = this._state.mode === "and" ? "or" : "and");
-		const hookAndOr = () => $btnAndOr.text(`(group ${this._state.mode.toUpperCase()})`);
+		const btnAndOr = e_({
+			tag: "div",
+			clazz: `fltr__group-comb-toggle ve-muted`,
+			click: () => this._state.mode = this._state.mode === "and" ? "or" : "and",
+			title: `"Group AND" requires all filters in this group to match. "Group OR" required any filter in this group to match.`,
+		});
+
+		const hookAndOr = () => btnAndOr.innerText = `(group ${this._state.mode.toUpperCase()})`;
 		this._addHook("state", "mode", hookAndOr);
 		hookAndOr();
 
@@ -3401,12 +5013,12 @@ class MultiFilter extends FilterBase {
 
 		const wrpControls = this._getHeaderControls(opts);
 
-		return this.__$wrpFilter = $$`<div class="flex-col">
+		return this.__$wrpFilter = $$`<div class="ve-flex-col">
 			${opts.isFirst ? "" : `<div class="fltr__dropdown-divider mb-1"></div>`}
 			<div class="split fltr__h fltr__h--multi ${this._minimalUi ? "fltr__minimal-hide" : ""} mb-1">
-				<div class="flex-v-center">
+				<div class="ve-flex-v-center">
 					<div class="mr-2">${this._getRenderedHeader()}</div>
-					${$btnAndOr}
+					${btnAndOr}
 				</div>
 				${wrpControls}
 			</div>
@@ -3426,25 +5038,24 @@ class MultiFilter extends FilterBase {
 		return this._filters.some(it => it.isActive(vals));
 	}
 
-	getValues () {
+	getValues ({nxtState = null} = {}) {
 		const out = {};
-		this._filters.forEach(it => Object.assign(out, it.getValues()));
+		this._filters.forEach(it => Object.assign(out, it.getValues({nxtState})));
 		return out;
 	}
 
-	_reset () {
-		Object.assign(this._state, this._defaultState);
+	_mutNextState_reset_self (nxtState) {
+		Object.assign(nxtState[this.header].state, MiscUtil.copy(this._defaultState));
 	}
 
-	reset (isResetAll) {
-		if (isResetAll) this.resetBase();
-		this._reset();
-		this._filters.forEach(it => it.reset(isResetAll));
+	_mutNextState_reset (nxtState, {isResetAll = false} = {}) {
+		if (isResetAll) this._mutNextState_resetBase(nxtState, {isResetAll});
+		this._mutNextState_reset_self(nxtState);
 	}
 
-	resetShallow (isResetAll) {
-		if (isResetAll) this.resetBase();
-		this._reset();
+	reset ({isResetAll = false} = {}) {
+		super.reset({isResetAll});
+		this._filters.forEach(it => it.reset({isResetAll}));
 	}
 
 	update () {
@@ -3458,7 +5069,7 @@ class MultiFilter extends FilterBase {
 		for (let i = this._filters.length - 1; i >= 0; --i) {
 			const f = this._filters[i];
 			if (f instanceof RangeFilter) {
-				results.push(f.toDisplay(boxState, entryValArr[i]))
+				results.push(f.toDisplay(boxState, entryValArr[i]));
 			} else {
 				const totals = boxState[f.header]._totals;
 
@@ -3506,16 +5117,13 @@ MultiFilter._DETAULT_STATE = {
 })();
 FilterUtil.SUB_HASH_PREFIXES = new Set([...Object.values(FilterBox._SUB_HASH_PREFIXES), ...Object.values(FilterBase._SUB_HASH_PREFIXES)]);
 
-if (typeof module !== "undefined") {
-	module.exports = {
-		FilterUtil,
-		PageFilter,
-		FilterBox,
-		FilterItem,
-		FilterBase,
-		Filter,
-		SourceFilter,
-		RangeFilter,
-		MultiFilter,
-	};
-}
+globalThis.FilterUtil = FilterUtil;
+globalThis.PageFilter = PageFilter;
+globalThis.FilterBox = FilterBox;
+globalThis.FilterItem = FilterItem;
+globalThis.FilterBase = FilterBase;
+globalThis.Filter = Filter;
+globalThis.SourceFilter = SourceFilter;
+globalThis.RangeFilter = RangeFilter;
+globalThis.OptionsFilter = OptionsFilter;
+globalThis.MultiFilter = MultiFilter;

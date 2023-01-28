@@ -4,7 +4,10 @@
 			"name": "Beast of the Air",
 			"source": "UAClassFeatureVariants",
 			"page": 8,
-			"size": "S",
+			"summonedByClass": "Ranger|PHB",
+			"size": [
+				"S"
+			],
 			"type": "beast",
 			"alignment": [
 				"N"
@@ -80,13 +83,17 @@
 			],
 			"miscTags": [
 				"MW"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Beast of the Earth",
 			"source": "UAClassFeatureVariants",
 			"page": 9,
-			"size": "M",
+			"summonedByClass": "Ranger|PHB",
+			"size": [
+				"M"
+			],
 			"type": "beast",
 			"alignment": [
 				"N"
@@ -172,7 +179,8 @@
 			],
 			"conditionInflict": [
 				"prone"
-			]
+			],
+			"hasToken": true
 		}
 	]
 }

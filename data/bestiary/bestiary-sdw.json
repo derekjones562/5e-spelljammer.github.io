@@ -18,8 +18,14 @@
 			"name": "Expert",
 			"source": "SDW",
 			"level": 9,
-			"size": "M",
-			"type": "humanoid",
+			"size": [
+				"M"
+			],
+			"type": {
+				"type": "humanoid",
+				"sidekickType": "expert",
+				"sidekickHidden": true
+			},
 			"ac": [
 				{
 					"ac": 16,
@@ -102,7 +108,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"languageTags": [
 				"C"
 			],
@@ -114,12 +119,15 @@
 				"RNG",
 				"RW",
 				"THW"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Giant Shark Skeleton",
 			"source": "SDW",
-			"size": "H",
+			"size": [
+				"H"
+			],
 			"type": "undead",
 			"alignment": [
 				"U"
@@ -189,6 +197,7 @@
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
@@ -196,7 +205,9 @@
 			"isNpc": true,
 			"isNamedCreature": true,
 			"source": "SDW",
-			"size": "H",
+			"size": [
+				"H"
+			],
 			"type": "dragon",
 			"alignment": [
 				"L",
@@ -414,7 +425,6 @@
 				"name": "Bronze Dragon",
 				"source": "MM"
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Amphibious",
 				"Legendary Resistances",
@@ -425,8 +435,10 @@
 				"SD"
 			],
 			"actionTags": [
+				"Breath Weapon",
 				"Frightful Presence",
-				"Multiattack"
+				"Multiattack",
+				"Shapechanger"
 			],
 			"languageTags": [
 				"C",
@@ -437,6 +449,13 @@
 				"L",
 				"P",
 				"S"
+			],
+			"damageTagsLegendary": [
+				"S",
+				"T"
+			],
+			"damageTagsSpell": [
+				"O"
 			],
 			"spellcastingTags": [
 				"CS",
@@ -452,13 +471,15 @@
 				"prone"
 			],
 			"conditionInflictLegendary": [
-				"deafened"
+				"deafened",
+				"prone"
 			],
 			"conditionInflictSpell": [
 				"charmed",
 				"invisible",
 				"unconscious"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -466,8 +487,17 @@
 			"name": "Spellcaster (Healer)",
 			"source": "SDW",
 			"level": 9,
-			"size": "M",
-			"type": "humanoid",
+			"size": [
+				"M"
+			],
+			"type": {
+				"type": "humanoid",
+				"sidekickType": "spellcaster",
+				"tags": [
+					"healer"
+				],
+				"sidekickHidden": true
+			},
 			"ac": [
 				{
 					"ac": 13,
@@ -572,12 +602,14 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"languageTags": [
 				"C"
 			],
 			"damageTags": [
 				"B"
+			],
+			"damageTagsSpell": [
+				"R"
 			],
 			"spellcastingTags": [
 				"CC"
@@ -587,14 +619,24 @@
 			],
 			"conditionInflictSpell": [
 				"incapacitated"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Spellcaster (Mage)",
 			"source": "SDW",
 			"level": 9,
-			"size": "M",
-			"type": "humanoid",
+			"size": [
+				"M"
+			],
+			"type": {
+				"type": "humanoid",
+				"sidekickType": "spellcaster",
+				"tags": [
+					"mage"
+				],
+				"sidekickHidden": true
+			},
 			"ac": [
 				{
 					"ac": 13,
@@ -699,12 +741,15 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"languageTags": [
 				"C"
 			],
 			"damageTags": [
 				"B"
+			],
+			"damageTagsSpell": [
+				"C",
+				"F"
 			],
 			"spellcastingTags": [
 				"CW"
@@ -715,14 +760,21 @@
 			"conditionInflictSpell": [
 				"invisible",
 				"unconscious"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Warrior",
 			"source": "SDW",
 			"level": 9,
-			"size": "M",
-			"type": "humanoid",
+			"size": [
+				"M"
+			],
+			"type": {
+				"type": "humanoid",
+				"sidekickType": "warrior",
+				"sidekickHidden": true
+			},
 			"ac": [
 				{
 					"ac": 20,
@@ -780,19 +832,27 @@
 				{
 					"name": "Martial Role",
 					"entries": [
-						"The warrior has one of the following traits of your choice:"
-					]
-				},
-				{
-					"name": "Attacker",
-					"entries": [
-						"The warrior gains a +2 bonus to attack rolls."
-					]
-				},
-				{
-					"name": "Defender",
-					"entries": [
-						"The warrior gains the Protection reaction below."
+						"The warrior has one of the following traits of your choice:",
+						{
+							"type": "list",
+							"style": "list-hang-notitle",
+							"items": [
+								{
+									"name": "Attacker",
+									"type": "item",
+									"entries": [
+										"The warrior gains a +2 bonus to attack rolls."
+									]
+								},
+								{
+									"name": "Defender",
+									"type": "item",
+									"entries": [
+										"The warrior gains the Protection reaction below."
+									]
+								}
+							]
+						}
 					]
 				},
 				{
@@ -830,7 +890,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"languageTags": [
 				"C"
 			],
@@ -842,7 +901,8 @@
 				"MW",
 				"RNG",
 				"RW"
-			]
+			],
+			"hasToken": true
 		}
 	]
 }

@@ -4,7 +4,6 @@ class PageFilterVehicles extends PageFilter {
 	constructor () {
 		super();
 
-		this._sourceFilter = new SourceFilter();
 		this._vehicleTypeFilter = new Filter({
 			header: "Vehicle Type",
 			items: [],
@@ -23,7 +22,7 @@ class PageFilterVehicles extends PageFilter {
 		this._hpFilter = new RangeFilter({header: "Hit Points"});
 		this._hpFilter = new RangeFilter({header: "Hit Points"});
 		this._creatureCapacityFilter = new RangeFilter({header: "Creature Capacity"});
-		this._miscFilter = new Filter({header: "Miscellaneous", items: ["SRD", "Has Images", "Has Info", "Has Token"], isSrdFilter: true});
+		this._miscFilter = new Filter({header: "Miscellaneous", items: ["SRD", "Has Images", "Has Info", "Has Token"], isMiscFilter: true});
 	}
 
 	static mutateForFilters (it) {
@@ -60,8 +59,9 @@ class PageFilterVehicles extends PageFilter {
 		it._fCreatureCapacity = (it.capCrew || 0) + (it.capPassenger || 0) + (it.capCreature || 0);
 
 		it._fMisc = it.srd ? ["SRD"] : [];
-		if (it.hasFluff) it._fMisc.push("Has Info");
-		if (it.hasFluffImages) it._fMisc.push("Has Images");
+		if (it.tokenUrl || it.hasToken) it._fMisc.push("Has Token");
+		if (it.hasFluff || it.fluff?.entries) it._fMisc.push("Has Info");
+		if (it.hasFluffImages || it.fluff?.images) it._fMisc.push("Has Images");
 	}
 
 	addToFilters (it, isExcluded) {
@@ -69,7 +69,7 @@ class PageFilterVehicles extends PageFilter {
 
 		this._sourceFilter.addItem(it.source);
 		this._vehicleTypeFilter.addItem(it.vehicleType);
-		this._upgradeTypeFilter.addItem(it.upgradeType)
+		this._upgradeTypeFilter.addItem(it.upgradeType);
 		this._speedFilter.addItem(it._fSpeed);
 		this._terrainFilter.addItem(it.terrain);
 		this._acFilter.addItem(it._fAc);
@@ -103,6 +103,33 @@ class PageFilterVehicles extends PageFilter {
 			it._fHp,
 			it._fCreatureCapacity,
 			it._fMisc,
-		)
+		);
 	}
 }
+
+globalThis.PageFilterVehicles = PageFilterVehicles;
+
+class ListSyntaxVehicles extends ListUiUtil.ListSyntax {
+	static _INDEXABLE_PROPS = [
+		"control",
+		"movement",
+		"weapon",
+		"other",
+		"entries",
+
+		"actionStation",
+
+		"action",
+		"trait",
+		"reaction",
+	];
+
+	_getSearchCacheStats (entity) {
+		if (this.constructor._INDEXABLE_PROPS.every(it => !entity[it])) return "";
+		const ptrOut = {_: ""};
+		this.constructor._INDEXABLE_PROPS.forEach(it => this._getSearchCache_handleEntryProp(entity, it, ptrOut));
+		return ptrOut._;
+	}
+}
+
+globalThis.ListSyntaxVehicles = ListSyntaxVehicles;

@@ -5,7 +5,7 @@
 			"source": "VGM",
 			"raceName": "Aasimar (Protector)",
 			"raceSource": "VGM",
-			"data": {
+			"system": {
 				"activation.type": "action",
 				"activation.cost": 1
 			}
@@ -15,7 +15,7 @@
 			"source": "GGR",
 			"raceName": "Centaur",
 			"raceSource": "GGR",
-			"data": {
+			"system": {
 				"activation.type": "action",
 				"activation.cost": 1
 			}
@@ -28,6 +28,7 @@
 			"effects": [
 				{
 					"name": "HP Increase",
+					"transfer": true,
 					"changes": [
 						{
 							"key": "data.attributes.hp.max",
@@ -46,9 +47,10 @@
 			"effects": [
 				{
 					"name": "Lightly Armored Defense",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -64,10 +66,16 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
 							"value": "11 + @abilities.dex.mod"
 						}
 					]
@@ -82,9 +90,10 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 3
 						}
@@ -100,10 +109,16 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
 							"value": "13 + @abilities.dex.mod"
 						}
 					]
@@ -118,10 +133,16 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
 							"value": "12 + @abilities.dex.mod"
 						}
 					]
@@ -136,10 +157,16 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
 							"value": "12 + @abilities.con.mod"
 						}
 					]
@@ -154,10 +181,16 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
 							"value": "13 + @abilities.dex.mod"
 						}
 					]
@@ -172,9 +205,10 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -191,9 +225,10 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -210,9 +245,10 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -229,9 +265,10 @@
 			"effects": [
 				{
 					"name": "Carapace",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -248,9 +285,10 @@
 			"effects": [
 				{
 					"name": "Carapace",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -267,11 +305,17 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
-							"value": 17
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
+							"value": "17"
 						}
 					]
 				}
@@ -285,9 +329,10 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 4
 						}
@@ -304,9 +349,10 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -322,9 +368,10 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -340,9 +387,10 @@
 			"effects": [
 				{
 					"name": "Natural Armor",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
+							"key": "data.attributes.ac.bonus",
 							"mode": "ADD",
 							"value": 1
 						}
@@ -358,10 +406,16 @@
 			"effects": [
 				{
 					"name": "Darkwood Core",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
 							"value": "11 + @abilities.dex.mod + @prof"
 						}
 					],
@@ -369,10 +423,16 @@
 				},
 				{
 					"name": "Composite Plating",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
 							"value": "13 + {2, @abilities.dex.mod}kl + @prof"
 						}
 					],
@@ -380,14 +440,899 @@
 				},
 				{
 					"name": "Heavy Plating",
+					"transfer": true,
 					"changes": [
 						{
-							"key": "data.attributes.ac.value",
-							"mode": "UPGRADE",
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
 							"value": "16 + @prof"
 						}
 					],
 					"disabled": true
+				}
+			]
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Black)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Blue)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Brass)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Bronze)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Copper)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Gold)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Green)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Red)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (Silver)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "PHB",
+			"raceName": "Dragonborn (White)",
+			"raceSource": "PHB",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+
+
+
+
+
+
+
+
+
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Black)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Blue)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Brass)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Bronze)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Copper)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Gold)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Green)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Red)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; Silver)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Draconblood; White)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Black)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Blue)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Brass)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Bronze)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Copper)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Gold)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Green)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Red)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; Silver)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "EGW",
+			"raceName": "Dragonborn (Ravenite; White)",
+			"raceSource": "EGW",
+			"system": {
+				"activation.type": "action",
+				"activation.cost": 1,
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "con",
+				"save.scaling": "con"
+			}
+		},
+
+
+
+
+
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Chromatic; Black)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Chromatic; Blue)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Chromatic; Green)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Chromatic; Red)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Chromatic; White)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 30,
+				"target.units": "ft",
+				"target.type": "line",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+
+
+
+
+
+
+
+
+
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Metallic; Brass)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Metallic; Bronze)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Metallic; Copper)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Metallic; Gold)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Metallic; Silver)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Gem; Amethyst)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Gem; Crystal)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Gem; Emerald)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Gem; Sapphire)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Breath Weapon",
+			"source": "FTD",
+			"raceName": "Dragonborn (Gem; Topaz)",
+			"raceSource": "FTD",
+			"system": {
+				"activation.type": "special",
+
+				"target.value": 15,
+				"target.units": "ft",
+				"target.type": "cone",
+				"range.units": "self",
+				"duration.units": "instantaneous",
+				"save.ability": "dex",
+				"save.scaling": "con"
+			}
+		},
+		{
+			"name": "Healing Hands",
+			"source": "MPMM",
+			"raceName": "Aasimar",
+			"raceSource": "MPMM",
+			"system": {
+				"damage.parts": [
+					[
+						"(@prof)d4",
+						"healing"
+					]
+				]
+			}
+		},
+		{
+			"name": "Healing Hands",
+			"source": "VGM",
+			"raceName": "Aasimar",
+			"raceSource": "VGM",
+			"system": {
+				"damage.parts": [
+					[
+						"@details.level",
+						"healing"
+					]
+				]
+			}
+		},
+		{
+			"name": "Armored Casing",
+			"source": "AAG",
+			"raceName": "Autognome",
+			"raceSource": "AAG",
+			"effects": [
+				{
+					"name": "Armored Casing",
+					"transfer": true,
+					"changes": [
+						{
+							"key": "data.attributes.ac.calc",
+							"mode": "OVERRIDE",
+							"value": "custom"
+						},
+						{
+							"key": "data.attributes.ac.formula",
+							"mode": "OVERRIDE",
+							"value": "13 + @abilities.dex.mod"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Hare-Trigger",
+			"source": "MPMM",
+			"raceName": "Harengon",
+			"raceSource": "MPMM",
+			"effects": [
+				{
+					"name": "Bonus Initiative",
+					"transfer": true,
+					"changes": [
+						{
+							"key": "data.attributes.init.value",
+							"mode": "ADD",
+							"value": "@prof"
+						}
+					]
 				}
 			]
 		}

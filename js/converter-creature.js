@@ -1,14 +1,87 @@
 "use strict";
 
-if (typeof module !== "undefined") {
-	const cv = require("./converterutils.js");
-	Object.assign(global, cv);
-	const cvCreature = require("./converterutils-creature.js");
-	Object.assign(global, cvCreature);
-	global.PropOrder = require("./utils-proporder.js");
+class _ParseMeta {
+	constructor (
+		{
+			toConvert,
+		},
+	) {
+		this.curLine = null;
+		this.ixToConvert = 0;
+		this.toConvert = toConvert;
+
+		this.additionalTypeTags = [];
+	}
+
+	addAdditionalTypeTag (val) {
+		const toFind = val.toLowerCase();
+		if (this.additionalTypeTags.some(it => it.toLowerCase() === toFind)) return;
+		this.additionalTypeTags.push(val);
+	}
 }
 
+// TODO easy improvements to be made:
+//    - improve "broken line" fixing:
+//      - across lines that end with: "Melee Weapon Attack:"
+//      - creature's name breaking across multiple lines
+//      - lines starting "DC" breaking across multiple lines
+//      - lines starting with attack range e.g. "100/400 ft."
 class CreatureParser extends BaseParser {
+	static _NO_ABSORB_SUBTITLES = [
+		"SAVING THROWS",
+		"SKILLS",
+		"DAMAGE VULNERABILITIES",
+		"DAMAGE RESISTANCE",
+		"DAMAGE IMMUNITIES",
+		"CONDITION IMMUNITIES",
+		"SENSES",
+		"LANGUAGES",
+		"CHALLENGE",
+		"PROFICIENCY BONUS",
+	];
+
+	static _NO_ABSORB_TITLES = [
+		"ACTION",
+		"LEGENDARY ACTION",
+		"VILLAIN ACTION",
+		"MYTHIC ACTION",
+		"REACTION",
+		"BONUS ACTION",
+	];
+
+	/**
+	 * If the current line ends in a comma, we can assume the next line is a broken/wrapped part of the current line
+	 */
+	static _absorbBrokenLine (
+		{
+			isCrLine,
+			meta,
+		},
+	) {
+		if (!meta.curLine) return false;
+
+		if (meta.curLine.trim().endsWith(",")) {
+			const nxtLine = meta.toConvert[++meta.ixToConvert];
+			if (!nxtLine) return false;
+			meta.curLine = `${meta.curLine.trim()} ${nxtLine.trim()}`;
+			return true;
+		}
+
+		if (isCrLine) return false; // avoid absorbing past the CR line
+
+		const nxtLine = meta.toConvert[meta.ixToConvert + 1];
+		if (!nxtLine) return false;
+
+		if (ConvertUtil.isNameLine(nxtLine)) return false; // avoid absorbing the start of traits
+		if (this._NO_ABSORB_TITLES.some(it => nxtLine.toUpperCase().includes(it))) return false;
+		if (this._NO_ABSORB_SUBTITLES.some(it => nxtLine.toUpperCase().startsWith(it))) return false;
+
+		meta.ixToConvert++;
+		meta.curLine = `${meta.curLine.trim()} ${nxtLine.trim()}`;
+
+		return true;
+	}
+
 	/**
 	 * Parses statblocks from raw text pastes
 	 * @param inText Input text.
@@ -25,66 +98,45 @@ class CreatureParser extends BaseParser {
 		options = this._getValidOptions(options);
 
 		function startNextPhase (cur) {
-			return (!cur.toUpperCase().indexOf("ACTION") || !cur.toUpperCase().indexOf("LEGENDARY ACTION") || !cur.toUpperCase().indexOf("MYTHIC ACTION") || !cur.toUpperCase().indexOf("REACTION") || !cur.toUpperCase().indexOf("BONUS ACTION"))
-		}
-
-		/**
-		 * If the current line ends in a comma, we can assume the next line is a broken/wrapped part of the current line
-		 */
-		function absorbBrokenLine (isCrLine) {
-			const NO_ABSORB_SUBTITLES = [
-				"SAVING THROWS",
-				"SKILLS",
-				"DAMAGE VULNERABILITIES",
-				"DAMAGE RESISTANCE",
-				"DAMAGE IMMUNITIES",
-				"CONDITION IMMUNITIES",
-				"SENSES",
-				"LANGUAGES",
-				"CHALLENGE",
-				"PROFICIENCY BONUS",
-			];
-			const NO_ABSORB_TITLES = [
-				"ACTION",
-				"LEGENDARY ACTION",
-				"MYTHIC ACTION",
-				"REACTION",
-				"BONUS ACTION",
-			];
-
-			if (curLine) {
-				if (curLine.trim().endsWith(",")) {
-					const nxtLine = toConvert[++i];
-					if (!nxtLine) return false;
-					curLine = `${curLine.trim()} ${nxtLine.trim()}`;
-					return true;
-				}
-
-				if (isCrLine) return false; // avoid absorbing past the CR line
-
-				const nxtLine = toConvert[i + 1];
-				if (!nxtLine) return false;
-
-				if (ConvertUtil.isNameLine(nxtLine)) return false; // avoid absorbing the start of traits
-				if (NO_ABSORB_TITLES.some(it => nxtLine.toUpperCase().includes(it))) return false;
-				if (NO_ABSORB_SUBTITLES.some(it => nxtLine.toUpperCase().startsWith(it))) return false;
-
-				i++;
-				curLine = `${curLine.trim()} ${nxtLine.trim()}`;
-				return true;
-			}
-			return false;
+			return /^(?:action|legendary action|villain action|mythic action|reaction|bonus action)s?(?:\s+\([^)]+\))?$/i.test(cur);
 		}
 
 		if (!inText || !inText.trim()) return options.cbWarning("No input!");
 		const toConvert = (() => {
-			let clean = this._getCleanInput(inText);
+			let clean = this._getCleanInput(inText, options);
+
+			// region Handle bad OCR'ing of headers
+			[
+				"Legendary Actions?",
+				"Villain Actions?",
+				"Bonus Actions?",
+				"Reactions?",
+				"Actions?",
+			]
+				.map(it => ({re: new RegExp(`\\n\\s*${it.split("").join("\\s*")}\\s*\\n`, "g"), original: it.replace(/[^a-zA-Z ]/g, "")}))
+				.forEach(({re, original}) => clean = clean.replace(re, `\n${original}\n`));
+			// endregion
+
+			// region Handle bad OCR'ing of dice
+			clean = clean.replace(/\nl\/(?<unit>day)[.:]\s*/g, (...m) => `\n1/${m.last().unit}: `)
+				.replace(/\b(?<num>[liI!]|\d+)?d[1liI!]\s*[oO0]\b/g, (...m) => `${m.last().num ? isNaN(m.last().num) ? "1" : m.last().num : ""}d10`)
+				.replace(/\b(?<num>[liI!]|\d+)?d[1liI!]\s*2\b/g, (...m) => `${m.last().num ? isNaN(m.last().num) ? "1" : m.last().num : ""}d12`)
+				.replace(/\b[liI!1]\s*d\s*(?<faces>\d+)\b/g, (...m) => `1d${m.last().faces}`)
+				.replace(/\b(?<num>\d+)\s*d\s*(?<faces>\d+)\b/g, (...m) => `${m.last().num}d${m.last().faces}`)
+				// endregion
+				// region Handle misc OCR issues
+				.replace(/\bI nt\b/g, "Int")
+				.replace(/\(-[lI!]\)/g, "(-1)")
+				// endregion
+				// Handle pluses split across lines
+				.replace(/(\+\s*)\n+(\d+)/g, (...m) => `${m[1]}${m[2]}`)
+			;
 
 			const statsHeadFootSpl = clean.split(/(Challenge|Proficiency Bonus \(PB\))/i);
 
 			statsHeadFootSpl[0] = statsHeadFootSpl[0]
 				// collapse multi-line ability scores
-				.replace(/(\d\d?\s+\([-—+]\d+\)\s*)+/gi, (...m) => `${m[0].replace(/\n/g, " ").replace(/\s+/g, " ")}\n`);
+				.replace(/(\d\d?\s*\([-—+]?\d+\)\s*)+/gi, (...m) => `${m[0].replace(/\n/g, " ").replace(/\s+/g, " ")}\n`);
 
 			// (re-assemble after cleaning ability scores and) split into lines
 			clean = statsHeadFootSpl.join("").split("\n").filter(it => it && it.trim());
@@ -106,148 +158,187 @@ class CreatureParser extends BaseParser {
 		// for the user to fill out
 		stats.page = options.page;
 
-		let curLine = null;
-		let i;
-		for (i = 0; i < toConvert.length; i++) {
-			curLine = toConvert[i].trim();
+		const meta = new _ParseMeta({toConvert});
 
-			if (curLine === "") continue;
+		for (; meta.ixToConvert < meta.toConvert.length; meta.ixToConvert++) {
+			meta.curLine = meta.toConvert[meta.ixToConvert].trim();
+
+			if (meta.curLine === "") continue;
 
 			// name of monster
-			if (i === 0) {
-				stats.name = this._getAsTitle("name", curLine, options.titleCaseFields, options.isTitleCase);
+			if (meta.ixToConvert === 0) {
+				stats.name = this._getAsTitle("name", meta.curLine, options.titleCaseFields, options.isTitleCase);
+				// If the name is immediately repeated, skip it
+				if ((meta.toConvert[meta.ixToConvert + 1] || "").trim() === meta.curLine) meta.toConvert.splice(meta.ixToConvert + 1, 1);
+				continue;
+			}
+
+			// challenge rating alt
+			if (ConvertUtil.isStatblockLineHeaderStart("CR", meta.curLine)) {
+				// noinspection StatementWithEmptyBodyJS
+				while (this._absorbBrokenLine({isCrLine: true, meta}));
+				this._setCleanCr(stats, meta, {header: "CR"});
+
+				// remove the line, as we expect alignment as line 1
+				meta.toConvert.splice(meta.ixToConvert, 1);
+				meta.ixToConvert--;
+
+				continue;
+			}
+
+			// homebrew "role"
+			if (meta.curLine.toLowerCase() === "companion" || meta.curLine.toLowerCase() === "retainer") {
+				meta.addAdditionalTypeTag(meta.curLine.toTitleCase());
+
+				// remove the line, as we expect alignment as line 1
+				meta.toConvert.splice(meta.ixToConvert, 1);
+				meta.ixToConvert--;
+
 				continue;
 			}
 
 			// size type alignment
-			if (i === 1) {
-				this._setCleanSizeTypeAlignment(stats, curLine, options);
+			if (meta.ixToConvert === 1) {
+				this._setCleanSizeTypeAlignment(stats, meta, options);
 				continue;
 			}
 
 			// armor class
-			if (i === 2) {
-				stats.ac = curLine.split_handleColon("Armor Class ", 1)[1];
+			if (meta.ixToConvert === 2) {
+				stats.ac = ConvertUtil.getStatblockLineHeaderText("Armor Class", meta.curLine);
 				continue;
 			}
 
 			// hit points
-			if (i === 3) {
-				this._setCleanHp(stats, curLine);
+			if (meta.ixToConvert === 3) {
+				this._setCleanHp(stats, meta.curLine);
 				continue;
 			}
 
 			// speed
-			if (i === 4) {
-				this._setCleanSpeed(stats, curLine, options);
+			if (meta.ixToConvert === 4) {
+				this._setCleanSpeed(stats, meta.curLine, options);
 				continue;
 			}
 
 			// ability scores
-			if (/STR\s*DEX\s*CON\s*INT\s*WIS\s*CHA/i.test(curLine)) {
+			if (/STR\s*DEX\s*CON\s*INT\s*WIS\s*CHA/i.test(meta.curLine)) {
 				// skip forward a line and grab the ability scores
-				++i;
-				const abilities = toConvert[i].trim().split(/ ?\(([+\-—])?[0-9]*\) ?/g);
-				stats.str = this._tryConvertNumber(abilities[0]);
-				stats.dex = this._tryConvertNumber(abilities[2]);
-				stats.con = this._tryConvertNumber(abilities[4]);
-				stats.int = this._tryConvertNumber(abilities[6]);
-				stats.wis = this._tryConvertNumber(abilities[8]);
-				stats.cha = this._tryConvertNumber(abilities[10]);
+				++meta.ixToConvert;
+				this._mutAbilityScoresFromSingleLine(stats, meta);
+				continue;
+			}
+
+			// Alternate ability scores (all six abbreviations followed by all six scores, each on new lines)
+			if (this._getSequentialAbilityScoreSectionLineCount(stats, meta) === 6) {
+				meta.ixToConvert += this._getSequentialAbilityScoreSectionLineCount(stats, meta);
+				this._mutAbilityScoresFromSingleLine(stats, meta);
 				continue;
 			}
 
 			// alternate ability scores (alternating lines of abbreviation and score)
-			if (Parser.ABIL_ABVS.includes(curLine.toLowerCase())) {
+			if (Parser.ABIL_ABVS.includes(meta.curLine.toLowerCase())) {
 				// skip forward a line and grab the ability score
-				++i;
-				switch (curLine.toLowerCase()) {
-					case "str": stats.str = this._tryGetStat(toConvert[i]); continue;
-					case "dex": stats.dex = this._tryGetStat(toConvert[i]); continue;
-					case "con": stats.con = this._tryGetStat(toConvert[i]); continue;
-					case "int": stats.int = this._tryGetStat(toConvert[i]); continue;
-					case "wis": stats.wis = this._tryGetStat(toConvert[i]); continue;
-					case "cha": stats.cha = this._tryGetStat(toConvert[i]); continue;
+				++meta.ixToConvert;
+				switch (meta.curLine.toLowerCase()) {
+					case "str": stats.str = this._tryGetStat(meta.toConvert[meta.ixToConvert]); continue;
+					case "dex": stats.dex = this._tryGetStat(meta.toConvert[meta.ixToConvert]); continue;
+					case "con": stats.con = this._tryGetStat(meta.toConvert[meta.ixToConvert]); continue;
+					case "int": stats.int = this._tryGetStat(meta.toConvert[meta.ixToConvert]); continue;
+					case "wis": stats.wis = this._tryGetStat(meta.toConvert[meta.ixToConvert]); continue;
+					case "cha": stats.cha = this._tryGetStat(meta.toConvert[meta.ixToConvert]); continue;
 				}
 			}
 
 			// saves (optional)
-			if (!curLine.indexOf_handleColon("Saving Throws ")) {
+			if (ConvertUtil.isStatblockLineHeaderStart("Saving Throws", meta.curLine)) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanSaves(stats, curLine, options);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanSaves(stats, meta.curLine, options);
 				continue;
 			}
 
 			// skills (optional)
-			if (!curLine.indexOf_handleColon("Skills ")) {
+			if (ConvertUtil.isStatblockLineHeaderStart("Skills", meta.curLine)) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanSkills(stats, curLine);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanSkills(stats, meta.curLine);
 				continue;
 			}
 
 			// damage vulnerabilities (optional)
-			if (!curLine.indexOf_handleColon("Damage Vulnerabilities ")) {
+			if (
+				ConvertUtil.isStatblockLineHeaderStart("Damage Vulnerability", meta.curLine)
+				|| ConvertUtil.isStatblockLineHeaderStart("Damage Vulnerabilities", meta.curLine)
+			) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanDamageVuln(stats, curLine, options);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanDamageVuln(stats, meta.curLine, options);
 				continue;
 			}
 
 			// damage resistances (optional)
-			if (!curLine.indexOf_handleColon("Damage Resistance")) {
+			if (
+				ConvertUtil.isStatblockLineHeaderStart("Damage Resistance", meta.curLine)
+				|| ConvertUtil.isStatblockLineHeaderStart("Damage Resistances", meta.curLine)
+			) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanDamageRes(stats, curLine, options);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanDamageRes(stats, meta.curLine, options);
 				continue;
 			}
 
 			// damage immunities (optional)
-			if (!curLine.indexOf_handleColon("Damage Immunities ")) {
+			if (
+				ConvertUtil.isStatblockLineHeaderStart("Damage Immunity", meta.curLine)
+				|| ConvertUtil.isStatblockLineHeaderStart("Damage Immunities", meta.curLine)
+			) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanDamageImm(stats, curLine, options);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanDamageImm(stats, meta.curLine, options);
 				continue;
 			}
 
 			// condition immunities (optional)
-			if (!curLine.indexOf_handleColon("Condition Immunities ")) {
+			if (
+				ConvertUtil.isStatblockLineHeaderStart("Condition Immunity", meta.curLine)
+				|| ConvertUtil.isStatblockLineHeaderStart("Condition Immunities", meta.curLine)
+			) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanConditionImm(stats, curLine);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanConditionImm(stats, meta.curLine);
 				continue;
 			}
 
 			// senses
-			if (!curLine.indexOf_handleColon("Senses ")) {
+			if (ConvertUtil.isStatblockLineHeaderStart("Senses", meta.curLine)) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanSenses(stats, curLine);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanSenses(stats, meta.curLine);
 				continue;
 			}
 
 			// languages
-			if (!curLine.indexOf_handleColon("Languages ")) {
+			if (ConvertUtil.isStatblockLineHeaderStart("Languages", meta.curLine)) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanLanguages(stats, curLine);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanLanguages(stats, meta.curLine);
 				continue;
 			}
 
 			// challenge rating
-			if (!curLine.indexOf_handleColon("Challenge ")) {
+			if (ConvertUtil.isStatblockLineHeaderStart("Challenge", meta.curLine)) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine(true));
-				this._setCleanCr(stats, curLine);
+				while (this._absorbBrokenLine({isCrLine: true, meta}));
+				this._setCleanCr(stats, meta, {header: "Challenge"});
 				continue;
 			}
 
 			// proficiency bonus
-			if (!curLine.indexOf_handleColon("Proficiency Bonus (PB) ") || !curLine.indexOf_handleColon("Proficiency Bonus ")) {
+			if (ConvertUtil.isStatblockLineHeaderStart("Proficiency Bonus (PB)", meta.curLine) || ConvertUtil.isStatblockLineHeaderStart("Proficiency Bonus", meta.curLine)) {
 				// noinspection StatementWithEmptyBodyJS
-				while (absorbBrokenLine());
-				this._setCleanPbNote(stats, curLine);
+				while (this._absorbBrokenLine({meta}));
+				this._setCleanPbNote(stats, meta.curLine);
 				continue;
 			}
 
@@ -270,23 +361,51 @@ class CreatureParser extends BaseParser {
 			let isMythicActions = false;
 			let isMythicDescription = false;
 
+			// Join together lines which are probably split over multiple lines of text
+			for (let j = meta.ixToConvert; j < meta.toConvert.length; ++j) {
+				let line = meta.toConvert[j];
+				let lineNxt = meta.toConvert[j + 1];
+
+				if (!lineNxt) continue;
+				if (startNextPhase(line) || startNextPhase(lineNxt)) continue;
+				if (/[.?!]$/.test(line.trim()) || !/^[A-Z]/.test(lineNxt.trim())) continue;
+				if (ConvertUtil.isNameLine(lineNxt, {exceptions: new Set(["cantrips"]), splitterPunc: /(\.)/g})) continue;
+
+				// Avoid eating spellcasting `At Will: ...`
+				const splColonNext = lineNxt.split(":");
+				if (line.trim().endsWith(":") && splColonNext.length > 1 && /^[A-Z\d][\\/a-z]/.test(splColonNext[0].trim())) continue;
+
+				meta.toConvert[j] = `${line.trim()} ${lineNxt.trim()}`;
+				meta.toConvert.splice(j + 1, 1);
+				--j;
+			}
+
 			// keep going through traits til we hit actions
-			while (i < toConvert.length) {
-				if (startNextPhase(curLine)) {
+			while (meta.ixToConvert < meta.toConvert.length) {
+				if (startNextPhase(meta.curLine)) {
 					isTraits = false;
-					isActions = !curLine.toUpperCase().indexOf_handleColon("ACTION");
+
+					isActions = ConvertUtil.isStatblockLineHeaderStart("ACTION", meta.curLine.toUpperCase())
+						|| ConvertUtil.isStatblockLineHeaderStart("ACTIONS", meta.curLine.toUpperCase());
 					if (isActions) {
-						const mActionNote = /actions:?\s*\((.*?)\)/gi.exec(curLine);
+						const mActionNote = /actions:?\s*\((.*?)\)/gi.exec(meta.curLine);
 						if (mActionNote) stats.actionNote = mActionNote[1];
 					}
-					isReactions = !curLine.toUpperCase().indexOf_handleColon("REACTION");
-					isBonusActions = !curLine.toUpperCase().indexOf_handleColon("BONUS ACTION");
-					isLegendaryActions = !curLine.toUpperCase().indexOf_handleColon("LEGENDARY ACTION");
+
+					isReactions = ConvertUtil.isStatblockLineHeaderStart("REACTION", meta.curLine.toUpperCase())
+						|| ConvertUtil.isStatblockLineHeaderStart("REACTIONS", meta.curLine.toUpperCase());
+					isBonusActions = ConvertUtil.isStatblockLineHeaderStart("BONUS ACTION", meta.curLine.toUpperCase())
+						|| ConvertUtil.isStatblockLineHeaderStart("BONUS ACTIONS", meta.curLine.toUpperCase());
+					isLegendaryActions = ConvertUtil.isStatblockLineHeaderStart("LEGENDARY ACTION", meta.curLine.toUpperCase())
+						|| ConvertUtil.isStatblockLineHeaderStart("LEGENDARY ACTIONS", meta.curLine.toUpperCase())
+						|| ConvertUtil.isStatblockLineHeaderStart("VILLAIN ACTION", meta.curLine.toUpperCase())
+						|| ConvertUtil.isStatblockLineHeaderStart("VILLAIN ACTIONS", meta.curLine.toUpperCase());
 					isLegendaryDescription = isLegendaryActions;
-					isMythicActions = !curLine.toUpperCase().indexOf_handleColon("MYTHIC ACTION");
+					isMythicActions = ConvertUtil.isStatblockLineHeaderStart("MYTHIC ACTION", meta.curLine.toUpperCase())
+						|| ConvertUtil.isStatblockLineHeaderStart("MYTHIC ACTIONS", meta.curLine.toUpperCase());
 					isMythicDescription = isMythicActions;
-					i++;
-					curLine = toConvert[i];
+					meta.ixToConvert++;
+					meta.curLine = meta.toConvert[meta.ixToConvert];
 				}
 
 				curTrait.name = "";
@@ -299,12 +418,12 @@ class CreatureParser extends BaseParser {
 				};
 
 				if (isLegendaryDescription || isMythicDescription) {
-					const compressed = curLine.replace(/\s*/g, "").toLowerCase();
+					const compressed = meta.curLine.replace(/\s*/g, "").toLowerCase();
 
 					if (isLegendaryDescription) {
 						// usually the first paragraph is a description of how many legendary actions the creature can make
 						// but in the case that it's missing the substring "legendary" and "action" it's probably an action
-						if (!compressed.includes("legendary") && !compressed.includes("action")) isLegendaryDescription = false;
+						if (!(compressed.includes("legendary") || compressed.includes("villain")) && !compressed.includes("action")) isLegendaryDescription = false;
 					} else if (isMythicDescription) {
 						// as above--mythic action headers include the text "legendary action"
 						if (!compressed.includes("legendary") && !compressed.includes("action")) isLegendaryDescription = false;
@@ -312,31 +431,31 @@ class CreatureParser extends BaseParser {
 				}
 
 				if (isLegendaryDescription) {
-					curTrait.entries.push(curLine.trim());
+					curTrait.entries.push(meta.curLine.trim());
 					isLegendaryDescription = false;
 				} else if (isMythicDescription) {
-					if (/mythic\s+trait/i.test(curLine)) {
-						stats.mythicHeader = [curLine.trim()];
+					if (/mythic\s+trait/i.test(meta.curLine)) {
+						stats.mythicHeader = [meta.curLine.trim()];
 					} else {
-						curTrait.entries.push(curLine.trim());
+						curTrait.entries.push(meta.curLine.trim());
 					}
 					isMythicDescription = false;
 				} else {
-					parseFirstLine(curLine);
+					parseFirstLine(meta.curLine);
 				}
 
-				i++;
-				curLine = toConvert[i];
+				meta.ixToConvert++;
+				meta.curLine = meta.toConvert[meta.ixToConvert];
 
 				// collect subsequent paragraphs
-				while (curLine && !ConvertUtil.isNameLine(curLine) && !startNextPhase(curLine)) {
-					if (BaseParser._isContinuationLine(curTrait.entries, curLine)) {
-						curTrait.entries.last(`${curTrait.entries.last().trim()} ${curLine.trim()}`);
+				while (meta.curLine && !ConvertUtil.isNameLine(meta.curLine, {exceptions: new Set(["cantrips"]), splitterPunc: /([.?!])/g}) && !startNextPhase(meta.curLine)) {
+					if (BaseParser._isContinuationLine(curTrait.entries, meta.curLine)) {
+						curTrait.entries.last(`${curTrait.entries.last().trim()} ${meta.curLine.trim()}`);
 					} else {
-						curTrait.entries.push(curLine.trim());
+						curTrait.entries.push(meta.curLine.trim());
 					}
-					i++;
-					curLine = toConvert[i];
+					meta.ixToConvert++;
+					meta.curLine = meta.toConvert[meta.ixToConvert];
 				}
 
 				if (curTrait.name || curTrait.entries) {
@@ -354,30 +473,153 @@ class CreatureParser extends BaseParser {
 				curTrait = {};
 			}
 
+			CreatureParser._PROPS_ENTRIES.forEach(prop => this._doMergeBulletedLists(stats, prop));
+			CreatureParser._PROPS_ENTRIES.forEach(prop => this._doMergeNumberedLists(stats, prop));
+			["action"].forEach(prop => this._doMergeBreathWeaponLists(stats, prop));
+
 			// Remove keys if they are empty
 			if (stats.trait.length === 0) delete stats.trait;
+			if (stats.action.length === 0) delete stats.action;
 			if (stats.bonus.length === 0) delete stats.bonus;
 			if (stats.reaction.length === 0) delete stats.reaction;
 			if (stats.legendary.length === 0) delete stats.legendary;
 			if (stats.mythic.length === 0) delete stats.mythic;
 		}
 
-		(function doCleanLegendaryActionHeader () {
-			if (stats.legendary) {
-				stats.legendary = stats.legendary.map(it => {
-					if (!it.name.trim() && !it.entries.length) return null;
-					const m = /can take (\d) legendary actions/gi.exec(it.entries[0]);
-					if (!it.name.trim() && m) {
-						if (m[1] !== "3") stats.legendaryActions = Number(m[1]);
-						return null;
-					} else return it;
-				}).filter(Boolean);
-			}
-		})();
+		this._doCleanLegendaryActionHeader(stats);
 
 		this._doStatblockPostProcess(stats, false, options);
 		const statsOut = PropOrder.getOrdered(stats, "monster");
 		options.cbOutput(statsOut, options.isAppend);
+	}
+
+	static _doCleanLegendaryActionHeader (stats) {
+		if (!stats.legendary?.length) return;
+
+		stats.legendary = stats.legendary
+			.map(it => {
+				if (!it.name.trim() && !it.entries.length) return null;
+
+				const m = /can take (\d) legendary actions/gi.exec(it.entries[0]);
+				if (!it.name.trim() && m) {
+					if (m[1] !== "3") stats.legendaryActions = Number(m[1]);
+					return null;
+				}
+
+				if (!it.name.trim() && it.entries[0].includes("villain")) {
+					stats.legendaryHeader = it.entries;
+					return null;
+				}
+
+				return it;
+			})
+			.filter(Boolean);
+	}
+
+	static _doMergeBulletedLists (stats, prop) {
+		if (!stats[prop]) return;
+
+		stats[prop]
+			.forEach(block => {
+				if (!block?.entries?.length) return;
+
+				for (let i = 0; i < block.entries.length; ++i) {
+					const curLine = block.entries[i];
+
+					if (typeof curLine !== "string" || !curLine.trim().endsWith(":")) continue;
+
+					let lst = null;
+					let offset = 1;
+
+					while (block.entries.length) {
+						let nxtLine = block.entries[i + offset];
+
+						if (typeof nxtLine !== "string" || !/^[•●]/.test(nxtLine.trim())) break;
+
+						nxtLine = nxtLine.replace(/^[•●]\s*/, "");
+
+						if (!lst) {
+							lst = {type: "list", items: [nxtLine]};
+							block.entries[i + offset] = lst;
+							offset++;
+						} else {
+							lst.items.push(nxtLine);
+							block.entries.splice(i + offset, 1);
+						}
+					}
+				}
+			});
+	}
+
+	static _doMergeNumberedLists (stats, prop) {
+		if (!stats[prop]) return;
+
+		for (let i = 0; i < stats[prop].length; ++i) {
+			const cur = stats[prop][i];
+
+			if (
+				typeof cur?.entries?.last() === "string"
+				&& cur?.entries?.last().trim().endsWith(":")
+			) {
+				let lst = null;
+
+				while (stats[prop].length) {
+					const nxt = stats[prop][i + 1];
+
+					if (/^\d+[.!?:] [A-Za-z]/.test(nxt?.name || "")) {
+						if (!lst) {
+							lst = {type: "list", style: "list-hang-notitle", items: []};
+							cur.entries.push(lst);
+						}
+
+						nxt.type = "item";
+						nxt.name += ".";
+						lst.items.push(nxt);
+						stats[prop].splice(i + 1, 1);
+
+						continue;
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
+	static _doMergeBreathWeaponLists (stats, prop) {
+		if (!stats[prop]) return;
+
+		for (let i = 0; i < stats[prop].length; ++i) {
+			const cur = stats[prop][i];
+
+			if (
+				typeof cur?.entries?.last() === "string"
+				&& cur?.entries?.last().trim().endsWith(":")
+				&& cur?.entries?.last().trim().includes("following breath weapon")
+			) {
+				let lst = null;
+
+				while (stats[prop].length) {
+					const nxt = stats[prop][i + 1];
+
+					if (/\bbreath\b/i.test(nxt?.name || "")) {
+						if (!lst) {
+							lst = {type: "list", style: "list-hang-notitle", items: []};
+							cur.entries.push(lst);
+						}
+
+						nxt.type = "item";
+						nxt.name += ".";
+						lst.items.push(nxt);
+						stats[prop].splice(i + 1, 1);
+
+						continue;
+					}
+
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -395,30 +637,17 @@ class CreatureParser extends BaseParser {
 	static doParseMarkdown (inText, options) {
 		options = this._getValidOptions(options);
 
-		const stripDashStarStar = (line) => line.replace(/\**/g, "").replace(/^-/, "").trim();
-
-		const stripTripleHash = (line) => line.replace(/^###/, "").trim();
-
-		const stripLeadingSymbols = (line) => {
-			const removeFirstInnerStar = line.trim().startsWith("*");
-			const clean = line.replace(/^[^A-Za-z0-9]*/, "").trim();
-			return removeFirstInnerStar ? clean.replace(/\*/, "") : clean;
-		};
-
-		// it should really start with "***" but, homebrew
-		const isInlineHeader = (line) => line.trim().startsWith("**");
-
 		const isInlineLegendaryActionItem = (line) => /^-\s*\*\*\*?[^*]+/gi.test(line.trim());
 
 		if (!inText || !inText.trim()) return options.cbWarning("No input!");
-		const toConvert = this._getCleanInput(inText).split("\n");
+		const toConvert = this._getCleanInput(inText, options).split("\n");
 		let stats = null;
 
 		const getNewStatblock = () => {
 			return {
 				source: options.source,
 				page: options.page,
-			}
+			};
 		};
 
 		let step = 0;
@@ -435,22 +664,12 @@ class CreatureParser extends BaseParser {
 			step = 0;
 		};
 
-		let curLineRaw = null;
-		let curLine = null;
 		let isPrevBlank = true;
 		let nextPrevBlank = true;
 		let trait = null;
 
-		const getCleanTraitText = (line) => {
-			const [name, text] = line.replace(/^\*\*\*?/, "").split(/.\s*\*\*\*?/).map(it => it.trim());
-			return [
-				ConvertUtil.getCleanTraitActionName(name),
-				text.replace(/\*Hit(\*:|:\*) /g, "Hit: "), // clean hit tags for later replacement
-			]
-		};
-
 		const getCleanLegendaryActionText = (line) => {
-			return getCleanTraitText(line.trim().replace(/^-\s*/, ""));
+			return ConverterUtilsMarkdown.getCleanTraitText(line.trim().replace(/^-\s*/, ""));
 		};
 
 		const doAddFromParsed = () => {
@@ -486,69 +705,65 @@ class CreatureParser extends BaseParser {
 		const doAddLegendary = () => _doAddGenericAction("legendary");
 		const doAddMythic = () => _doAddGenericAction("mythic");
 
-		const getCleanedRaw = (str) => {
-			return str.trim()
-				.replace(/<br\s*(\/)?>/gi, ""); // remove <br>
-		};
+		const meta = new _ParseMeta({toConvert});
 
-		let i = 0;
-		for (; i < toConvert.length; i++) {
-			curLineRaw = getCleanedRaw(toConvert[i]);
-			curLine = curLineRaw;
+		for (let i = 0; i < meta.toConvert.length; i++) {
+			let curLineRaw = ConverterUtilsMarkdown.getCleanRaw(meta.toConvert[i]);
+			meta.curLine = curLineRaw;
 
-			if (this._isBlankLineMarkdown(curLineRaw)) {
+			if (ConverterUtilsMarkdown.isBlankLine(curLineRaw)) {
 				isPrevBlank = true;
 				continue;
 			} else nextPrevBlank = false;
-			curLine = this._stripMarkdownQuote(curLine);
+			meta.curLine = this._stripMarkdownQuote(meta.curLine);
 
-			if (this._isBlankLineMarkdown(curLine)) continue;
+			if (ConverterUtilsMarkdown.isBlankLine(meta.curLine)) continue;
 			else if (
-				(curLine === "___" && isPrevBlank) // handle nicely separated blocks
+				(meta.curLine === "___" && isPrevBlank) // handle nicely separated blocks
 				|| curLineRaw === "___" // handle multiple stacked blocks
 			) {
 				if (stats !== null) hasMultipleBlocks = true;
 				doOutputStatblock();
 				isPrevBlank = nextPrevBlank;
 				continue;
-			} else if (curLine === "___") {
+			} else if (meta.curLine === "___") {
 				isPrevBlank = nextPrevBlank;
 				continue;
 			}
 
 			// name of monster
 			if (step === 0) {
-				curLine = curLine.replace(/^\s*##/, "").trim();
-				stats.name = this._getAsTitle("name", curLine, options.titleCaseFields, options.isTitleCase);
+				meta.curLine = ConverterUtilsMarkdown.getNoHashes(meta.curLine);
+				stats.name = this._getAsTitle("name", meta.curLine, options.titleCaseFields, options.isTitleCase);
 				step++;
 				continue;
 			}
 
 			// size type alignment
 			if (step === 1) {
-				curLine = curLine.replace(/^\**(.*?)\**$/, "$1");
-				this._setCleanSizeTypeAlignment(stats, curLine, options);
+				meta.curLine = meta.curLine.replace(/^\**(.*?)\**$/, "$1");
+				this._setCleanSizeTypeAlignment(stats, meta, options);
 				step++;
 				continue;
 			}
 
 			// armor class
 			if (step === 2) {
-				stats.ac = stripDashStarStar(curLine).replace(/Armor Class/g, "").trim();
+				stats.ac = ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine).replace(/Armor Class/g, "").trim();
 				step++;
 				continue;
 			}
 
 			// hit points
 			if (step === 3) {
-				this._setCleanHp(stats, stripDashStarStar(curLine));
+				this._setCleanHp(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 				step++;
 				continue;
 			}
 
 			// speed
 			if (step === 4) {
-				this._setCleanSpeed(stats, stripDashStarStar(curLine), options);
+				this._setCleanSpeed(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine), options);
 				step++;
 				continue;
 			}
@@ -556,11 +771,11 @@ class CreatureParser extends BaseParser {
 			// ability scores
 			if (step === 5 || step === 6 || step === 7) {
 				// skip the two header rows
-				if (curLine.replace(/\s*/g, "").startsWith("|STR") || curLine.replace(/\s*/g, "").startsWith("|:-")) {
+				if (meta.curLine.replace(/\s*/g, "").startsWith("|STR") || meta.curLine.replace(/\s*/g, "").startsWith("|:-")) {
 					step++;
 					continue;
 				}
-				const abilities = curLine.split("|").map(it => it.trim()).filter(Boolean);
+				const abilities = meta.curLine.split("|").map(it => it.trim()).filter(Boolean);
 				Parser.ABIL_ABVS.map((abi, j) => stats[abi] = this._tryGetStat(abilities[j]));
 				step++;
 				continue;
@@ -568,76 +783,77 @@ class CreatureParser extends BaseParser {
 
 			if (step === 8) {
 				// saves (optional)
-				if (~curLine.indexOf("Saving Throws")) {
-					this._setCleanSaves(stats, stripDashStarStar(curLine), options);
+				if (~meta.curLine.indexOf("Saving Throws")) {
+					this._setCleanSaves(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine), options);
 					continue;
 				}
 
 				// skills (optional)
-				if (~curLine.indexOf("Skills")) {
-					this._setCleanSkills(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Skills")) {
+					this._setCleanSkills(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 					continue;
 				}
 
 				// damage vulnerabilities (optional)
-				if (~curLine.indexOf("Damage Vulnerabilities")) {
-					this._setCleanDamageVuln(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Damage Vulnerabilities")) {
+					this._setCleanDamageVuln(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 					continue;
 				}
 
 				// damage resistances (optional)
-				if (~curLine.indexOf("Damage Resistance")) {
-					this._setCleanDamageRes(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Damage Resistance")) {
+					this._setCleanDamageRes(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 					continue;
 				}
 
 				// damage immunities (optional)
-				if (~curLine.indexOf("Damage Immunities")) {
-					this._setCleanDamageImm(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Damage Immunities")) {
+					this._setCleanDamageImm(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 					continue;
 				}
 
 				// condition immunities (optional)
-				if (~curLine.indexOf("Condition Immunities")) {
-					this._setCleanConditionImm(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Condition Immunities")) {
+					this._setCleanConditionImm(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 					continue;
 				}
 
 				// senses
-				if (~curLine.indexOf("Senses")) {
-					this._setCleanSenses(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Senses")) {
+					this._setCleanSenses(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 					continue;
 				}
 
 				// languages
-				if (~curLine.indexOf("Languages")) {
-					this._setCleanLanguages(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Languages")) {
+					this._setCleanLanguages(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 					continue;
 				}
 
 				// CR
-				if (~curLine.indexOf("Challenge")) {
-					this._setCleanCr(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Challenge")) {
+					meta.curLine = ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine);
+					this._setCleanCr(stats, meta);
 					continue;
 				}
 
 				// PB
-				if (~curLine.indexOf("Proficiency Bonus")) {
-					this._setCleanPbNote(stats, stripDashStarStar(curLine));
+				if (~meta.curLine.indexOf("Proficiency Bonus")) {
+					this._setCleanPbNote(stats, ConverterUtilsMarkdown.getNoDashStarStar(meta.curLine));
 					continue;
 				}
 
-				const [nextLine1, nextLine2] = this._getNextLinesMarkdown(toConvert, {ixCur: i, isPrevBlank, nextPrevBlank}, 2);
+				const [nextLine1, nextLine2] = this._getNextLinesMarkdown(meta, {ixCur: i, isPrevBlank, nextPrevBlank}, 2);
 
 				// Skip past Giffyglyph builder junk
 				if (nextLine1 && nextLine2 && ~nextLine1.indexOf("Attacks") && ~nextLine2.indexOf("Attack DCs")) {
-					i = this._advanceLinesMarkdown(toConvert, {ixCur: i, isPrevBlank, nextPrevBlank}, 2);
+					i = this._advanceLinesMarkdown(meta, {ixCur: i, isPrevBlank, nextPrevBlank}, 2);
 				}
 
 				step++;
 			}
 
-			const cleanedLine = stripTripleHash(curLine);
+			const cleanedLine = ConverterUtilsMarkdown.getNoTripleHash(meta.curLine);
 			if (cleanedLine.toLowerCase() === "actions") {
 				doAddFromParsed();
 				step = 10;
@@ -662,100 +878,100 @@ class CreatureParser extends BaseParser {
 
 			// traits
 			if (step === 9) {
-				if (isInlineHeader(curLine)) {
+				if (ConverterUtilsMarkdown.isInlineHeader(meta.curLine)) {
 					doAddTrait();
 					trait = {name: "", entries: []};
-					const [name, text] = getCleanTraitText(curLine);
+					const [name, text] = ConverterUtilsMarkdown.getCleanTraitText(meta.curLine);
 					trait.name = name;
-					trait.entries.push(stripLeadingSymbols(text));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(text));
 				} else {
-					trait.entries.push(stripLeadingSymbols(curLine));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(meta.curLine));
 				}
 			}
 
 			// actions
 			if (step === 10) {
-				if (isInlineHeader(curLine)) {
+				if (ConverterUtilsMarkdown.isInlineHeader(meta.curLine)) {
 					doAddAction();
 					trait = {name: "", entries: []};
-					const [name, text] = getCleanTraitText(curLine);
+					const [name, text] = ConverterUtilsMarkdown.getCleanTraitText(meta.curLine);
 					trait.name = name;
-					trait.entries.push(stripLeadingSymbols(text));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(text));
 				} else {
-					trait.entries.push(stripLeadingSymbols(curLine));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(meta.curLine));
 				}
 			}
 
 			// reactions
 			if (step === 11) {
-				if (isInlineHeader(curLine)) {
+				if (ConverterUtilsMarkdown.isInlineHeader(meta.curLine)) {
 					doAddReaction();
 					trait = {name: "", entries: []};
-					const [name, text] = getCleanTraitText(curLine);
+					const [name, text] = ConverterUtilsMarkdown.getCleanTraitText(meta.curLine);
 					trait.name = name;
-					trait.entries.push(stripLeadingSymbols(text));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(text));
 				} else {
-					trait.entries.push(stripLeadingSymbols(curLine));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(meta.curLine));
 				}
 			}
 
 			// bonus actions
 			if (step === 12) {
-				if (isInlineHeader(curLine)) {
+				if (ConverterUtilsMarkdown.isInlineHeader(meta.curLine)) {
 					doAddBonusAction();
 					trait = {name: "", entries: []};
-					const [name, text] = getCleanTraitText(curLine);
+					const [name, text] = ConverterUtilsMarkdown.getCleanTraitText(meta.curLine);
 					trait.name = name;
-					trait.entries.push(stripLeadingSymbols(text));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(text));
 				} else {
-					trait.entries.push(stripLeadingSymbols(curLine));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(meta.curLine));
 				}
 			}
 
 			// legendary actions
 			if (step === 13) {
-				if (isInlineLegendaryActionItem(curLine)) {
+				if (isInlineLegendaryActionItem(meta.curLine)) {
 					doAddLegendary();
 					trait = {name: "", entries: []};
-					const [name, text] = getCleanLegendaryActionText(curLine);
+					const [name, text] = getCleanLegendaryActionText(meta.curLine);
 					trait.name = name;
-					trait.entries.push(stripLeadingSymbols(text));
-				} else if (isInlineHeader(curLine)) {
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(text));
+				} else if (ConverterUtilsMarkdown.isInlineHeader(meta.curLine)) {
 					doAddLegendary();
 					trait = {name: "", entries: []};
-					const [name, text] = getCleanTraitText(curLine);
+					const [name, text] = ConverterUtilsMarkdown.getCleanTraitText(meta.curLine);
 					trait.name = name;
-					trait.entries.push(stripLeadingSymbols(text));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(text));
 				} else {
 					if (!trait) { // legendary action intro text
 						// ignore generic LA intro; the renderer will insert it
-						if (!curLine.toLowerCase().includes("can take 3 legendary actions")) {
-							trait = {name: "", entries: [stripLeadingSymbols(curLine)]};
+						if (!meta.curLine.toLowerCase().includes("can take 3 legendary actions")) {
+							trait = {name: "", entries: [ConverterUtilsMarkdown.getNoLeadingSymbols(meta.curLine)]};
 						}
-					} else trait.entries.push(stripLeadingSymbols(curLine));
+					} else trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(meta.curLine));
 				}
 			}
 
 			// mythic actions
 			if (step === 14) {
-				if (isInlineLegendaryActionItem(curLine)) {
+				if (isInlineLegendaryActionItem(meta.curLine)) {
 					doAddMythic();
 					trait = {name: "", entries: []};
-					const [name, text] = getCleanLegendaryActionText(curLine);
+					const [name, text] = getCleanLegendaryActionText(meta.curLine);
 					trait.name = name;
-					trait.entries.push(stripLeadingSymbols(text));
-				} else if (isInlineHeader(curLine)) {
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(text));
+				} else if (ConverterUtilsMarkdown.isInlineHeader(meta.curLine)) {
 					doAddMythic();
 					trait = {name: "", entries: []};
-					const [name, text] = getCleanTraitText(curLine);
+					const [name, text] = ConverterUtilsMarkdown.getCleanTraitText(meta.curLine);
 					trait.name = name;
-					trait.entries.push(stripLeadingSymbols(text));
+					trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(text));
 				} else {
 					if (!trait) { // mythic action intro text
-						if (curLine.toLowerCase().includes("mythic trait is active")) {
-							stats.mythicHeader = [stripLeadingSymbols(curLine)];
+						if (meta.curLine.toLowerCase().includes("mythic trait is active")) {
+							stats.mythicHeader = [ConverterUtilsMarkdown.getNoLeadingSymbols(meta.curLine)];
 						}
-					} else trait.entries.push(stripLeadingSymbols(curLine));
+					} else trait.entries.push(ConverterUtilsMarkdown.getNoLeadingSymbols(meta.curLine));
 				}
 			}
 		}
@@ -763,33 +979,24 @@ class CreatureParser extends BaseParser {
 		doOutputStatblock();
 	}
 
-	static _isBlankLineMarkdown (line) {
-		return line === "" || line.toLowerCase() === "\\pagebreak" || line.toLowerCase() === "\\columnbreak";
-	}
-
-	static _isStatblockTransitionMarkdown (line, cleanLine, isPrevBlank) {
-		return (cleanLine === "___" && isPrevBlank) // handle nicely separated blocks
-		|| line === "___";
-	}
-
 	static _stripMarkdownQuote (line) {
 		return line.replace(/^\s*>\s*/, "").trim();
 	}
 
-	static _callOnNextLinesMarkdown (toConvert, {ixCur, isPrevBlank, nextPrevBlank}, numLines, fn) {
-		const len = toConvert.length;
+	static _callOnNextLinesMarkdown (meta, {ixCur, isPrevBlank, nextPrevBlank}, numLines, fn) {
+		const len = meta.toConvert.length;
 
 		for (let i = ixCur + 1; i < len; ++i) {
-			const line = toConvert[i];
+			const line = meta.toConvert[i];
 
-			if (this._isBlankLineMarkdown(line)) {
+			if (ConverterUtilsMarkdown.isBlankLine(line)) {
 				isPrevBlank = true;
 				continue;
 			} else nextPrevBlank = false;
 
 			const cleanLine = this._stripMarkdownQuote(line);
 
-			if (this._isBlankLineMarkdown(cleanLine)) continue;
+			if (ConverterUtilsMarkdown.isBlankLine(cleanLine)) continue;
 			else if (
 				(cleanLine === "___" && isPrevBlank) // handle nicely separated blocks
 				|| line === "___" // handle multiple stacked blocks
@@ -806,17 +1013,17 @@ class CreatureParser extends BaseParser {
 		}
 	}
 
-	static _getNextLinesMarkdown (toConvert, {ixCur, isPrevBlank, nextPrevBlank}, numLines) {
+	static _getNextLinesMarkdown (meta, {ixCur, isPrevBlank, nextPrevBlank}, numLines) {
 		const out = [];
 		const fn = cleanLine => out.push(cleanLine);
-		this._callOnNextLinesMarkdown(toConvert, {ixCur, isPrevBlank, nextPrevBlank}, numLines, fn);
+		this._callOnNextLinesMarkdown(meta, {ixCur, isPrevBlank, nextPrevBlank}, numLines, fn);
 		return out;
 	}
 
-	static _advanceLinesMarkdown (toConvert, {ixCur, isPrevBlank, nextPrevBlank}, numLines) {
+	static _advanceLinesMarkdown (meta, {ixCur, isPrevBlank, nextPrevBlank}, numLines) {
 		let ixOut = ixCur + 1;
 		const fn = (_, i) => ixOut = i + 1;
-		this._callOnNextLinesMarkdown(toConvert, {ixCur, isPrevBlank, nextPrevBlank}, numLines, fn);
+		this._callOnNextLinesMarkdown(meta, {ixCur, isPrevBlank, nextPrevBlank}, numLines, fn);
 		return ixOut;
 	}
 
@@ -824,8 +1031,10 @@ class CreatureParser extends BaseParser {
 	static _doStatblockPostProcess (stats, isMarkdown, options) {
 		this._doFilterAddSpellcasting(stats, "trait", isMarkdown, options);
 		this._doFilterAddSpellcasting(stats, "action", isMarkdown, options);
-		if (stats.trait) stats.trait.forEach(trait => RechargeConvert.tryConvertRecharge(trait, () => {}, () => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Manual recharge tagging required for trait "${trait.name}"`)));
-		if (stats.action) stats.action.forEach(action => RechargeConvert.tryConvertRecharge(action, () => {}, () => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Manual recharge tagging required for action "${action.name}"`)));
+		if (stats.trait) stats.trait.forEach(it => RechargeConvert.tryConvertRecharge(it, () => {}, () => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Manual recharge tagging required for trait "${it.name}"`)));
+		if (stats.action) stats.action.forEach(it => RechargeConvert.tryConvertRecharge(it, () => {}, () => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Manual recharge tagging required for action "${it.name}"`)));
+		if (stats.bonus) stats.bonus.forEach(it => RechargeConvert.tryConvertRecharge(it, () => {}, () => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Manual recharge tagging required for bonus action "${it.name}"`)));
+		CreatureParser._PROPS_ENTRIES.filter(prop => stats[prop]).forEach(prop => SpellTag.tryRun(stats[prop]));
 		AcConvert.tryPostProcessAc(
 			stats,
 			(ac) => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}AC "${ac}" requires manual conversion`),
@@ -834,17 +1043,32 @@ class CreatureParser extends BaseParser {
 		TagAttack.tryTagAttacks(stats, (atk) => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Manual attack tagging required for "${atk}"`));
 		TagHit.tryTagHits(stats);
 		TagDc.tryTagDcs(stats);
-		TagCondition.tryTagConditions(stats, true);
-		TagCondition.tryTagConditionsSpells(stats, (sp) => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Spell "${sp}" could not be found during condition tagging`));
-		TagCondition.tryTagConditionsRegionalsLairs(stats, (legendaryGroup) => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Legendary group "${legendaryGroup.name} :: ${legendaryGroup.source}" could not be found during condition tagging`));
+		TagCondition.tryTagConditions(stats, {isTagInflicted: true});
+		TagCondition.tryTagConditionsSpells(
+			stats,
+			{
+				cbMan: (sp) => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Spell "${sp}" could not be found during condition tagging`),
+				isTagInflicted: true,
+			},
+		);
+		TagCondition.tryTagConditionsRegionalsLairs(
+			stats,
+			{
+				cbMan: (legendaryGroup) => options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Legendary group "${legendaryGroup.name} :: ${legendaryGroup.source}" could not be found during condition tagging`),
+				isTagInflicted: true,
+			},
+		);
 		TraitActionTag.tryRun(stats);
 		LanguageTag.tryRun(stats);
 		SenseFilterTag.tryRun(stats);
 		SpellcastingTypeTag.tryRun(stats);
 		DamageTypeTag.tryRun(stats);
+		DamageTypeTag.tryRunSpells(stats);
+		DamageTypeTag.tryRunRegionalsLairs(stats);
 		MiscTag.tryRun(stats);
 		DetectNamedCreature.tryRun(stats);
 		TagImmResVulnConditional.tryRun(stats);
+		DragonAgeTag.tryRun(stats);
 		this._doStatblockPostProcess_doCleanup(stats, options);
 	}
 
@@ -872,7 +1096,7 @@ class CreatureParser extends BaseParser {
 
 	static _tryConvertNumber (strNumber) {
 		try {
-			return Number(strNumber.replace(/—/g, "-"))
+			return Number(strNumber.replace(/—/g, "-"));
 		} catch (e) {
 			return strNumber;
 		}
@@ -888,12 +1112,12 @@ class CreatureParser extends BaseParser {
 				return { // retain any leading junk, as we'll parse it out in a later step
 					type: `${mSwarm[1]}${swarmTypeSingular}`,
 					swarmSize: mSwarm[2][0].toUpperCase(),
-				}
+				};
 			}
 
 			const mParens = /^(.*?) (\(.*?\))\s*$/.exec(strType);
 			if (mParens) {
-				return {type: mParens[1], tags: mParens[2].split(",").map(s => s.replace(/\(/g, "").replace(/\)/g, "").trim())}
+				return {type: mParens[1], tags: mParens[2].split(",").map(s => s.replace(/\(/g, "").replace(/\)/g, "").trim())};
 			}
 
 			return strType;
@@ -903,9 +1127,33 @@ class CreatureParser extends BaseParser {
 		}
 	}
 
+	static _getSequentialAbilityScoreSectionLineCount (stats, meta) {
+		if (stats.str != null) return false; // Skip if we already have ability scores
+
+		let cntLines = 0;
+		const nextSixLines = [];
+		for (let i = meta.ixToConvert; nextSixLines.length < 6; ++i) {
+			const line = (meta.toConvert[i] || "").toLowerCase();
+			if (Parser.ABIL_ABVS.includes(line)) nextSixLines.push(line);
+			else break;
+			cntLines++;
+		}
+		return cntLines;
+	}
+
+	static _mutAbilityScoresFromSingleLine (stats, meta) {
+		const abilities = meta.toConvert[meta.ixToConvert].trim().replace(/[-\u2012\u2013\u2014]+/g, "-").split(/ ?\(([+-])?[0-9]*\) ?/g);
+		stats.str = this._tryConvertNumber(abilities[0]);
+		stats.dex = this._tryConvertNumber(abilities[2]);
+		stats.con = this._tryConvertNumber(abilities[4]);
+		stats.int = this._tryConvertNumber(abilities[6]);
+		stats.wis = this._tryConvertNumber(abilities[8]);
+		stats.cha = this._tryConvertNumber(abilities[10]);
+	}
+
 	static _tryGetStat (strLine) {
 		try {
-			return this._tryConvertNumber(/(\d+) \(.*?\)/.exec(strLine)[1]);
+			return this._tryConvertNumber(/(\d+) ?\(.*?\)/.exec(strLine)[1]);
 		} catch (e) {
 			return 0;
 		}
@@ -921,7 +1169,7 @@ class CreatureParser extends BaseParser {
 	static _tryParseDamageResVulnImmune (ipt, modProp, options) {
 		// handle the case where a comma is mistakenly used instead of a semicolon
 		if (ipt.toLowerCase().includes(", bludgeoning, piercing, and slashing from")) {
-			ipt = ipt.replace(/, (bludgeoning, piercing, and slashing from)/gi, "; $1")
+			ipt = ipt.replace(/, (bludgeoning, piercing, and slashing from)/gi, "; $1");
 		}
 
 		const splSemi = ipt.toLowerCase().split(";").map(it => it.trim()).filter(Boolean);
@@ -948,6 +1196,12 @@ class CreatureParser extends BaseParser {
 						}).trim();
 
 						pt = pt.replace(/from [^)]+$/i, (...m) => {
+							if (note) throw new Error(`Already has note!`);
+							note = m[0];
+							return "";
+						}).trim();
+
+						pt = pt.replace(/\bthat is nonmagical$/i, (...m) => {
 							if (note) throw new Error(`Already has note!`);
 							note = m[0];
 							return "";
@@ -1003,7 +1257,7 @@ class CreatureParser extends BaseParser {
 				}
 				section = section.replace(/and/g, "");
 				section.split(",").forEach(s => pushArray.push(s.trim()));
-				if ("note" in tempDamage) newDamage.push(tempDamage)
+				if ("note" in tempDamage) newDamage.push(tempDamage);
 			});
 			return newDamage;
 		} catch (ignored) {
@@ -1013,8 +1267,8 @@ class CreatureParser extends BaseParser {
 	}
 
 	// SHARED PARSING FUNCTIONS ////////////////////////////////////////////////////////////////////////////////////////
-	static _setCleanSizeTypeAlignment (stats, line, options) {
-		const mSidekick = /^(\d+)(?:st|nd|rd|th)\s*\W+\s*level\s+(.*)$/i.exec(line.trim());
+	static _setCleanSizeTypeAlignment (stats, meta, options) {
+		const mSidekick = /^(\d+)(?:st|nd|rd|th)\s*\W+\s*level\s+(.*)$/i.exec(meta.curLine.trim());
 		if (mSidekick) {
 			// sidekicks
 			stats.level = Number(mSidekick[1]);
@@ -1022,11 +1276,23 @@ class CreatureParser extends BaseParser {
 			stats.type = mSidekick[2].split(" ").splice(1).join(" ");
 		} else {
 			// regular creatures
-			stats.size = line[0].toUpperCase();
+			stats.size = [meta.curLine[0].toUpperCase()];
 
-			const spl = line.split(StrUtil.COMMAS_NOT_IN_PARENTHESES_REGEX);
+			const spl = meta.curLine.split(StrUtil.COMMAS_NOT_IN_PARENTHESES_REGEX);
 
-			stats.type = spl[0].split(" ").splice(1).join(" ");
+			const ptsOtherSizeOrType = spl[0].split(" ").map(it => it.trim()).filter(Boolean).splice(1); // Remove the initial "size" token
+
+			// region Add more sizes, if they exist
+			if (
+				/^or$/i.test(ptsOtherSizeOrType[0] || "")
+				&& Object.values(Parser.SIZE_ABV_TO_FULL).some(it => it.toLowerCase() === (ptsOtherSizeOrType[1] || "").toLowerCase())) {
+				const [, szAlt] = ptsOtherSizeOrType.splice(0, 2);
+				stats.size.push(szAlt[0].toUpperCase());
+			}
+			stats.size.sort(SortUtil.ascSortSize);
+			// endregion
+
+			stats.type = ptsOtherSizeOrType.join(" ");
 
 			stats.alignment = (spl[1] || "").toLowerCase();
 			AlignmentConvert.tryConvertAlignment(stats, (ali) => options.cbWarning(`Alignment "${ali}" requires manual conversion`));
@@ -1050,10 +1316,17 @@ class CreatureParser extends BaseParser {
 				stats.sizeNote = note.join("").trim();
 			}
 		}
+
+		if (meta.additionalTypeTags.length) {
+			// Transform to complex form if simple
+			if (!stats.type.type) stats.type = {type: stats.type};
+			if (!stats.type.tags?.length) stats.type.tags = [];
+			stats.type.tags.push(...meta.additionalTypeTags);
+		}
 	}
 
 	static _setCleanHp (stats, line) {
-		const rawHp = line.split_handleColon("Hit Points ", 1)[1];
+		const rawHp = ConvertUtil.getStatblockLineHeaderText("Hit Points", line);
 		// split HP into average and formula
 		const m = /^(\d+)\s*\((.*?)\)$/.exec(rawHp.trim());
 		if (!m) stats.hp = {special: rawHp}; // for e.g. Avatar of Death
@@ -1073,7 +1346,7 @@ class CreatureParser extends BaseParser {
 	}
 
 	static _setCleanSaves (stats, line, options) {
-		stats.save = line.split_handleColon("Saving Throws", 1)[1].trim();
+		stats.save = ConvertUtil.getStatblockLineHeaderText("Saving Throws", line);
 		// convert to object format
 		if (stats.save && stats.save.trim()) {
 			const spl = stats.save.split(",").map(it => it.trim().toLowerCase()).filter(it => it);
@@ -1091,7 +1364,7 @@ class CreatureParser extends BaseParser {
 	}
 
 	static _setCleanSkills (stats, line) {
-		stats.skill = line.split_handleColon("Skills", 1)[1].trim().toLowerCase();
+		stats.skill = ConvertUtil.getStatblockLineHeaderText("Skills", line).toLowerCase();
 		const split = stats.skill.split(",").map(it => it.trim()).filter(Boolean);
 		const newSkills = {};
 		try {
@@ -1105,32 +1378,34 @@ class CreatureParser extends BaseParser {
 			stats.skill = newSkills;
 			if (stats.skill[""]) delete stats.skill[""]; // remove empty properties
 		} catch (ignored) {
-			setTimeout(() => { throw ignored });
+			setTimeout(() => { throw ignored; });
 		}
 	}
 
 	static _setCleanDamageVuln (stats, line, options) {
-		stats.vulnerable = line.split_handleColon("Vulnerabilities", 1)[1].trim();
+		stats.vulnerable = ConvertUtil.getStatblockLineHeaderText("Vulnerabilities", line);
 		stats.vulnerable = this._tryParseDamageResVulnImmune(stats.vulnerable, "vulnerable", options);
 	}
 
 	static _setCleanDamageRes (stats, line, options) {
-		stats.resist = (line.toLowerCase().includes("resistances") ? line.split_handleColon("Resistances", 1) : line.split_handleColon("Resistance", 1))[1].trim();
+		stats.resist = line.toLowerCase().includes("resistances")
+			? ConvertUtil.getStatblockLineHeaderText("Resistances", line)
+			: ConvertUtil.getStatblockLineHeaderText("Resistance", line);
 		stats.resist = this._tryParseDamageResVulnImmune(stats.resist, "resist", options);
 	}
 
 	static _setCleanDamageImm (stats, line, options) {
-		stats.immune = line.split_handleColon("Immunities", 1)[1].trim();
+		stats.immune = ConvertUtil.getStatblockLineHeaderText("Immunities", line);
 		stats.immune = this._tryParseDamageResVulnImmune(stats.immune, "immune", options);
 	}
 
 	static _setCleanConditionImm (stats, line, options) {
-		stats.conditionImmune = line.split_handleColon("Immunities", 1)[1];
+		stats.conditionImmune = ConvertUtil.getStatblockLineHeaderText("Condition Immunities", line);
 		stats.conditionImmune = this._tryParseConditionImmune(stats.conditionImmune, "conditionImmune", options);
 	}
 
 	static _setCleanSenses (stats, line) {
-		const senses = line.toLowerCase().split_handleColon("senses", 1)[1].trim();
+		const senses = ConvertUtil.getStatblockLineHeaderText("senses", line).toLowerCase();
 		const tempSenses = [];
 		senses.split(StrUtil.COMMA_SPACE_NOT_IN_PARENTHESES_REGEX).forEach(s => {
 			s = s.trim();
@@ -1144,7 +1419,7 @@ class CreatureParser extends BaseParser {
 	}
 
 	static _setCleanLanguages (stats, line) {
-		stats.languages = line.split_handleColon("Languages", 1)[1].trim();
+		stats.languages = ConvertUtil.getStatblockLineHeaderText("Languages", line);
 		if (stats.languages && /^([-–‒—]|\\u201\d)+$/.exec(stats.languages.trim())) delete stats.languages;
 		else {
 			stats.languages = stats.languages
@@ -1156,21 +1431,48 @@ class CreatureParser extends BaseParser {
 						.replace(/All/g, "all")
 						.replace(/Understands/g, "understands")
 						.replace(/Cant/g, "cant")
-						.replace(/Can/g, "can")
+						.replace(/Can/g, "can");
 				})
 				.join("")
 				.split(StrUtil.COMMA_SPACE_NOT_IN_PARENTHESES_REGEX);
 		}
 	}
 
-	static _setCleanCr (stats, line) {
-		stats.cr = line.split_handleColon("Challenge", 1)[1].trim().split("(")[0].trim();
-		if (stats.cr && /^[-\u2012-\u2014]$/.test(stats.cr.trim())) delete stats.cr;
+	static _setCleanCr (stats, meta, {header = "Challenge"} = {}) {
+		stats.cr = ConvertUtil.getStatblockLineHeaderText(header, meta.curLine).split("(")[0].trim();
+		if (!stats.cr) return;
+
+		const reTags = new RegExp(`\\b(?<tag>${Object.keys(this._BREW_CR_LINE_TAGS).map(it => it.escapeRegexp()).join("|")})\\b`, "gi");
+		stats.cr = stats.cr
+			.replace(reTags, (...m) => {
+				meta.addAdditionalTypeTag(this._BREW_CR_LINE_TAGS[m.last().tag.toLowerCase()]);
+				return "";
+			})
+			.trim();
+
+		if (/^[-\u2012-\u2014]$/.test(stats.cr.trim())) delete stats.cr;
 	}
 
+	static _BREW_CR_LINE_TAGS = {
+		// region MCDM
+		"ambusher": "Ambusher",
+		"artillery": "Artillery",
+		"brute": "Brute",
+		"companion": "Companion",
+		"controller": "Controller",
+		"leader": "Leader",
+		"minion": "Minion",
+		"retainer": "Retainer",
+		"skirmisher": "Skirmisher",
+		"soldier": "Soldier",
+		"solo": "Solo",
+		"support": "Support",
+		// endregion
+	};
+
 	static _setCleanPbNote (stats, line) {
-		if (line.includes("Proficiency Bonus (PB)")) stats.pbNote = line.split_handleColon("Proficiency Bonus (PB)", 1)[1].trim();
-		else stats.pbNote = line.split_handleColon("Proficiency Bonus", 1)[1].trim();
+		if (line.includes("Proficiency Bonus (PB)")) stats.pbNote = ConvertUtil.getStatblockLineHeaderText("Proficiency Bonus (PB)", line);
+		else stats.pbNote = ConvertUtil.getStatblockLineHeaderText("Proficiency Bonus", line);
 
 		if (stats.pbNote && !isNaN(stats.pbNote) && Parser.crToPb(stats.cr) === Number(stats.pbNote)) delete stats.pbNote;
 	}
@@ -1179,9 +1481,13 @@ CreatureParser.SKILL_SPACE_MAP = {
 	"sleightofhand": "sleight of hand",
 	"animalhandling": "animal handling",
 };
+CreatureParser._PROPS_ENTRIES = [
+	"trait",
+	"action",
+	"bonus",
+	"reaction",
+	"legendary",
+	"mythic",
+];
 
-if (typeof module !== "undefined") {
-	module.exports = {
-		CreatureParser,
-	};
-}
+globalThis.CreatureParser = CreatureParser;

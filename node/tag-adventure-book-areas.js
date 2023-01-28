@@ -1,7 +1,8 @@
-const fs = require("fs");
-const ut = require("./util.js");
-require("../js/utils.js");
-require("../js/render.js");
+import * as fs from "fs";
+import * as ut from "./util.js";
+import "../js/parser.js";
+import "../js/utils.js";
+import "../js/render.js";
 
 class AreaTagger {
 	constructor (filePath) {
@@ -38,6 +39,9 @@ class AreaTagger {
 						if (!obj.id) obj.id = this._getNewTag();
 					});
 
+				if (obj.id) return obj;
+				if (obj.type === "image" && !obj.id && obj.mapRegions) obj.id = this._getNewTag();
+
 				return obj;
 			},
 		};
@@ -67,7 +71,7 @@ const doPass = (arr, type) => {
 		areaTagger.run();
 		console.log(`\tTagged ${meta.id}...`);
 	});
-}
+};
 
 doPass(adventureIndex.adventure, "adventure");
 doPass(bookIndex.book, "book");

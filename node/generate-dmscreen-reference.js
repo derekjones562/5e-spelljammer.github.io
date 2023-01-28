@@ -1,5 +1,7 @@
-const fs = require("fs");
-const utB = require("./util-book-reference");
+import * as fs from "fs";
+import "../js/parser.js";
+import "../js/utils.js";
+import * as utB from "./util-book-reference.js";
 
 const index = utB.UtilBookReference.getIndex(
 	{
@@ -14,7 +16,7 @@ const index = utB.UtilBookReference.getIndex(
 	},
 );
 
-fs.writeFileSync("data/generated/bookref-dmscreen.json", JSON.stringify(index).replace(/\s+\u2014\s+?/g, "\\u2014"), "utf8");
+fs.writeFileSync("data/generated/bookref-dmscreen.json", CleanUtil.getCleanJson(index, {isMinify: true}), "utf8");
 
 function flattenReferenceIndex (ref, skipHeaders) {
 	const outMeta = {
@@ -62,7 +64,7 @@ function flattenReferenceIndex (ref, skipHeaders) {
 					s: meta.section[c.name], // section name
 					p: i, // section index
 					h, // header name
-				})
+				});
 			});
 		});
 	});

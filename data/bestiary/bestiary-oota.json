@@ -10,7 +10,10 @@
 			"monster": {
 				"MTF": "OotA"
 			}
-		}
+		},
+		"internalCopies": [
+			"monster"
+		]
 	},
 	"monster": [
 		{
@@ -39,7 +42,8 @@
 			"ac": [
 				10
 			],
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Amarith Coppervein",
@@ -76,11 +80,12 @@
 				"N",
 				"G"
 			],
-			"hasToken": true,
 			"damageTags": [
 				"B",
 				"P"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Animated Drow Statue",
@@ -108,10 +113,44 @@
 			"hasToken": true
 		},
 		{
+			"name": "Asha Vandree",
+			"isNpc": true,
+			"isNamedCreature": true,
+			"source": "OotA",
+			"page": 9,
+			"_copy": {
+				"name": "Priest",
+				"source": "MM",
+				"_trait": {
+					"name": "Drow",
+					"source": "PHB"
+				},
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "the priest",
+						"with": "Asha",
+						"flags": "i"
+					}
+				}
+			},
+			"traitTags": [
+				"Fey Ancestry",
+				"Sunlight Sensitivity"
+			],
+			"spellcastingTags": [
+				"CC",
+				"I"
+			],
+			"hasToken": true
+		},
+		{
 			"name": "Awakened Zurkhwood",
 			"source": "OotA",
 			"page": 230,
-			"size": "H",
+			"size": [
+				"H"
+			],
 			"type": "plant",
 			"alignment": [
 				"U"
@@ -174,7 +213,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"False Appearance"
 			],
@@ -188,6 +226,7 @@
 				"MW",
 				"RCH"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
@@ -207,13 +246,16 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Bridesmaid of Zuggtmoy",
 			"source": "OotA",
 			"page": 230,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "plant",
 			"alignment": [
 				"C",
@@ -270,7 +312,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -284,7 +325,8 @@
 			"conditionInflict": [
 				"incapacitated",
 				"poisoned"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Buppido",
@@ -303,7 +345,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Cave Badger",
@@ -311,7 +354,18 @@
 			"page": 96,
 			"_copy": {
 				"name": "Giant Badger",
-				"source": "MM"
+				"source": "MM",
+				"_mod": {
+					"trait": {
+						"mode": "appendArr",
+						"items": {
+							"name": "Tunneler",
+							"entries": [
+								"When the badger burrows, it leaves tunnels behind."
+							]
+						}
+					}
+				}
 			},
 			"ac": [
 				{
@@ -332,13 +386,16 @@
 			"senseTags": [
 				"D",
 				"T"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Chamberlain of Zuggtmoy",
 			"source": "OotA",
 			"page": 230,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "plant",
 			"alignment": [
 				"C",
@@ -412,7 +469,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -432,13 +488,16 @@
 			],
 			"conditionInflict": [
 				"poisoned"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Chuul Spore Servant",
 			"source": "OotA",
 			"page": 228,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "plant",
 			"alignment": [
 				"U"
@@ -494,7 +553,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"B"
 			],
@@ -510,14 +568,17 @@
 			],
 			"conditionInflict": [
 				"grappled"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Deepking Horgar Steelshadow V",
 			"isNpc": true,
 			"source": "OotA",
 			"page": 82,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -561,27 +622,6 @@
 			],
 			"cr": "3",
 			"trait": [
-				{
-					"name": "(Optional) Indefinite Madness",
-					"entries": [
-						{
-							"type": "inline",
-							"entries": [
-								"Horgar has been affected by the demon lords let loose in the Abyss during the Rage of Demons storyline. Roll on the ",
-								{
-									"type": "link",
-									"href": {
-										"type": "internal",
-										"path": "variantrules.html",
-										"hash": "madness_dmg"
-									},
-									"text": "Indefinite Madness table"
-								},
-								" to determine Horgar's flaw."
-							]
-						}
-					]
-				},
 				{
 					"name": "Duergar Resilience",
 					"entries": [
@@ -653,7 +693,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Sunlight Sensitivity"
 			],
@@ -674,14 +713,199 @@
 				"MW",
 				"RNG",
 				"RW"
-			]
+			],
+			"conditionInflict": [
+				"invisible"
+			],
+			"hasToken": true,
+			"hasFluff": true,
+			"hasFluffImages": true
+		},
+		{
+			"name": "Derro",
+			"source": "OotA",
+			"page": 224,
+			"reprintedAs": [
+				"Derro|MTF"
+			],
+			"size": [
+				"S"
+			],
+			"type": {
+				"type": "humanoid",
+				"tags": [
+					"derro"
+				]
+			},
+			"alignment": [
+				"C",
+				"E"
+			],
+			"ac": [
+				{
+					"ac": 13,
+					"from": [
+						"{@item leather armor|PHB}"
+					]
+				}
+			],
+			"hp": {
+				"average": 13,
+				"formula": "3d6 + 3"
+			},
+			"speed": {
+				"walk": 30
+			},
+			"str": 9,
+			"dex": 14,
+			"con": 12,
+			"int": 11,
+			"wis": 5,
+			"cha": 9,
+			"skill": {
+				"stealth": "+4"
+			},
+			"senses": [
+				"darkvision 120 ft."
+			],
+			"passive": 7,
+			"languages": [
+				"Dwarvish",
+				"Undercommon"
+			],
+			"cr": "1/4",
+			"trait": [
+				{
+					"name": "Insanity",
+					"entries": [
+						"The derro has advantage on saving throws against being {@condition charmed} or {@condition frightened}."
+					]
+				},
+				{
+					"name": "Magic Resistance",
+					"entries": [
+						"The derro has advantage on saving throws against spells and other magical effects."
+					]
+				},
+				{
+					"name": "Sunlight Sensitivity",
+					"entries": [
+						"While in sunlight, the derro has disadvantage on attack rolls, as well as on Wisdom (Perception) checks that rely on sight."
+					]
+				}
+			],
+			"action": [
+				{
+					"name": "Hooked Shortspear",
+					"entries": [
+						"{@atk mw} {@hit 2} to hit, reach 5 ft., one target. {@h}1 ({@damage 1d4 - 1}) piercing damage. If the target is a creature, the derro can choose to deal no damage and try to trip the target instead, in which case the target must succeed on a {@dc 9} Strength saving throw or fall {@condition prone}."
+					]
+				},
+				{
+					"name": "Light Repeating Crossbow",
+					"entries": [
+						"{@atk rw} {@hit 4} to hit, range 40/160 ft., one target. {@h}6 ({@damage 1d8 + 2}) piercing damage."
+					]
+				}
+			],
+			"traitTags": [
+				"Magic Resistance",
+				"Sunlight Sensitivity"
+			],
+			"senseTags": [
+				"SD"
+			],
+			"languageTags": [
+				"D",
+				"U"
+			],
+			"damageTags": [
+				"P"
+			],
+			"miscTags": [
+				"MW",
+				"RW"
+			],
+			"conditionInflict": [
+				"prone"
+			],
+			"hasToken": true,
+			"hasFluff": true,
+			"hasFluffImages": true
+		},
+		{
+			"name": "Derro Savant",
+			"source": "OotA",
+			"page": 224,
+			"reprintedAs": [
+				"Derro Savant|MTF"
+			],
+			"_copy": {
+				"name": "Derro",
+				"source": "OotA"
+			},
+			"hp": {
+				"average": 49,
+				"formula": "11d6 + 11"
+			},
+			"cha": 14,
+			"cr": "3",
+			"spellcasting": [
+				{
+					"name": "Spellcasting",
+					"headerEntries": [
+						"The derro savant is a 5th-level spellcaster. Its spellcasting ability is Charisma (spell save {@dc 12}, {@hit 4} to hit with spell attacks). The derro knows the following sorcerer spells:"
+					],
+					"spells": {
+						"0": {
+							"spells": [
+								"{@spell acid splash}",
+								"{@spell mage hand}",
+								"{@spell message}",
+								"{@spell ray of frost}"
+							]
+						},
+						"1": {
+							"slots": 4,
+							"spells": [
+								"{@spell burning hands}",
+								"{@spell chromatic orb}",
+								"{@spell sleep}"
+							]
+						},
+						"2": {
+							"slots": 3,
+							"spells": [
+								"{@spell invisibility}",
+								"{@spell spider climb}"
+							]
+						},
+						"3": {
+							"slots": 2,
+							"spells": [
+								"{@spell blink}",
+								"{@spell lightning bolt}"
+							]
+						}
+					},
+					"ability": "cha"
+				}
+			],
+			"spellcastingTags": [
+				"CS"
+			],
+			"hasToken": true,
+			"hasFluff": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Droki",
 			"isNpc": true,
 			"source": "OotA",
 			"page": 231,
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -696,7 +920,7 @@
 				{
 					"ac": 15,
 					"from": [
-						"{@item studded leather armor|phb}"
+						"{@item studded leather armor|phb|studded leather}"
 					]
 				}
 			],
@@ -801,7 +1025,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Magic Resistance",
 				"Sneak Attack",
@@ -822,6 +1045,9 @@
 				"I",
 				"P"
 			],
+			"damageTagsSpell": [
+				"T"
+			],
 			"spellcastingTags": [
 				"I"
 			],
@@ -831,6 +1057,7 @@
 			"conditionInflictSpell": [
 				"frightened"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -846,7 +1073,6 @@
 					"source": "PHB"
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sunlight Sensitivity"
@@ -854,7 +1080,8 @@
 			"spellcastingTags": [
 				"CC",
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Drow Bandit",
@@ -868,14 +1095,14 @@
 					"source": "PHB"
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sunlight Sensitivity"
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Drow Commoner",
@@ -889,14 +1116,14 @@
 					"source": "PHB"
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sunlight Sensitivity"
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Drow Cultist",
@@ -910,14 +1137,14 @@
 					"source": "PHB"
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sunlight Sensitivity"
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Drow Guard",
@@ -931,14 +1158,14 @@
 					"source": "PHB"
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sunlight Sensitivity"
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Drow Noble",
@@ -952,14 +1179,14 @@
 					"source": "PHB"
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sunlight Sensitivity"
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Drow Scout",
@@ -973,7 +1200,6 @@
 					"source": "PHB"
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Keen Senses",
@@ -981,13 +1207,16 @@
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Drow Spore Servant",
 			"source": "OotA",
 			"page": 229,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "plant",
 			"alignment": [
 				"U"
@@ -1032,7 +1261,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"B"
 			],
@@ -1041,7 +1269,8 @@
 			],
 			"miscTags": [
 				"MW"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Drow Spy",
@@ -1055,7 +1284,6 @@
 					"source": "PHB"
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sneak Attack",
@@ -1063,7 +1291,8 @@
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Duergar Alchemist",
@@ -1093,18 +1322,20 @@
 					}
 				}
 			},
-			"hasToken": true,
 			"damageTags": [
 				"A",
 				"F",
 				"P"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Duergar Darkhaft",
 			"source": "OotA",
 			"page": 226,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -1208,7 +1439,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Sunlight Sensitivity"
 			],
@@ -1231,16 +1461,22 @@
 				"RW",
 				"THW"
 			],
+			"conditionInflict": [
+				"invisible"
+			],
 			"conditionInflictSpell": [
 				"unconscious"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
 			"name": "Duergar Keeper of the Flame",
 			"source": "OotA",
 			"page": 226,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -1374,7 +1610,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Sunlight Sensitivity"
 			],
@@ -1388,6 +1623,11 @@
 			"damageTags": [
 				"P"
 			],
+			"damageTagsSpell": [
+				"N",
+				"O",
+				"R"
+			],
 			"spellcastingTags": [
 				"CC",
 				"I",
@@ -1398,16 +1638,22 @@
 				"RW",
 				"THW"
 			],
+			"conditionInflict": [
+				"invisible"
+			],
 			"conditionInflictSpell": [
 				"prone"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
 			"name": "Duergar Spore Servant",
 			"source": "OotA",
 			"page": 229,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "plant",
 			"alignment": [
 				"U"
@@ -1456,7 +1702,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"B"
 			],
@@ -1465,7 +1710,8 @@
 			],
 			"miscTags": [
 				"MW"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Eldeth Feldrun",
@@ -1488,7 +1734,6 @@
 					}
 				}
 			},
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -1496,13 +1741,17 @@
 				"C",
 				"D",
 				"X"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Emerald Enclave Scout",
 			"source": "OotA",
 			"page": 130,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -1586,7 +1835,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Keen Senses"
 			],
@@ -1607,7 +1855,8 @@
 				"MW",
 				"RNG",
 				"RW"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Fiendish Giant Spider",
@@ -1668,10 +1917,10 @@
 					]
 				}
 			},
-			"hasToken": true,
 			"damageTags": [
 				"S"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Gash",
@@ -1693,7 +1942,7 @@
 						"items": {
 							"name": "Wretched",
 							"entries": [
-								"Gash has disadvantage on Wisdom checks and Wisdom saving throws because of the physical and mental abuse he has suffered. A lesser restoration spell rids him of these effects."
+								"Gash has disadvantage on Wisdom checks and Wisdom saving throws because of the physical and mental abuse he has suffered. A {@spell lesser restoration} spell rids him of these effects."
 							]
 						}
 					}
@@ -1706,7 +1955,8 @@
 			"speed": {
 				"walk": 25
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Ghazrim DuLoc",
@@ -1731,13 +1981,16 @@
 					"human"
 				]
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Giant Riding Lizard",
 			"source": "OotA",
 			"page": 131,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "beast",
 			"alignment": [
 				"U"
@@ -1785,7 +2038,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Spider Climb"
 			],
@@ -1797,7 +2049,8 @@
 			],
 			"miscTags": [
 				"MW"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Giant Rocktopus",
@@ -1814,13 +2067,16 @@
 							"items": {
 								"name": "Camouflage",
 								"entries": [
-									"The octopus has advantage on Dexterity (Stealth) checks."
+									"The octopus has advantage on Dexterity ({@skill Stealth}) checks."
 								]
 							}
 						},
 						{
 							"mode": "removeArr",
-							"names": "Hold Breath"
+							"names": [
+								"Hold Breath",
+								"Water Breathing"
+							]
 						}
 					]
 				}
@@ -1829,10 +2085,8 @@
 				"walk": 20,
 				"climb": 10
 			},
-			"hasToken": true,
-			"traitTags": [
-				"Water Breathing"
-			]
+			"traitTags": [],
+			"hasToken": true
 		},
 		{
 			"name": "Glabbagool",
@@ -1855,7 +2109,9 @@
 			"languages": [
 				"telepathy 60 ft."
 			],
-			"hasToken": true
+			"hasToken": true,
+			"hasFluff": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Grazilaxx",
@@ -1874,14 +2130,17 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Grisha",
 			"isNpc": true,
 			"source": "OotA",
 			"page": 232,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -1991,7 +2250,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"actionTags": [
 				"Multiattack"
 			],
@@ -2002,18 +2260,93 @@
 			"damageTags": [
 				"B"
 			],
+			"damageTagsSpell": [
+				"N",
+				"O",
+				"R"
+			],
 			"spellcastingTags": [
 				"CC"
 			],
 			"miscTags": [
 				"MW"
-			]
+			],
+			"hasToken": true
+		},
+		{
+			"name": "Hanne Hallen",
+			"isNpc": true,
+			"isNamedCreature": true,
+			"source": "OotA",
+			"page": 171,
+			"_copy": {
+				"name": "Drow",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "the drow",
+						"with": "Hanne",
+						"flags": "i"
+					},
+					"spellcasting": [
+						{
+							"mode": "appendArr",
+							"items": {
+								"name": "Spellcasting",
+								"headerEntries": [
+									"Hanne is a 1st-level spellcaster. Her spellcasting ability is Intelligence (spell save {@dc 13}, {@hit 5} to hit with spell attacks). She has the following wizard spells prepared:"
+								],
+								"spells": {
+									"0": {
+										"spells": [
+											"{@spell minor illusion}",
+											"{@spell ray of frost}"
+										]
+									},
+									"1": {
+										"slots": 4,
+										"spells": [
+											"{@spell shield}",
+											"{@spell mage armor}"
+										]
+									}
+								},
+								"ability": "int"
+							}
+						}
+					]
+				}
+			},
+			"ac": [
+				12,
+				{
+					"ac": 15,
+					"condition": "with {@spell mage armor}",
+					"braces": true
+				}
+			],
+			"int": 17,
+			"skill": {
+				"perception": "+2",
+				"stealth": "+4",
+				"arcana": "+5",
+				"investigation": "+5"
+			},
+			"languages": [
+				"Elvish",
+				"Undercommon",
+				"Common"
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Hook Horror Spore Servant",
 			"source": "OotA",
 			"page": 68,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "plant",
 			"alignment": [
 				"U"
@@ -2068,7 +2401,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"B"
 			],
@@ -2081,7 +2413,8 @@
 			"miscTags": [
 				"MW",
 				"RCH"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Ilvara Mizzrym",
@@ -2109,7 +2442,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Infant Basilisk",
@@ -2119,7 +2453,9 @@
 				"name": "Basilisk",
 				"source": "MM"
 			},
-			"size": "T",
+			"size": [
+				"T"
+			],
 			"ac": [
 				{
 					"ac": 11,
@@ -2146,8 +2482,8 @@
 					]
 				}
 			],
-			"hasToken": true,
-			"conditionInflict": []
+			"conditionInflict": [],
+			"hasToken": true
 		},
 		{
 			"name": "Infant Hook Horror",
@@ -2157,7 +2493,9 @@
 				"name": "Hook Horror",
 				"source": "MM"
 			},
-			"size": "T",
+			"size": [
+				"T"
+			],
 			"ac": [
 				{
 					"ac": 10,
@@ -2177,14 +2515,16 @@
 			"str": 9,
 			"cr": "0",
 			"action": null,
-			"hasToken": true,
-			"actionTags": []
+			"actionTags": [],
+			"hasToken": true
 		},
 		{
 			"name": "Ixitxachitl",
 			"source": "OotA",
 			"page": 225,
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"type": "aberration",
 			"alignment": [
 				"C",
@@ -2238,7 +2578,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -2252,6 +2591,7 @@
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -2259,7 +2599,9 @@
 			"name": "Ixitxachitl Cleric",
 			"source": "OotA",
 			"page": 225,
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"type": "aberration",
 			"alignment": [
 				"C",
@@ -2351,7 +2693,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -2368,6 +2709,7 @@
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
@@ -2420,10 +2762,17 @@
 					}
 				}
 			},
-			"hasToken": true,
+			"languages": [
+				"Common",
+				"Gnomish",
+				"Terran",
+				"Undercommon"
+			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Juvenile Hook Horror",
@@ -2445,7 +2794,9 @@
 					}
 				}
 			},
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"ac": [
 				{
 					"ac": 13,
@@ -2515,14 +2866,15 @@
 					"ability": "int"
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sneak Attack"
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Kinyel Druu'giir",
@@ -2545,7 +2897,6 @@
 					}
 				}
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Sneak Attack",
@@ -2553,7 +2904,9 @@
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Kurr",
@@ -2572,13 +2925,16 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Lords' Alliance Guard",
 			"source": "OotA",
 			"page": 131,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -2635,7 +2991,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -2645,13 +3000,16 @@
 			"miscTags": [
 				"MW",
 				"RCH"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Lords' Alliance Spy",
 			"source": "OotA",
 			"page": 131,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -2731,7 +3089,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Sneak Attack"
 			],
@@ -2749,7 +3106,8 @@
 				"MW",
 				"RNG",
 				"RW"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Lorthuun",
@@ -2779,37 +3137,37 @@
 									"items": [
 										{
 											"type": "item",
-											"name": "1. Charm Ray.",
+											"name": "1. Charm Ray",
 											"style": "italic",
 											"entry": "The targeted creature must succeed on a {@dc 16} Wisdom saving throw or be {@condition charmed} by the beholder for 1 hour, or until the beholder harms the creature."
 										},
 										{
 											"type": "item",
-											"name": "2. Paralyzing Ray.",
+											"name": "2. Paralyzing Ray",
 											"style": "italic",
 											"entry": "The targeted creature must succeed on a {@dc 16} Constitution saving throw or be {@condition paralyzed} for 1 minute. The target can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success."
 										},
 										{
 											"type": "item",
-											"name": "3. Fear Ray.",
+											"name": "3. Fear Ray",
 											"style": "italic",
 											"entry": "The targeted creature must succeed on a {@dc 16} Wisdom saving throw or be {@condition frightened} for 1 minute. The target can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success."
 										},
 										{
 											"type": "item",
-											"name": "4. Slowing Ray.",
+											"name": "4. Slowing Ray",
 											"style": "italic",
 											"entry": "The targeted creature must succeed on a {@dc 16} Dexterity saving throw. On a failed save, the target's speed is halved for 1 minute. In addition, the creature can't take reactions, and it can take either an action or a bonus action on its turn, not both. The creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success."
 										},
 										{
 											"type": "item",
-											"name": "5. Enervation Ray.",
+											"name": "5. Enervation Ray",
 											"style": "italic",
 											"entry": "The targeted creature must make a {@dc 16} Constitution saving throw, taking 36 ({@damage 8d8}) necrotic damage on a failed save, or half as much damage on a successful one."
 										},
 										{
 											"type": "item",
-											"name": "6. Telekinetic Ray.",
+											"name": "6. Telekinetic Ray",
 											"style": "italic",
 											"entries": [
 												"If the target is a creature, it must succeed on a {@dc 16} Strength saving throw or the beholder moves it up to 30 feet in any direction. It is {@condition restrained} by the ray's telekinetic grip until the start of the beholder's next turn or until the beholder is {@condition incapacitated}.",
@@ -2824,18 +3182,48 @@
 				}
 			},
 			"cr": "9",
-			"hasToken": true,
 			"damageTags": [
 				"N",
 				"P"
-			]
+			],
+			"hasToken": true
+		},
+		{
+			"name": "Mev Flintknapper",
+			"isNpc": true,
+			"isNamedCreature": true,
+			"source": "OotA",
+			"page": 103,
+			"_copy": {
+				"name": "Priest",
+				"source": "MM",
+				"_trait": {
+					"name": "Deep Gnome",
+					"source": "DMG"
+				},
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "the veteran",
+						"with": "Mev",
+						"flags": "i"
+					}
+				}
+			},
+			"spellcastingTags": [
+				"CC",
+				"I"
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Narrak",
 			"isNpc": true,
 			"source": "OotA",
 			"page": 232,
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -2934,7 +3322,7 @@
 				{
 					"name": "Armor of Shadows (Recharges after a Short or Long Rest)",
 					"entries": [
-						"Narrak casts mage armor on himself"
+						"Narrak casts {@spell mage armor} on himself"
 					]
 				},
 				{
@@ -2950,7 +3338,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Magic Resistance",
 				"Sunlight Sensitivity"
@@ -2965,6 +3352,12 @@
 			"damageTags": [
 				"P"
 			],
+			"damageTagsSpell": [
+				"C",
+				"I",
+				"N",
+				"O"
+			],
 			"spellcastingTags": [
 				"CL"
 			],
@@ -2974,7 +3367,8 @@
 			"conditionInflictSpell": [
 				"charmed",
 				"paralyzed"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Ougalop",
@@ -2993,7 +3387,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Peebles",
@@ -3016,10 +3411,11 @@
 					}
 				}
 			},
-			"hasToken": true,
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Prince Derendil",
@@ -3038,7 +3434,12 @@
 					}
 				}
 			},
-			"hasToken": true
+			"languages": [
+				"Elvish",
+				"Undercommon"
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Princess Ebonmire",
@@ -3069,6 +3470,148 @@
 			"hasToken": true
 		},
 		{
+			"name": "Quenthel Baenre",
+			"isNpc": true,
+			"isNamedCreature": true,
+			"source": "OotA",
+			"page": 204,
+			"_copy": {
+				"name": "Drow Priestess of Lolth",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "the drow",
+						"with": "Quenthel",
+						"flags": "i"
+					},
+					"trait": {
+						"mode": "appendArr",
+						"items": {
+							"name": "Special Equipment",
+							"entries": [
+								"Quenthel wields a {@item tentacle rod}."
+							]
+						}
+					},
+					"action": {
+						"mode": "appendArr",
+						"items": {
+							"name": "Throne Activation",
+							"entries": [
+								"While seated on her throne, Quenthel can use an action on her turn to cast {@spell disintegrate} (save DC 19). A target that fails its saving throw takes {@dice 10d6 + 40} force damage. If this damage reduces the target to 0 hit points, it is disintegrated."
+							]
+						}
+					}
+				}
+			},
+			"ac": [
+				{
+					"ac": 19,
+					"from": [
+						"{@item +3 scale mail}"
+					]
+				}
+			],
+			"hp": {
+				"average": 132,
+				"formula": "24d8 + 24"
+			},
+			"int": 18,
+			"wis": 20,
+			"save": {
+				"con": "+8",
+				"wis": "+12",
+				"cha": "+11"
+			},
+			"skill": {
+				"insight": "+12",
+				"perception": "+12",
+				"religion": "+11",
+				"stealth": "+9"
+			},
+			"cr": "22",
+			"spellcasting": [
+				{
+					"name": "Innate Spellcasting",
+					"headerEntries": [
+						"Quenthel's spellcasting ability is Charisma (spell save {@dc 19}). She can innately cast the following spells, requiring no material components:"
+					],
+					"will": [
+						"{@spell dancing lights}"
+					],
+					"daily": {
+						"1e": [
+							"{@spell darkness}",
+							"{@spell faerie fire}",
+							"{@spell levitate} (self only)"
+						]
+					},
+					"ability": "cha"
+				},
+				{
+					"name": "Spellcasting",
+					"headerEntries": [
+						"Quenthel is a 20th-level spellcaster. Her spellcasting ability is Wisdom (save {@dc 20}, {@hit 12} to hit with spell attacks). The drow has the following cleric spells prepared:"
+					],
+					"will": [
+						"Any {@filter cleric spell up to 9th level|spells|level=0;1;2;3;4;5;6;7;8;9|class=cleric}."
+					],
+					"spells": {
+						"0": {
+							"spells": [
+								"{@spell guidance}",
+								"{@spell poison spray}",
+								"{@spell resistance}",
+								"{@spell spare the dying}",
+								"{@spell thaumaturgy}"
+							]
+						},
+						"1": {
+							"slots": 4,
+							"spells": [
+								"{@spell animal friendship}",
+								"{@spell cure wounds}",
+								"{@spell detect poison and disease}",
+								"{@spell ray of sickness}"
+							]
+						},
+						"2": {
+							"slots": 3,
+							"spells": [
+								"{@spell lesser restoration}",
+								"{@spell protection from poison}",
+								"{@spell web}"
+							]
+						},
+						"3": {
+							"slots": 3,
+							"spells": [
+								"{@spell conjure animals} (2 giant spiders)",
+								"{@spell dispel magic}"
+							]
+						},
+						"4": {
+							"slots": 3,
+							"spells": [
+								"{@spell divination}",
+								"{@spell freedom of movement}"
+							]
+						},
+						"5": {
+							"slots": 2,
+							"spells": [
+								"{@spell insect plague}",
+								"{@spell mass cure wounds}"
+							]
+						}
+					},
+					"ability": "wis"
+				}
+			],
+			"hasToken": true
+		},
+		{
 			"name": "Regenerating Black Pudding",
 			"source": "OotA",
 			"page": 211,
@@ -3089,12 +3632,12 @@
 			},
 			"int": 6,
 			"cr": "5",
-			"hasToken": true,
 			"traitTags": [
 				"Amorphous",
 				"Regeneration",
 				"Spider Climb"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Ront",
@@ -3113,7 +3656,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Rumpadump",
@@ -3132,7 +3676,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Rystia Zav",
@@ -3161,7 +3706,8 @@
 				"C",
 				"G"
 			],
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Sarith Kzekarit",
@@ -3180,10 +3726,11 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
-			"name": "Shedrak",
+			"name": "Shedrak of the Eyes",
 			"isNpc": true,
 			"source": "OotA",
 			"page": 176,
@@ -3213,11 +3760,12 @@
 				{
 					"name": "Eye Tattoos",
 					"entries": [
-						"Shedrak has ten small eyes tattooed on his bald head that allow him to see invisible creatures and objects as if they were visible."
+						"Shedrak has ten small eyes tattooed on his bald head that allow him to see {@condition invisible} creatures and objects as if they were visible."
 					]
 				}
 			],
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Shuushar the Awakened",
@@ -3236,7 +3784,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Skriss",
@@ -3255,7 +3804,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Sladis Vadir",
@@ -3286,10 +3836,11 @@
 				"N",
 				"G"
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Sloopidoop",
@@ -3308,7 +3859,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Sovereign Basidia",
@@ -3327,7 +3879,6 @@
 					}
 				}
 			},
-			"hasToken": true,
 			"damageTags": [
 				"B",
 				"I"
@@ -3336,7 +3887,9 @@
 				"incapacitated",
 				"poisoned",
 				"stunned"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Spider King",
@@ -3371,7 +3924,6 @@
 				"perception": "+4"
 			},
 			"passive": 14,
-			"hasToken": true,
 			"traitTags": [
 				"Spider Climb",
 				"Web Sense",
@@ -3380,7 +3932,8 @@
 			"senseTags": [
 				"B",
 				"D"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Spiderbait",
@@ -3403,11 +3956,12 @@
 				"N"
 			],
 			"skill": {
-				"acrobatics": "+3",
+				"acrobatics": "+6",
 				"athletics": "+3",
 				"stealth": "+6"
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Stool",
@@ -3426,6 +3980,24 @@
 					}
 				}
 			},
+			"hasToken": true,
+			"hasFluffImages": true
+		},
+		{
+			"name": "Svirfneblin Wererat",
+			"source": "OotA",
+			"page": 97,
+			"_copy": {
+				"name": "Wererat",
+				"source": "MM",
+				"_trait": {
+					"name": "Deep Gnome",
+					"source": "DMG"
+				}
+			},
+			"spellcastingTags": [
+				"I"
+			],
 			"hasToken": true
 		},
 		{
@@ -3433,7 +4005,9 @@
 			"isNpc": true,
 			"source": "OotA",
 			"page": 233,
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -3471,10 +4045,10 @@
 				"cha": "+7"
 			},
 			"skill": {
-				"arcana": "+5",
-				"perception": "+3",
-				"stealth": "+7",
-				"survival": "+3"
+				"arcana": "+4",
+				"perception": "+2",
+				"stealth": "+6",
+				"survival": "+2"
 			},
 			"senses": [
 				"darkvision 60 ft."
@@ -3607,9 +4181,11 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
+			],
+			"actionTags": [
+				"Shapechanger"
 			],
 			"languageTags": [
 				"AB",
@@ -3619,6 +4195,11 @@
 			],
 			"damageTags": [
 				"P"
+			],
+			"damageTagsSpell": [
+				"A",
+				"I",
+				"N"
 			],
 			"spellcastingTags": [
 				"CS",
@@ -3633,6 +4214,7 @@
 				"deafened",
 				"poisoned"
 			],
+			"hasToken": true,
 			"hasFluffImages": true
 		},
 		{
@@ -3652,7 +4234,9 @@
 					}
 				}
 			},
-			"hasToken": true
+			"damageTagsLegendary": [],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Topsy",
@@ -3662,6 +4246,10 @@
 			"_copy": {
 				"name": "Wererat",
 				"source": "MM",
+				"_trait": {
+					"name": "Deep Gnome",
+					"source": "DMG"
+				},
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
@@ -3671,13 +4259,21 @@
 					}
 				}
 			},
-			"hasToken": true
+			"languages": [
+				"Gnomish",
+				"Terran",
+				"Undercommon"
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Troglodyte Champion of Laogzed",
 			"source": "OotA",
 			"page": 229,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -3798,6 +4394,7 @@
 			"conditionInflict": [
 				"poisoned"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
@@ -3808,6 +4405,10 @@
 			"_copy": {
 				"name": "Wererat",
 				"source": "MM",
+				"_trait": {
+					"name": "Deep Gnome",
+					"source": "DMG"
+				},
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
@@ -3817,13 +4418,21 @@
 					}
 				}
 			},
-			"hasToken": true
+			"languages": [
+				"Gnomish",
+				"Terran",
+				"Undercommon"
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Vampiric Ixitxachitl",
 			"source": "OotA",
 			"page": 226,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "aberration",
 			"alignment": [
 				"C",
@@ -3877,7 +4486,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -3889,15 +4497,19 @@
 				"P"
 			],
 			"miscTags": [
+				"HPR",
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
 			"name": "Vampiric Ixitxachitl Cleric",
 			"source": "OotA",
 			"page": 226,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "aberration",
 			"alignment": [
 				"C",
@@ -3989,7 +4601,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -4004,8 +4615,10 @@
 				"CC"
 			],
 			"miscTags": [
+				"HPR",
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
@@ -4047,13 +4660,16 @@
 			],
 			"spellcastingTags": [
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Veteran of the Gauntlet",
 			"source": "OotA",
 			"page": 130,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -4121,7 +4737,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"actionTags": [
 				"Multiattack"
 			],
@@ -4137,7 +4752,63 @@
 				"MW",
 				"RNG",
 				"RW"
-			]
+			],
+			"hasToken": true
+		},
+		{
+			"name": "Viln Tirin",
+			"isNpc": true,
+			"isNamedCreature": true,
+			"source": "OotA",
+			"page": 202,
+			"_copy": {
+				"name": "Bandit Captain",
+				"source": "MM",
+				"_trait": {
+					"name": "Drow",
+					"source": "PHB"
+				},
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "the captain",
+						"with": "Viln",
+						"flags": "i"
+					},
+					"trait": {
+						"mode": "appendArr",
+						"items": {
+							"name": "Special Equipment",
+							"entries": [
+								"Viln carries a {@item scimitar of speed} and can make one attack with it as a bonus action on her turn. Viln also carries four daggers coated with {@item purple worm poison}. The poison on a dagger's blade is good for one hit only, whether the poison takes effect or not."
+							]
+						}
+					},
+					"action": {
+						"mode": "replaceArr",
+						"replace": "Scimitar",
+						"items": {
+							"name": "Scimitar",
+							"entries": [
+								"{@atk mw} {@hit 7} to hit, reach 5 ft., one target. {@h}8 ({@damage 1d6 + 5}) slashing damage."
+							]
+						}
+					}
+				}
+			},
+			"alignment": [
+				"C",
+				"E"
+			],
+			"cr": "5",
+			"traitTags": [
+				"Fey Ancestry",
+				"Sunlight Sensitivity"
+			],
+			"spellcastingTags": [
+				"I"
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Vizeran DeVir",
@@ -4164,7 +4835,6 @@
 				"N",
 				"E"
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Fey Ancestry",
 				"Magic Resistance",
@@ -4173,7 +4843,9 @@
 			"spellcastingTags": [
 				"CW",
 				"I"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Xazax the Eyemonger",
@@ -4192,7 +4864,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Y",
@@ -4211,7 +4884,8 @@
 					}
 				}
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Yestabrod",
@@ -4219,7 +4893,9 @@
 			"isNamedCreature": true,
 			"source": "OotA",
 			"page": 233,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "monstrosity",
 			"alignment": [
 				"C",
@@ -4304,7 +4980,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances"
 			],
@@ -4324,6 +4999,7 @@
 				"AOE",
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluffImages": true
 		},
 		{
@@ -4334,7 +5010,9 @@
 				"name": "Basilisk",
 				"source": "MM"
 			},
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"ac": [
 				{
 					"ac": 13,
@@ -4357,7 +5035,7 @@
 					"name": "Petrifying Gaze",
 					"entries": [
 						"If a creature starts its turn within 15 feet of the basilisk and the two of them can see each other, the basilisk can force the creature to make a {@dc 12} Constitution saving throw if the basilisk isn't {@condition incapacitated}. On a failed save, the creature magically begins to turn to stone and is {@condition restrained}. It must repeat the saving throw at the end of its next turn. On a success, the effect ends. On a failure, the creature is {@condition petrified} until freed by the  {@spell greater restoration} spell or other magic.",
-						"A creature that isn't surprised can avert its eyes to avoid the saving throw at the start of its turn. If it does so, it can't see the basilisk until the start of its next turn, when it can avert its eyes again. If it looks at the basilisk in the meantime, it must immediately make the save.",
+						"A creature that isn't {@quickref Surprise|PHB|3|0|surprised} can avert its eyes to avoid the saving throw at the start of its turn. If it does so, it can't see the basilisk until the start of its next turn, when it can avert its eyes again. If it looks at the basilisk in the meantime, it must immediately make the save.",
 						"If the basilisk sees its reflection within 30 feet of it in bright light, it mistakes itself for a rival and targets itself with its gaze."
 					]
 				}
@@ -4369,6 +5047,10 @@
 						"{@atk mw} {@hit 3} to hit, reach 5 ft., one target. {@h}3 ({@damage 1d4 + 1}) piercing damage plus 2 ({@damage 1d4}) poison damage."
 					]
 				}
+			],
+			"conditionInflict": [
+				"petrified",
+				"restrained"
 			],
 			"hasToken": true
 		},
@@ -4392,7 +5074,9 @@
 					}
 				}
 			},
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"ac": [
 				{
 					"ac": 11,
@@ -4434,17 +5118,20 @@
 				"N"
 			],
 			"skill": {
-				"acrobatics": "+3",
+				"acrobatics": "+6",
 				"athletics": "+3",
 				"stealth": "+6"
 			},
-			"hasToken": true
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Zhentarim Thug",
 			"source": "OotA",
 			"page": 131,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -4511,7 +5198,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Pack Tactics"
 			],
@@ -4529,7 +5215,8 @@
 				"MW",
 				"RNG",
 				"RW"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Zilchyn Q'Leptin",
@@ -4537,30 +5224,19 @@
 			"source": "OotA",
 			"page": 137,
 			"_copy": {
-				"name": "Mage",
+				"name": "Drow Mage",
 				"source": "MM",
-				"_trait": {
-					"name": "Drow",
-					"source": "PHB"
-				},
 				"_mod": {
 					"*": {
 						"mode": "replaceTxt",
-						"replace": "the mage",
+						"replace": "the drow",
 						"with": "Zilchyn",
 						"flags": "i"
 					}
 				}
 			},
 			"hasToken": true,
-			"traitTags": [
-				"Fey Ancestry",
-				"Sunlight Sensitivity"
-			],
-			"spellcastingTags": [
-				"CW",
-				"I"
-			]
+			"hasFluffImages": true
 		}
 	]
 }

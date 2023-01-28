@@ -1,3 +1,5 @@
+"use strict";
+
 class RenderVariantRules {
 	static $getRenderedVariantRule (rule) {
 		const cpy = MiscUtil.copy(rule);
@@ -10,7 +12,7 @@ class RenderVariantRules {
 
 		return $$`
 		${Renderer.utils.getBorderTr()}
-		${Renderer.utils.getExcludedTr(rule, "variantrule")}
+		${Renderer.utils.getExcludedTr({entity: rule, dataProp: "variantrule"})}
 		${Renderer.utils.getNameTr(rule, {page: UrlUtil.PG_VARIANTRULES})}
 		<tr class="text"><td colspan="6">${textStack.join("")}</td></tr>
 		${Renderer.utils.getPageTr(rule)}

@@ -1,10 +1,15 @@
 "use strict";
 
 class PageFilterTrapsHazards extends PageFilter {
+	// region static
+	static sortFilterType (a, b) {
+		return SortUtil.ascSortLower(Parser.trapHazTypeToFull(a.item), Parser.trapHazTypeToFull(b.item));
+	}
+	// endregion
+
 	constructor () {
 		super();
 
-		this._sourceFilter = new SourceFilter();
 		this._typeFilter = new Filter({
 			header: "Type",
 			items: [
@@ -19,7 +24,7 @@ class PageFilterTrapsHazards extends PageFilter {
 				"GEN",
 			],
 			displayFn: Parser.trapHazTypeToFull,
-			itemSortFn: filterTypeSort,
+			itemSortFn: PageFilterTrapsHazards.sortFilterType.bind(PageFilterTrapsHazards),
 		});
 	}
 
@@ -46,6 +51,22 @@ class PageFilterTrapsHazards extends PageFilter {
 			values,
 			it.source,
 			it.trapHazType,
-		)
+		);
 	}
 }
+
+globalThis.PageFilterTrapsHazards = PageFilterTrapsHazards;
+
+class ListSyntaxTrapsHazards extends ListUiUtil.ListSyntax {
+	_getSearchCacheStats (entity) {
+		if (!entity.effect && !entity.trigger && !entity.countermeasures && !entity.entries) return "";
+		const ptrOut = {_: ""};
+		this._getSearchCache_handleEntryProp(entity, "effect", ptrOut);
+		this._getSearchCache_handleEntryProp(entity, "trigger", ptrOut);
+		this._getSearchCache_handleEntryProp(entity, "countermeasures", ptrOut);
+		this._getSearchCache_handleEntryProp(entity, "entries", ptrOut);
+		return ptrOut._;
+	}
+}
+
+globalThis.ListSyntaxTrapsHazards = ListSyntaxTrapsHazards;

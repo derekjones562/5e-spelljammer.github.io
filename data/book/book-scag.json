@@ -19,7 +19,14 @@
 						"path": "book/SCAG/Sword Coast Map.jpg"
 					},
 					"width": 5564,
-					"height": 3600
+					"height": 3600,
+					"grid": {
+						"type": "none",
+						"size": 200,
+						"distance": 100,
+						"units": "miles"
+					},
+					"imageType": "map"
 				}
 			],
 			"id": "000"
@@ -132,7 +139,11 @@
 										"path": "book/SCAG/Northern Faerun Map.jpg"
 									},
 									"width": 1227,
-									"height": 1000
+									"height": 1000,
+									"grid": {
+										"type": "none"
+									},
+									"imageType": "map"
 								},
 								{
 									"type": "inset",
@@ -482,32 +493,38 @@
 												{
 													"type": "item",
 													"name": "Amn",
-													"entry": "fander, taran, centaur, danter, roldon"
+													"entry": "fander, taran, centaur, danter, roldon",
+													"nameDot": false
 												},
 												{
 													"type": "item",
 													"name": "Cormyr",
-													"entry": "thumb, falcon, blue eye, golden lion, tricrown"
+													"entry": "thumb, falcon, blue eye, golden lion, tricrown",
+													"nameDot": false
 												},
 												{
 													"type": "item",
 													"name": "Sembia",
-													"entry": "steelpence (an iron coin), hawk, blue eye, noble"
+													"entry": "steelpence (an iron coin), hawk, blue eye, noble",
+													"nameDot": false
 												},
 												{
 													"type": "item",
 													"name": "Silverymoon",
-													"entry": "glint, shield, sword, dragon, unicorn"
+													"entry": "glint, shield, sword, dragon, unicorn",
+													"nameDot": false
 												},
 												{
 													"type": "item",
 													"name": "Waterdeep",
-													"entry": "nib, shard, sambar, dragon, sun"
+													"entry": "nib, shard, sambar, dragon, sun",
+													"nameDot": false
 												},
 												{
 													"type": "item",
 													"name": "Zhentil Keep",
-													"entry": "fang (\"dung-piece\"), talon/naal (\"flea-bit\"), tarenth (\"hardhammer\"), glory (\"weeping wolf\"), platinum glory (\"flat metal gem\")"
+													"entry": "fang (\"dung-piece\"), talon/naal (\"flea-bit\"), tarenth (\"hardhammer\"), glory (\"weeping wolf\"), platinum glory (\"flat metal gem\")",
+													"nameDot": false
 												}
 											]
 										},
@@ -2397,7 +2414,7 @@
 								"the loyal fury, the true, the hand of righteousness",
 								"Torm is the god of duty and loyalty, revered by those who face danger to bring about a greater good. Those who favor Torm believe that one's salvation can be found through service, that every failure to perform one's duty diminishes Torm, and that every success adds to his luster. Those who take Torm to heart must strive to fulfill his commandment to go out into the world and be an active force for good, to right wrongs, and to help the hopeless. They must strive to maintain peace and order while opposing unjust laws. Followers of Torm stand ever alert against corruption and are expected to strike quickly and hard against any evidence of rot in the hearts of mortals. As the sword arm of justice, Torm's faithful are expected to bring quick deaths to betrayers. Considering these tenets, it should be no surprise that most human paladins have Torm as their patron.",
 								"Most temples dedicated to Torm are fortresses built on heights. These structures offer austere quarters for residents and visiting knights, drilling grounds, and stables. White granite, lion statues, and armored figures predominate in the architecture, with the coats of arms of fallen heroes decorating the walls of the great halls.",
-								"Torm is seen as the good right hand of Tyr, and a such his symbol is a white gauntlet made for the right hand. It represents Tyr's sword hand, but it is also a symbol of forbearance. Torm is frequently depicted with his right gauntlet extended palm forward, which worshipers call the Hand Resolute. It signifies the principle that the just and true must pause before acting to judge whether their intentions uphold Torm's ideals. Temples, civic structures, and the homes of the faithful are often decorated with images of the Hand Resolute as a constant reminder of this principle.",
+								"Torm is seen as the good right hand of Tyr, and as such his symbol is a white gauntlet made for the right hand. It represents Tyr's sword hand, but it is also a symbol of forbearance. Torm is frequently depicted with his right gauntlet extended palm forward, which worshipers call the Hand Resolute. It signifies the principle that the just and true must pause before acting to judge whether their intentions uphold Torm's ideals. Temples, civic structures, and the homes of the faithful are often decorated with images of the Hand Resolute as a constant reminder of this principle.",
 								"Worshipers of Torm come from most walks of life, for he welcomes any who seek the best in themselves and others, who uphold his tenets of loyalty, responsibility, duty, and kindness, or who are willing to sacrifice to keep evil from gaining ascendancy in the world. The faithful know that all of them will stumble from time to time while following in Torm's footsteps, but Torm's priests teach that the shame of a minor fall from grace is far less severe than declining to rise oneself up to Torm's standards."
 							],
 							"id": "08a"
@@ -2535,7 +2552,14 @@
 										"path": "book/SCAG/Sword Coast Map - Baldur's Gate.jpg"
 									},
 									"width": 1391,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								{
 									"type": "image",
@@ -2544,7 +2568,141 @@
 										"path": "book/SCAG/Baldurs Gate Map.jpg"
 									},
 									"width": 1439,
-									"height": 1000
+									"height": 1000,
+									"imageType": "map",
+									"grid": {
+										"type": "none"
+									},
+									"mapRegions": [
+										{
+											"area": "095",
+											"points": [
+												[
+													83,
+													476
+												],
+												[
+													100,
+													492
+												],
+												[
+													127,
+													484
+												],
+												[
+													180,
+													369
+												],
+												[
+													238,
+													322
+												],
+												[
+													243,
+													292
+												],
+												[
+													215,
+													275
+												],
+												[
+													152,
+													325
+												]
+											]
+										},
+										{
+											"area": "096",
+											"points": [
+												[
+													434,
+													267
+												],
+												[
+													427,
+													291
+												],
+												[
+													523,
+													378
+												],
+												[
+													558,
+													445
+												],
+												[
+													588,
+													462
+												],
+												[
+													608,
+													439
+												],
+												[
+													579,
+													367
+												],
+												[
+													557,
+													339
+												],
+												[
+													462,
+													258
+												]
+											]
+										},
+										{
+											"area": "097",
+											"points": [
+												[
+													1069,
+													178
+												],
+												[
+													1062,
+													205
+												],
+												[
+													1146,
+													300
+												],
+												[
+													1228,
+													366
+												],
+												[
+													1304,
+													416
+												],
+												[
+													1330,
+													415
+												],
+												[
+													1334,
+													385
+												],
+												[
+													1248,
+													321
+												],
+												[
+													1187,
+													267
+												],
+												[
+													1106,
+													177
+												]
+											]
+										}
+									],
+									"hrefThumbnail": {
+										"type": "internal",
+										"path": "book/SCAG/thumbnail/Baldurs Gate Map.webp"
+									},
+									"id": "1e1"
 								},
 								"In both the Upper and Lower Cities, the underworld is controlled by a shadowy group known merely as the Guild. The dukes don't acknowledge the power of this group in any meaningful way\u2014at least not publicly\u2014but try (at least nominally) to curb its influence where and how they can. I lost count of how many gangs claim territory in the Lower and Outer City, and all of them seem to owe allegiance to the Guild. Efforts to destroy the Guild have thus far failed, due in part to the inability of outsiders to identify a clear leader of the group, but in no small measure to the shameful lack of effort on the part of the rulers of the city to protect its people.",
 								{
@@ -2636,7 +2794,14 @@
 										"path": "book/SCAG/Sword Coast Map - Mirabar.jpg"
 									},
 									"width": 1660,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								"Long ago, the great dwarven kingdom of Gharraghaur stood to the west of Delzoun, delving mines near the River Mirar and finding great, near-endless veins of gems. Like many of the dwarven realms, Gharraghaur fell to marauding orcs, which destroyed the kingdom and its capital city but couldn't take advantage of the wealth therein. For millennia the lower city lay empty, until some eight hundred years ago, when Prince Ereskas of Amn settled the same spot, creating the city of Mirabar (coincidentally echoing the dwarven \"-bar\" naming convention used for citadels throughout the North). It was only when dwarves returned to work the mines below that Mirabar began to see its fortunes increase.",
 								"Mirabar is ruled by its hereditary marchion, Selin Raurym, who issues edicts fed to him by the Council of Sparkling Stones. The council is a group of dwarves and some few humans elected to make policy for the city, who determine where the output of Mirabar's mines will be sold. Although the council has long kept Mirabar associated with the Lords' Alliance, it is the marchion who negotiates with his fellow lords. Thus far, Selin Raurym has proved far more capable than his predecessors at making beneficial decisions for the city, and the council has given him great leeway to speak for Mirabar outside the walls. His threat to pull out of the Alliance following its failure to aid the northern cities against the most recent orc hordes, though considered by some an empty gesture, has brought Mirabar more advantageous relationships with Waterdeep and Baldur's Gate, something which has not gone unappreciated by the council.",
@@ -2670,7 +2835,14 @@
 										"path": "book/SCAG/Sword Coast Map - Neverwinter.jpg"
 									},
 									"width": 1321,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								{
 									"type": "image",
@@ -2679,7 +2851,11 @@
 										"path": "book/SCAG/Neverwinter Map.jpg"
 									},
 									"width": 1227,
-									"height": 1000
+									"height": 1000,
+									"grid": {
+										"type": "none"
+									},
+									"imageType": "map"
 								},
 								"Nearly half a century ago, Mount Hotenow (the nearby volcano that perpetually heats the river flowing through the city) violently erupted, destroying much of Neverwinter, killing thousands, and leaving in its wake a great, gaping chasm that split the city. Neverwinter was in ruins, and external influences\u2014from Netheril to Thay to Lord Dagult Neverember of Waterdeep to the agents of the Hells themselves\u2014sought to exert control over the city. Many folk fought to stem all these dangers, and eventually, a measure of peace fell over Neverwinter.",
 								"Since Dagult Neverember was deposed as the Open Lord of Waterdeep, he has thrown his full attention and effort into the rebuilding of the city from which he claims descent. Whatever people's opinions are of his claim to Neverwinter's throne, he has proven a capable, inspiring leader over these last few years, and the population has embraced him as Lord Protector. He engineered the sealing of the Chasm and the restoration of the High Road, and is seeking other ways to repair and improve the city. Even if he can never prove his descent from Lord Nasher Alagondar, the people of Neverwinter have accepted his leadership. (My rumored personal dislike of Lord Neverember has nothing to do with my assessment of his leadership; I merely find him an intolerable flirt.)",
@@ -2708,7 +2884,14 @@
 										"path": "book/SCAG/Sword Coast Map - Silverymoon.jpg"
 									},
 									"width": 1204,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								"The Gem of the North is a stunning place of sweeping curves, soaring towers, and structures built into the living trees. To many elves, the city is a reminder of the ancient elven cities of old; some call it the Myth Drannor of the North, even nowadays after the restoration and subsequent fall of that fabled city. Even where stone is employed in construction, ivy and other living plants grow through, over, or around most structural elements, giving most of the city a green cast.",
 								"Despite its arboreal architecture, Silverymoon is very much civilized, boasting schools of music and magic, a great library, bardic instruction, and temples or shrines to Mielikki, Oghma, Silvanus, Sune, Tymora, and Mystra. Knowledge, both the acquisition of it and the wisdom that comes from diligent study, is the real treasure of Silverymoon, as much as magic or wealth could ever be.",
@@ -2738,7 +2921,11 @@
 										"path": "book/SCAG/Waterdeep Map.jpg"
 									},
 									"width": 815,
-									"height": 1000
+									"height": 1000,
+									"grid": {
+										"type": "none"
+									},
+									"imageType": "map"
 								},
 								"Though it has stood for hundreds of years, Waterdeep is only now returning to its status of a century and a half ago. The recent disruptions began when the gods walked the Realms and slew each other before the eyes of mortals, until they walked back to their divine domains through the very streets of Waterdeep itself. Decades later, more deities began dying off, magic failed, and all manner of catastrophes started altering the very nature of the city. Lord Neverember wasted the city's navy and then, instead of rebuilding it, hired sailors out of Mintarn (and profited from the endeavor).",
 								"Now, the City of Splendors is on the mend. The harbor has been cleared of the broken ships that made up the former district of Mistshore, and Waterdeep again has its own navy. The city's Guard (its army), Watch (police force), Navy, and it famous Griffon Cavalry are all being reformed, but all of that might be a matter of years in the settling. A plague chased most residents out of the Warrens and Downshadow, and living or digging below the city's surface has been deemed illegal except by those authorized by the lords to do so. Somehow, even the air seems fresher. In the words of one wise moon elf matron (whose status as my aunt has positively no bearing on her wisdom), \"Waterdeep is back to where it was when I was a lass.\"",
@@ -2852,7 +3039,14 @@
 										"path": "book/SCAG/Sword Coast Map - Yartar.jpg"
 									},
 									"width": 1145,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								"Each summer, except in years when Shieldmeet occurs, a vast Hiring Fair is held in Yartar, during which all sorts of undesirable folk gather north of the town looking for work as guards, miners, farmhands, guides, or other unskilled laborers. For the most part, those who attend this fair are brutes, bandits, freeholders whose lands can no longer sustain them, or Uthgardt who wish to be among \"civilized\" folk for a short time\u2014but occasionally, a strong hand or a skilled warrior can be culled from the bunch. While this event is going on, Yartar is overrun with visitors it would rather not welcome, who steal goods, sell wares in the street (sometimes those they have just stolen), meet unscrupulous contacts to hand off coin, information, or purloined items, and engage in the occasional spell duel. It's quite common for a new adventuring company to come into being at one of these fairs, when those who stand out from the crowd because they have legitimate skills to sell gravitate toward one another and decide to form a group.",
 								"In those years when Shieldmeet falls, the town is instead treated to a great festival on that day, sponsored mainly by the local temple to Tymora, the Happy Hall of Fortuitous Happenstance. The Shieldmeet festival features a number of games of chance, skill, and bravery, from dice and darts, to drunken running, to wrestling and other physical contests. Occasionally, the Tymoran priests use this festival to identify adventurers whom the goddess has called to a particular task, selected for a blessing, or otherwise marked for some undetermined destiny.",
@@ -3208,7 +3402,14 @@
 										"path": "book/SCAG/Sword Coast Map - Moonshaes.jpg"
 									},
 									"width": 563,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								"On the southern isles live the Ffolk, humans ruled by their High King, Derid Kendrick, from the fortress of Caer Callidyr on Alaron. The Ffolk worship a goddess they call the Earthmother; her druids gather in sacred groves on the islands. Some of these groves hold moonwells, magical pools that the druids say the goddess uses as her windows onto the world.",
 								"The northern isles are the territory of the Northlanders, who spread south from Ruathym to settle here, and have fought occasional wars with the Ffolk in the centuries that the two groups have uneasily shared the islands.",
@@ -3312,7 +3513,7 @@
 									"page": 69,
 									"entries": [
 										"The fisherfolk and merchants of Gundarlun are more like their mainland cousins than most island folk. Unlike other Northlanders, they are less apt to start a fight with folk they don't recognize. Because of their more peaceful bent, you're more likely to be able to safely get fresh water and supplies in Gundarlun, though you should be prepared to trade generously during your stop.",
-										"More than a dozen settlements pay homage to the king in Gundbarg. They profit from the island's reputation as a safe stopover. Though Gundarlun might not provide the best seaworthy warriors, nevertheless ship s that are looking to make repairs, take on sailors or sail-menders, or store large cargoes are likely to find their needs met here."
+										"More than a dozen settlements pay homage to the king in Gundbarg. They profit from the island's reputation as a safe stopover. Though Gundarlun might not provide the best seaworthy warriors, nevertheless ships that are looking to make repairs, take on sailors or sail-menders, or store large cargoes are likely to find their needs met here."
 									],
 									"id": "0cd"
 								},
@@ -3403,7 +3604,14 @@
 												"path": "book/SCAG/Sword Coast Map - Nelanther.jpg"
 											},
 											"width": 1041,
-											"height": 800
+											"height": 800,
+											"grid": {
+												"type": "none",
+												"size": 200,
+												"distance": 100,
+												"units": "miles"
+											},
+											"imageType": "map"
 										},
 										"No one's ever bothered to count or name all the tribes of these islands, and I doubt anyone's going to start now. For one thing, it's a fool's errand: tribes split up or are destroyed at such a rapid pace that by the time you finished counting, you'd have to start over anyway. For another, it's dirty, dangerous work, and dealing with pirates is a task best left to swift ships, well-armed navies, and the kinds of fools that would want to count them in the first place.",
 										"If you do find out the name of a tribe in the Nelanther, be careful about mentioning it to another Nelanther ship unless you can confirm that the ship belongs to a friendly tribe. Even so, be advised that alliances are short as summer storms in these isles, and it's not likely you'll be around long enough to witness a new one being forged. Proclaiming your allegiance to a certain tribe might anger the one you're talking to.",
@@ -3653,7 +3861,14 @@
 										"path": "book/SCAG/Sword Coast Map - Darkhold.jpg"
 									},
 									"width": 1042,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								"Zhentil Keep was burning. The Citadel of the Ravens lay in ruins. The leadership of the Zhentarim died, were captured by the Shadovar of returned Netheril, or were in flight. The vaunted Black Network was shredded. Cells of Zhentarim agents were cut loose, and without connections or direction, they dissolved or were crushed by rivals. The Zhentarim was no more.",
 								"Or so it seemed. There was one stronghold of the Zhents that had not fallen and whose leader never wavered in his dedication to the organization. Darkhold stands deep in the mountains of the Western Heartlands, and there the remnants of the Zhentarim quietly gathered. There they swore allegiance anew to the leader who promised to reforge the organization into something stronger than before.",
@@ -3713,7 +3928,7 @@
 								"Ah Elturgard! If any place in the world exemplifies humanity's potential for greatness, it is this nascent nation. Who could forget the shining sight of a host of its Companions, paladins all, riding out on the field, banners taught and snapping, breastplates and shields agleam with the symbol of Elturgard, and each bearing a holy symbol of his or her god\u2014armor for the soul. We have no shortage of the good and the just among my people, but the sheer zeal and genuine bravado the Companions have in pursuit of righteousness seems to me something uniquely human. And it's not just those few touched by the gods who seek these high ideals; Elturgard's armed forces swell with men and women who aspire to join the Companions. They are the Hellriders, so named because long ago warriors of Elturel literally rode through a gate into the Nine Hells to pursue and destroy devils that had been plaguing their people. With these bright examples to look up to, is it any wonder that the common people of Elturgard also tend to be devout in their pursuit of justice and worship of the gods?",
 								"Oh how bright Elturgard's light burns! If only it could last. Humans are, after all, short-lived creatures, and fickle in their faith and attentions. Elturgard is the product of just a generation or two of humans, and it seems implausible that it will last many more. Sadly, I think I shall witness Elturgard diminish. But it was a miracle that brought about the nation of Elturgard, and perhaps that divine provenance will preserve it.",
 								"It began, as all the great stories do, in darkness. Half a century ago, the city of Elturel was a petty power. It had claimed its neighbors' territory under various excuses, putting them under \"Elturel's Guard.\" Then, the city's leader, its High Rider, was revealed to be a vampire. The extent of the vampire's network of charmed servants, undead allies, and willing sycophants took the Hellriders by surprise. An undead plague swamped Elturel, and although its Hellriders made some gains by day, in darkness the vampire and its minions inflicted cruel losses. Each night the good people of Elturel prayed to the gods that dawn might come more swiftly.",
-								"Then, on a particularly disastrous night when all seemed lost, dawn did come. A warm golden light suffused the city and surrounding lands, cast down from a golden orb that hung unwavering in the sky, so bright that it seemed a new day had dawned. Caught outside when this miracle appeared, the High Rider and his{@creature vampire spawn} burned away to dust, and the other undead quailed in its illumination. In short order, Elturel was free.",
+								"Then, on a particularly disastrous night when all seemed lost, dawn did come. A warm golden light suffused the city and surrounding lands, cast down from a golden orb that hung unwavering in the sky, so bright that it seemed a new day had dawned. Caught outside when this miracle appeared, the High Rider and his {@creature vampire spawn} burned away to dust, and the other undead quailed in its illumination. In short order, Elturel was free.",
 								"When the true dawn came, the new sun remained. And it stayed in the sky through the next night, and the night after, and each night from then until now. While some called it Amaunator's Gift, none could say what god granted them this boon. Most saw it as a companion to the sun and to themselves, and so it is known as the Companion. This holy wonder brought pilgrims of all kinds to Elturel. The devout, the curious, the afflicted\u2014all came to bathe in its warmth and see its blessed light by night. Paladins had always been small in number among the Hellriders, but the Companion drew many to Elturgard, and the best among them was named High Observer to rule in the High Rider's place.",
 								"To maintain order among the many faiths of the paladins, a special knighthood was created, named after the Companion sun. These paladins swore to uphold the Creed Resolute, an oath of service to Elturgard and all good people. And thus Elturgard now has both the Companions and the Hellriders.",
 								"The post of High Observer is no longer occupied by a paladin, but by a priest of Torm named Thavus Kreeg, and this to me seems fitting. Paladins should be out in the world, using their divine gifts for the good of all, not signing documents behind some desk or dithering with dignitaries. High Observer Kreeg has ruled wisely and well these past forty years or so, but as a shortlived human, he is nearing the end of his years. When he passes or can no longer cope with the demands of his office, I hope that Elturgard can make a smooth transition to equally strong leadership. It is during such change and the struggles for power that result that humans often stray from the righteous path. Perhaps the light of the Companion will show them the way.",
@@ -3820,7 +4035,14 @@
 										"path": "book/SCAG/Sword Coast Map - Evereska.jpg"
 									},
 									"width": 1047,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								{
 									"type": "entries",
@@ -3900,7 +4122,14 @@
 										"path": "book/SCAG/Sword Coast Map - Hartsvale.jpg"
 									},
 									"width": 1010,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								"Hartsvale is far in the windswept north, a fertile mountain valley where the Ice Spire Mountains abut the High Ice. The Clear Whirl River, easily the cleanest and coldest I have ever bathed in, flows south into the valley out of the lands of the Endless Blizzard, feeding the rich soil tucked between the northern and southern arms of the Ice Spires. The river splits as it runs through the hilly lands, eventually draining into a series of lakes along the southern edge of the vale. Two small woods also grow in the vale, one along its northern edge, between the vale proper and the northern Ice Spires, and another fed by the lakes on its southern edge.",
 								"Originally the home of giant clans and ragtag barbarian tribespeople related to the Uthgardt, Hartsvale was conquered by the hero Hartkiller. He was a giant who had ventured into the lands to the south and learned of their ways. When he came to Hartsvale, he rallied the human tribes, uniting them into a fighting force capable of defeating the giants who tyrannized them, and they threw the giants down, claiming the vale between the mountains for their descendants.",
@@ -4000,7 +4229,14 @@
 										"path": "book/SCAG/Sword Coast Map - High Moor.jpg"
 									},
 									"width": 852,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								"As the name suggests, the High Moor is a raised area extending for many miles of heath, lichen-covered outcroppings, and hidden gullies. Herd animals wander the land, from sheep to rock ponies to the occasional rothé. These beasts graze without great risk, because wolves and other predators that would thin the herds are themselves the prey of the trolls and goblinoids that otherwise rule the moor. These two-legged threats sometimes seed the High Moor with traps, but are normally occupied with fighting and killing their prey and each other. There is something of a cycle to the hunts of the High Moor: wolves are killed off by the hobgoblins one year, leading to more sheep grazing, which brings the trolls out (the local trolls enjoy mutton, it seems), which brings intrepid adventurers to deal with the growing menace, enabling just enough of the wolves to survive that they aren't wiped out completely.",
 								"Human barbarians also inhabit the High Moor, living mostly on its western fringes with large herds of sheep and goats, the soil being too thin and too poor for farming. They aren't Uthgardt or related to them, but they might have some distant ties to the Northlanders, as they seem to be of Illuskan stock. They speak a dialect of Illuskan I'd not heard before, and my first meetings with them were quite tense and filled with misapprehension. However, I came to know people from both the Girondi and Belcondi tribes, all of whom acted with bravery, honor, and good humor in my presence. Travelers in this region should note that the human tribes share the suspicion of magic common among many Northlanders, but thankfully it isn't the fanatic hatred shown by the Uthgardt.",
@@ -4118,7 +4354,14 @@
 										"path": "book/SCAG/Sword Coast Map - Trielta Hills.jpg"
 									},
 									"width": 1355,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								"That, of course, is just the way its residents like it. They enjoy their solitude, which is broken only rarely. The hills of Trielta do occasionally offer up some impressive bounty, in the form of heretofore-undiscovered gold and silver. While such finds are usually small lodes that are played out almost before others become aware of them, Trielta has played host to full-on gold rushes from time to time. Someone stumbles on a particularly large vein of ore, and prospectors and fortune-seekers come pouring in by the dozens. Trieltan folk tend to see these occasional influxes of gold-hungry seekers the way other settlements look upon periodic plagues of locusts: aggravating, inevitable, and thoroughly disruptive, but also part of the natural order, and so nothing to get bothered about.",
 								"Indeed, even the largest of these discoveries isn't so lucrative as to be worth the construction of the full-scale mining operations that can be found in other lands. No large nations or trading consortiums are waiting in the wings to invade and take over the mines of Trielta. They are what a dwarf acquaintance of mine once referred to as \"scratch mines\"\u2014close-to-the-surface operations, with decent yield for a small amount of digging, but not worth the construction of \"proper\" (by which he of course meant dwarven) mines.",
@@ -4327,7 +4570,14 @@
 										"path": "book/SCAG/Sword Coast Map - Luskan.jpg"
 									},
 									"width": 1186,
-									"height": 800
+									"height": 800,
+									"grid": {
+										"type": "none",
+										"size": 200,
+										"distance": 100,
+										"units": "miles"
+									},
+									"imageType": "map"
 								},
 								{
 									"type": "image",
@@ -4336,7 +4586,146 @@
 										"path": "book/SCAG/Luskan Map.jpg"
 									},
 									"width": 1227,
-									"height": 1000
+									"height": 1000,
+									"grid": {
+										"type": "none"
+									},
+									"imageType": "map",
+									"mapRegions": [
+										{
+											"area": "122",
+											"points": [
+												[
+													143,
+													806
+												],
+												[
+													257,
+													847
+												],
+												[
+													356,
+													880
+												],
+												[
+													501,
+													902
+												],
+												[
+													539,
+													816
+												],
+												[
+													603,
+													743
+												],
+												[
+													623,
+													635
+												],
+												[
+													627,
+													513
+												],
+												[
+													671,
+													416
+												],
+												[
+													677,
+													346
+												],
+												[
+													567,
+													346
+												],
+												[
+													481,
+													468
+												],
+												[
+													370,
+													595
+												],
+												[
+													207,
+													706
+												],
+												[
+													128,
+													747
+												]
+											]
+										},
+										{
+											"area": "123",
+											"points": [
+												[
+													933,
+													117
+												],
+												[
+													975,
+													237
+												],
+												[
+													1027,
+													216
+												],
+												[
+													976,
+													91
+												]
+											]
+										},
+										{
+											"area": "123",
+											"points": [
+												[
+													714,
+													195
+												],
+												[
+													792,
+													321
+												],
+												[
+													844,
+													294
+												],
+												[
+													762,
+													176
+												]
+											]
+										},
+										{
+											"area": "123",
+											"points": [
+												[
+													478,
+													299
+												],
+												[
+													520,
+													407
+												],
+												[
+													559,
+													353
+												],
+												[
+													527,
+													270
+												]
+											]
+										}
+									],
+									"hrefThumbnail": {
+										"type": "internal",
+										"path": "book/SCAG/thumbnail/Luskan Map.webp"
+									},
+									"id": "1e2"
 								},
 								"Luskan, the City of Sails, spans the icy River Mirar, which tumbles from the Spine of the World, races past Mirabar, and then plunges toward the sea. The swift river has cut deep here, and Luskan rests atop two escarpments on either side, with sheer, forty-foot bluffs of gray stone rising above the water. Around the city's perimeter, thick stone walls with squat towers provide defense. The southern gate, called the Twin Teeth, boasts the most impressive towers, standing twice as tall as the city walls, and bedecked with crenellations and arrow slits enough for numerous defenders, in a show of strength toward the southern approach.",
 								{
@@ -5224,97 +5613,97 @@
 													"items": [
 														{
 															"type": "item",
-															"name": "Arkaiun",
+															"name": "Arkaiun:",
 															"entry": "Dambrathan (written in Espruar)"
 														},
 														{
 															"type": "item",
-															"name": "Bedine",
+															"name": "Bedine:",
 															"entry": "Midani"
 														},
 														{
 															"type": "item",
-															"name": "Calishite",
+															"name": "Calishite:",
 															"entry": "Alzhedo"
 														},
 														{
 															"type": "item",
-															"name": "Chondathan",
+															"name": "Chondathan:",
 															"entry": "Chondathan"
 														},
 														{
 															"type": "item",
-															"name": "Damaran",
+															"name": "Damaran:",
 															"entry": "Damaran (written in Dethek)"
 														},
 														{
 															"type": "item",
-															"name": "Ffolk",
+															"name": "Ffolk:",
 															"entry": "Waelan"
 														},
 														{
 															"type": "item",
-															"name": "Gur",
+															"name": "Gur:",
 															"entry": "Guran (a patois of Roushoum and Rashemi)"
 														},
 														{
 															"type": "item",
-															"name": "Halruaan",
+															"name": "Halruaan:",
 															"entry": "Halruaan (written in Draconic)"
 														},
 														{
 															"type": "item",
-															"name": "Illuskan",
+															"name": "Illuskan:",
 															"entry": "Illuskan"
 														},
 														{
 															"type": "item",
-															"name": "Imaskari",
+															"name": "Imaskari:",
 															"entry": "Roushoum"
 														},
 														{
 															"type": "item",
-															"name": "Mulan",
+															"name": "Mulan:",
 															"entry": "Chessentan, Mulhorandi, Untheric, or Thayan"
 														},
 														{
 															"type": "item",
-															"name": "Nar",
+															"name": "Nar:",
 															"entry": "Damaran"
 														},
 														{
 															"type": "item",
-															"name": "Rashemi",
+															"name": "Rashemi:",
 															"entry": "Rashemi"
 														},
 														{
 															"type": "item",
-															"name": "Shaaran",
+															"name": "Shaaran:",
 															"entry": "Shaaran (written in Dethek)"
 														},
 														{
 															"type": "item",
-															"name": "Shou",
+															"name": "Shou:",
 															"entry": "Shou"
 														},
 														{
 															"type": "item",
-															"name": "Tethyrian",
+															"name": "Tethyrian:",
 															"entry": "Chondathan"
 														},
 														{
 															"type": "item",
-															"name": "Tuigan",
+															"name": "Tuigan:",
 															"entry": "Tuigan"
 														},
 														{
 															"type": "item",
-															"name": "Turami",
+															"name": "Turami:",
 															"entry": "Turmic"
 														},
 														{
 															"type": "item",
-															"name": "Ulutiun",
+															"name": "Ulutiun:",
 															"entry": "Uluik"
 														}
 													]
@@ -5563,7 +5952,7 @@
 									"type": "inset",
 									"name": "Half-Elf Variants",
 									"entries": [
-										"Some half-elves in Faerûn have a racial trait in place of the Skill Versatility trait. If your DM allows it, your half-elf character can forgo Skill Versatility and instead take the elf trait Keen Senses or a trait based on your elf parentage:",
+										"Some half-elves in Faerûn have a racial trait in place of the Skill Versatility trait. If your DM allows it, your half-elf character can forgo Skill Versatility and instead take a trait based on your elf parentage:",
 										{
 											"type": "list",
 											"items": [
@@ -5788,6 +6177,67 @@
 							"items": [
 								"{@class barbarian|phb|Path of the Battlerager|Battlerager|scag}"
 							]
+						},
+						{
+							"type": "inset",
+							"name": "Uthgardt Totems",
+							"entries": [
+								"The totems of the Uthgardt barbarians of the North (described in chapter 5) correspond to the spirits of the Path of the Totem Warrior as shown in the following table.",
+								{
+									"type": "table",
+									"colLabels": [
+										"Totem",
+										"Spirit"
+									],
+									"colStyles": [
+										"col-2 text-center",
+										"col-10"
+									],
+									"rows": [
+										[
+											"Black Lion",
+											"Tiger"
+										],
+										[
+											"Black Raven",
+											"Eagle"
+										],
+										[
+											"Blue Bear",
+											"Bear"
+										],
+										[
+											"Gray Wolf",
+											"Wolf"
+										],
+										[
+											"Great Worm",
+											"Wolf"
+										],
+										[
+											"Griffon",
+											"Eagle"
+										],
+										[
+											"Red Tiger",
+											"Tiger"
+										],
+										[
+											"Sky Pony",
+											"Eagle, with the Elk Aspect of the Beast"
+										],
+										[
+											"Thunderbeast",
+											"Bear, with the Tiger Totemic Attunement"
+										],
+										[
+											"Tree Ghost",
+											"Bear, with {@spell speak with plants} in place of the normal rituals for the Spirit Seeker feature"
+										]
+									]
+								}
+							],
+							"id": "1e0"
 						}
 					],
 					"id": "19b"
@@ -5873,62 +6323,62 @@
 							"items": [
 								{
 									"type": "item",
-									"name": "Birdpipes",
+									"name": "Birdpipes:",
 									"entry": "Pan pipes or satyr pipes, also known as the shalm, these are sacred to Lliira and popular with wood elf and wild elf bards."
 								},
 								{
 									"type": "item",
-									"name": "Glaur",
+									"name": "Glaur:",
 									"entry": "Short, curved horns like a cornucopia. Played with valves, glaur sound like trumpets, while those without valves, known as gloon, have a more mournful sound."
 								},
 								{
 									"type": "item",
-									"name": "Hand Drum",
+									"name": "Hand Drum:",
 									"entry": "A double-headed skin drum fitted with handles along its side."
 								},
 								{
 									"type": "item",
-									"name": "Longhorn",
+									"name": "Longhorn:",
 									"entry": "A Faerûnian flute of sophisticated make, found only in areas with skilled artisans, as in great cities or elven enclaves."
 								},
 								{
 									"type": "item",
-									"name": "Shawm",
+									"name": "Shawm:",
 									"entry": "A double-reed instrument similar to an oboe or a bassoon, popular with gnomes, who have developed some bellows-powered versions."
 								},
 								{
 									"type": "item",
-									"name": "Songhorn",
+									"name": "Songhorn:",
 									"entry": "A recorder, a simple type of flute, usually carved from wood."
 								},
 								{
 									"type": "item",
-									"name": "Tantan",
+									"name": "Tantan:",
 									"entry": "A tambourine, a popular instrument with halflings and humans south of the Dalelands."
 								},
 								{
 									"type": "item",
-									"name": "Thelarr",
+									"name": "Thelarr:",
 									"entry": "Also known as a whistlecane, a simple and easy-to-make wind instrument cut from a reed. They are so simple, in fact, that skilled bards frequently make and give them away to children\u2014to the parents' delight or regret."
 								},
 								{
 									"type": "item",
-									"name": "Tocken",
+									"name": "Tocken:",
 									"entry": "A hanging set of carved oval bells, usually played with a pair of light wooden hammers (or open handed). They are most common in underground cultures, where the resonant tones can carry."
 								},
 								{
 									"type": "item",
-									"name": "Wargong",
+									"name": "Wargong:",
 									"entry": "A metal gong, traditionally made from a shield, particularly the shield of an enemy. Both goblins and dwarves make and play wargongs, their sound echoing through tunnels in the Underdark."
 								},
 								{
 									"type": "item",
-									"name": "Yarting",
+									"name": "Yarting:",
 									"entry": "A southern instrument from Amn and Calimshan that is a Faerûnian analog to the guitar. Numerous variations have spread across the continent."
 								},
 								{
 									"type": "item",
-									"name": "Zulkoon",
+									"name": "Zulkoon:",
 									"entry": "A complex pump organ that originated with the zulkirs of Thay, who use it in the casting of their spells. It is considered to have a dramatic, but sinister, sound."
 								}
 							]
@@ -6044,7 +6494,7 @@
 						{
 							"type": "quote",
 							"entries": [
-								"\"Slow to learn, aren't they?\" a white-haired old knight who'd lost his helm in the last fray drawled. \"This is getting to be like a proper romp in the dragonjaws, it is! I'll have to get my minstrel to write a ballad about this...\" \"I hope he sings swiftly, \" a purple dragon armsman growled. \"Here they are!\" The howling spilled over the bodies in another rushing tide of flapping leather, slashing swords, and beady goblin eyes. Men planted themselves\u2014no running and leaping now\u2014to hew steadily, like harvesters with scythes and many fields in front of them, in a rhythm of death."
+								"\"Slow to learn, aren't they?\" a white-haired old knight who'd lost his helm in the last fray drawled. \"This is getting to be like a proper romp in the dragonjaws, it is! I'll have to get my minstrel to write a ballad about this...\" \"I hope he sings swiftly, \"a purple dragon armsman growled. \"Here they are!\" The howling spilled over the bodies in another rushing tide of flapping leather, slashing swords, and beady goblin eyes. Men planted themselves\u2014no running and leaping now\u2014to hew steadily, like harvesters with scythes and many fields in front of them, in a rhythm of death."
 							],
 							"by": "Troy Denning, Death of the Dragon"
 						},
@@ -6514,7 +6964,7 @@
 							"name": "The Fiend",
 							"page": 138,
 							"entries": [
-								"Numerous fiends forge pacts with mortal warlocks in the Realms\u2014so many that warlocks are almost synonymous with infernal power in Faerûn. These fiends include the Archdevils of the Nine Hells and their most powerful dukes, the Demon Lords of the Abyss, and the ultroloths who rule over yugoloth armies. Such deals need not be struck directly with the power in question, however. Often a weaker fiend serves as an intermediary, and the warlock might not know whom he or she serves. Notable fiendish patrons peculiar to the Forgotten Realms include the following: {@b Baazka} is the pit fiend behind the most recent incursion of infernal forces from Dragonspear Castle. Its plans for the Sword Coast were thwarted along with those of allied Red Wizards, but its ambitions in the region remain. {@b Belaphoss} is a demon that serves Demogorgon. It considers itself the greatest servitor of the Prince of Demons and thus a rival for Demogorgon's power. {@b Eltab} was once bound beneath the city of Eltabbar in Thay, caged even by the layout of the city's streets and canals, which formed a glyph of imprisonment. The demon is now loose in the world, seeking revenge. {@b Errtu} the balor has plagued Drizzt Do'Urden for more than a century, largely over possession of an artifact called the Crenshinibon. Having lost the last battle and been banished from the world, the balor now seeks indirect means of revenge. {@b Gargauth} is a mysterious infernal power who seeks godhood while trapped in the world within a magical shield. {@b Lorcan} is a cambion who collects warlocks like one might collect butterflies. His favorite collection, the Troil Thirteen, includes warlocks of blood descent from the thirteen who first made a pact with Asmodeus. {@b Malkizid} is a solar who fell from grace when he betrayed the Seldarine. Ever since then, Malkizid has delighted in every wrong he can do to elves, but he gains the greatest pleasure when he manipulates the elves into harming each other. {@b Wendonai} is the balor lord who first tempted the dark elves to summon demons in the ancient wars between the elf peoples. It also turned them to the worship of Lolth and continued to advise and tutor them for long after the Descent."
+								"Numerous fiends forge pacts with mortal warlocks in the Realms\u2014so many that warlocks are almost synonymous with infernal power in Faerûn. These fiends include the Archdevils of the Nine Hells and their most powerful dukes, the Demon Lords of the Abyss, and the ultroloths who rule over yugoloth armies. Such deals need not be struck directly with the power in question, however. Often a weaker fiend serves as an intermediary, and the warlock might not know whom he or she serves. Notable fiendish patrons peculiar to the Forgotten Realms include the following: {@b Baazka} is the pit fiend behind the most recent incursion of infernal forces from Dragonspear Castle. Its plans for the Sword Coast were thwarted along with those of allied Red Wizards, but its ambitions in the region remain. {@b Belaphoss} is a demon that serves Demogorgon. It considers itself the greatest servitor of the Prince of Demons and thus a rival for Demogorgon's power. {@b Eltab} was once bound beneath the city of Eltabbar in Thay, caged even by the layout of the city's streets and canals, which formed a glyph of imprisonment. The demon is now loose in the world, seeking revenge. {@b Errtu} the balor has plagued Drizzt Do'Urden for more than a century, largely over possession of an artifact called the Crenshinibon. Having lost the last battle and been banished from the world, the balor now seeks indirect means of revenge. {@b Gargauth} is a mysterious infernal power who seeks godhood while trapped in the world within a magical shield. {@b Lorcan} is a {@creature cambion} who collects warlocks like one might collect butterflies. His favorite collection, the Troil Thirteen, includes warlocks of blood descent from the thirteen who first made a pact with Asmodeus. {@b Malkizid} is a solar who fell from grace when he betrayed the Seldarine. Ever since then, Malkizid has delighted in every wrong he can do to elves, but he gains the greatest pleasure when he manipulates the elves into harming each other. {@b Wendonai} is the balor lord who first tempted the dark elves to summon demons in the ancient wars between the elf peoples. It also turned them to the worship of Lolth and continued to advise and tutor them for long after the Descent."
 							],
 							"id": "1d1"
 						},

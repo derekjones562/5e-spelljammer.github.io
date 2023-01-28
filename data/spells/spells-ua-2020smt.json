@@ -54,19 +54,7 @@
 			],
 			"areaTags": [
 				"L"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Otherworldly Form",
@@ -118,32 +106,22 @@
 					]
 				}
 			],
+			"damageImmune": [
+				"fire",
+				"poison",
+				"radiant",
+				"necrotic"
+			],
+			"conditionImmune": [
+				"poisoned",
+				"charmed"
+			],
 			"miscTags": [
 				"MAC"
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Spirit Shroud",
@@ -154,7 +132,7 @@
 			"time": [
 				{
 					"number": 1,
-					"unit": "bonus action"
+					"unit": "bonus"
 				}
 			],
 			"range": {
@@ -191,30 +169,14 @@
 					]
 				}
 			],
-			"miscTags": [
-				"HL",
-				"SGT"
+			"damageInflict": [
+				"radiant",
+				"necrotic",
+				"cold"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					},
-					{
-						"name": "Paladin",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			"miscTags": [
+				"SGT"
+			]
 		},
 		{
 			"name": "Summon Aberrant Spirit",
@@ -269,23 +231,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Summon Bestial Spirit",
@@ -340,19 +286,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Summon Celestial Spirit",
@@ -407,19 +341,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					},
-					{
-						"name": "Paladin",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Summon Elemental Spirit",
@@ -474,23 +396,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Summon Fey Spirit",
@@ -545,31 +451,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Summon Fiendish Spirit",
@@ -624,19 +506,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Summon Shadow Spirit",
@@ -691,23 +561,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Summon Undead Spirit",
@@ -762,19 +616,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		}
 	]
 }

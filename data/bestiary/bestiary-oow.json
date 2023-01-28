@@ -27,11 +27,14 @@
 				"paralyzed",
 				"petrified",
 				"poisoned"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Dagdra Deepforge",
 			"isNpc": true,
+			"isNamedCreature": true,
 			"source": "OoW",
 			"page": 145,
 			"_copy": {
@@ -67,11 +70,11 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"languageTags": [
 				"D",
 				"X"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -79,6 +82,7 @@
 			"name": "Devil Dog",
 			"shortName": true,
 			"isNpc": true,
+			"isNamedCreature": true,
 			"source": "OoW",
 			"page": 85,
 			"_copy": {
@@ -106,10 +110,15 @@
 				"I",
 				"X"
 			],
+			"damageTagsSpell": [
+				"F",
+				"R"
+			],
 			"spellcastingTags": [
 				"CC",
 				"I"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Enormous Tentacle",
@@ -142,7 +151,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"damageTags": [
 				"B"
 			],
@@ -150,11 +158,13 @@
 				"grappled",
 				"restrained"
 			],
+			"hasToken": true,
 			"hasFluffImages": true
 		},
 		{
 			"name": "Gildha Duhn",
 			"isNpc": true,
+			"isNamedCreature": true,
 			"source": "OoW",
 			"page": 110,
 			"_copy": {
@@ -177,11 +187,14 @@
 				"C",
 				"O",
 				"X"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Grunka",
 			"isNpc": true,
+			"isNamedCreature": true,
 			"source": "OoW",
 			"page": 115,
 			"_copy": {
@@ -216,11 +229,14 @@
 				"MW",
 				"RNG",
 				"RW"
-			]
+			],
+			"hasToken": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Jelayne",
 			"isNpc": true,
+			"isNamedCreature": true,
 			"source": "OoW",
 			"page": 84,
 			"_copy": {
@@ -235,13 +251,15 @@
 					}
 				}
 			},
+			"int": 14,
 			"cha": 14,
 			"languages": [
 				"Common"
 			],
 			"languageTags": [
 				"C"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Mechachimera",
@@ -255,11 +273,13 @@
 			"immune": [
 				"poison",
 				"psychic"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Onyx",
 			"isNpc": true,
+			"isNamedCreature": true,
 			"source": "OoW",
 			"page": 186,
 			"_copy": {
@@ -285,7 +305,9 @@
 					}
 				}
 			},
-			"size": "H",
+			"size": [
+				"H"
+			],
 			"speed": {
 				"walk": 400,
 				"climb": 200
@@ -332,7 +354,8 @@
 			"languageTags": [
 				"C",
 				"OTH"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Replica Monodrone",
@@ -367,7 +390,8 @@
 			"languageTags": [
 				"C",
 				"OTH"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Replica Pentadrone",
@@ -399,7 +423,8 @@
 			"languageTags": [
 				"C",
 				"OTH"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Replica Quadrone",
@@ -434,7 +459,8 @@
 			"languageTags": [
 				"C",
 				"OTH"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Replica Tridrone",
@@ -466,7 +492,8 @@
 			"languageTags": [
 				"C",
 				"OTH"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Stomping Foot",
@@ -497,12 +524,14 @@
 			],
 			"damageTags": [
 				"B"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Two Dry Cloaks",
 			"shortName": true,
 			"isNpc": true,
+			"isNamedCreature": true,
 			"source": "OoW",
 			"page": 162,
 			"_copy": {
@@ -521,11 +550,11 @@
 					}
 				}
 			},
-			"hasToken": true,
 			"damageTags": [
 				"P",
 				"S"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -543,7 +572,8 @@
 			],
 			"conditionImmune": [
 				"poisoned"
-			]
+			],
+			"hasToken": true
 		}
 	]
 }

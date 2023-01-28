@@ -47,26 +47,7 @@
 			],
 			"areaTags": [
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Warlock",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Absorb Elements",
@@ -123,35 +104,7 @@
 				"fire",
 				"lightning",
 				"thunder"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Aganazzar's Scorcher",
@@ -208,19 +161,7 @@
 			],
 			"areaTags": [
 				"L"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Beast Bond",
@@ -267,24 +208,15 @@
 			"conditionInflict": [
 				"charmed"
 			],
+			"affectsCreatureType": [
+				"beast"
+			],
 			"miscTags": [
 				"SGT"
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Bones of the Earth",
@@ -321,7 +253,7 @@
 				}
 			],
 			"entries": [
-				"You cause up to six pillars of stone to burst from places on the ground that you can see within range. Each pillar is a cylinder that has a diameter of 5 feet and a height of up to 30 feet. The ground where a pillar appears must be wide enough for its diameter, and you can target the ground under a creature if that creature is Medium or smaller. Each pillar has AC 5 and 30 hit points. When reduced to 0 hit points, a pillar crumbles into rubble, which creates an area of difficult terrain with a 10-foot radius that lasts until the rubble is cleared. Each 5-foot-diameter portion of the area requires at least 1 minute to clear by hand.",
+				"You cause up to six pillars of stone to burst from places on the ground that you can see within range. Each pillar is a cylinder that has a diameter of 5 feet and a height of up to 30 feet. The ground where a pillar appears must be wide enough for its diameter, and you can target the ground under a creature if that creature is Medium or smaller. Each pillar has AC 5 and 30 hit points. When reduced to 0 hit points, a pillar crumbles into rubble, which creates an area of {@quickref difficult terrain||3} with a 10-foot radius that lasts until the rubble is cleared. Each 5-foot-diameter portion of the area requires at least 1 minute to clear by hand.",
 				"If a pillar is created under a creature, that creature must succeed on a Dexterity saving throw or be lifted by the pillar. A creature can choose to fail the save.",
 				"If a pillar is prevented from reaching its full height because of a ceiling or other obstacle, a creature on the pillar takes {@damage 6d6} bludgeoning damage and is {@condition restrained}, pinched between the pillar and the obstacle. The {@condition restrained} creature can use an action to make a Strength or Dexterity check (the creature's choice) against the spell's save DC. On a success, the creature is no longer {@condition restrained} and must either move off the pillar or fall off it."
 			],
@@ -352,15 +284,7 @@
 			],
 			"areaTags": [
 				"MT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Catapult",
@@ -415,27 +339,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Catnap",
@@ -489,31 +393,7 @@
 			],
 			"areaTags": [
 				"MT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Cause Fear",
@@ -565,36 +445,26 @@
 			"savingThrow": [
 				"wisdom"
 			],
+			"affectsCreatureType": [
+				"aberration",
+				"beast",
+				"celestial",
+				"dragon",
+				"elemental",
+				"fey",
+				"fiend",
+				"giant",
+				"humanoid",
+				"monstrosity",
+				"ooze",
+				"plant"
+			],
 			"miscTags": [
 				"SGT"
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Bard",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					},
-					{
-						"name": "Cleric",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Ceremony",
@@ -676,31 +546,15 @@
 					]
 				}
 			],
+			"affectsCreatureType": [
+				"humanoid"
+			],
 			"miscTags": [
 				"MAC"
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					},
-					{
-						"name": "Paladin",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Druid",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Chaos Bolt",
@@ -745,8 +599,8 @@
 						"Damage Type"
 					],
 					"colStyles": [
-						"col-1 text-center",
-						"col-11"
+						"col-2 text-center",
+						"col-10"
 					],
 					"rows": [
 						[
@@ -848,22 +702,11 @@
 			"spellAttack": [
 				"R"
 			],
+			"miscTags": [
+				"RO"
+			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					}
-				]
-			},
-			"backgrounds": [
-				{
-					"name": "Izzet Engineer",
-					"source": "GGR"
-				}
 			]
 		},
 		{
@@ -921,31 +764,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Control Flames",
@@ -1006,22 +825,7 @@
 			"areaTags": [
 				"C"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			"hasFluffImages": true
 		},
 		{
 			"name": "Control Winds",
@@ -1097,23 +901,7 @@
 			],
 			"areaTags": [
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Create Bonfire",
@@ -1180,35 +968,7 @@
 			],
 			"areaTags": [
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Create Homunculus",
@@ -1249,22 +1009,7 @@
 			],
 			"miscTags": [
 				"PRM"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Warlock",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Crown of Stars",
@@ -1316,25 +1061,13 @@
 			"spellAttack": [
 				"R"
 			],
+			"miscTags": [
+				"LGT",
+				"UBA"
+			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Danse Macabre",
@@ -1385,20 +1118,9 @@
 			],
 			"miscTags": [
 				"SGT",
-				"SMN"
+				"SMN",
+				"UBA"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			},
 			"hasFluffImages": true
 		},
 		{
@@ -1449,33 +1171,13 @@
 			"savingThrow": [
 				"constitution"
 			],
+			"miscTags": [
+				"LGTS",
+				"UBA"
+			],
 			"areaTags": [
 				"Y"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Druid",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					},
-					{
-						"name": "Paladin",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Dragon's Breath",
@@ -1535,19 +1237,7 @@
 			"areaTags": [
 				"ST",
 				"N"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Druid Grove",
@@ -1633,15 +1323,7 @@
 			"areaTags": [
 				"C",
 				"Q"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Dust Devil",
@@ -1705,24 +1387,9 @@
 			],
 			"miscTags": [
 				"FMV",
-				"SGT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+				"SGT",
+				"UBA"
+			]
 		},
 		{
 			"name": "Earth Tremor",
@@ -1759,7 +1426,7 @@
 				}
 			],
 			"entries": [
-				"You cause a tremor in the ground within range. Each creature other than you in that area must make a Dexterity saving throw. On a failed save, a creature takes {@damage 1d6} bludgeoning damage and is knocked {@condition prone}. If the ground in that area is loose earth or stone, it becomes difficult terrain until cleared, with each 5-foot-diameter portion requiring at least 1 minute to clear by hand."
+				"You cause a tremor in the ground within range. Each creature other than you in that area must make a Dexterity saving throw. On a failed save, a creature takes {@damage 1d6} bludgeoning damage and is knocked {@condition prone}. If the ground in that area is loose earth or stone, it becomes {@quickref difficult terrain||3} until cleared, with each 5-foot-diameter portion requiring at least 1 minute to clear by hand."
 			],
 			"entriesHigherLevel": [
 				{
@@ -1781,27 +1448,7 @@
 			],
 			"areaTags": [
 				"R"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Earthbind",
@@ -1852,27 +1499,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Elemental Bane",
@@ -1940,31 +1567,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Enemies Abound",
@@ -2011,27 +1614,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Enervation",
@@ -2091,23 +1674,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Erupting Earth",
@@ -2145,7 +1712,7 @@
 				}
 			],
 			"entries": [
-				"Choose a point you can see on the ground within range. A fountain of churned earth and stone erupts in a 20-foot cube centered on that point. Each creature in that area must make a Dexterity saving throw. A creature takes {@damage 3d12} bludgeoning damage on a failed save, or half as much damage on a successful one. Additionally, the ground in that area becomes difficult terrain until cleared. Each 5-foot-square portion of the area requires at least 1 minute to clear by hand."
+				"Choose a point you can see on the ground within range. A fountain of churned earth and stone erupts in a 20-foot cube centered on that point. Each creature in that area must make a Dexterity saving throw. A creature takes {@damage 3d12} bludgeoning damage on a failed save, or half as much damage on a successful one. Additionally, the ground in that area becomes {@quickref difficult terrain||3} until cleared. Each 5-foot-square portion of the area requires at least 1 minute to clear by hand."
 			],
 			"entriesHigherLevel": [
 				{
@@ -2168,22 +1735,7 @@
 			"areaTags": [
 				"C"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			"hasFluffImages": true
 		},
 		{
 			"name": "Far Step",
@@ -2221,29 +1773,20 @@
 			],
 			"miscTags": [
 				"SGT",
-				"TP"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+				"TP",
+				"UBA"
+			]
 		},
 		{
 			"name": "Find Greater Steed",
 			"source": "XGE",
 			"page": 156,
+			"additionalSources": [
+				{
+					"source": "FTD",
+					"page": 190
+				}
+			],
 			"level": 4,
 			"school": "C",
 			"time": [
@@ -2273,20 +1816,21 @@
 				"You control the mount in combat. While the mount is within 1 mile of you, you can communicate with it telepathically. While mounted on it, you can make any spell you cast that targets only you also target the mount.",
 				"The mount disappears temporarily when it drops to 0 hit points or when you dismiss it as an action. Casting this spell again re-summons the bonded mount, with all its hit points restored and any conditions removed.",
 				"You can't have more than one mount bonded by this spell or {@spell find steed} at the same time. As an action, you can release a mount from its bond, causing it to disappear permanently.",
-				"Whenever the mount disappears, it leaves behind any objects it was wearing or carrying."
+				"Whenever the mount disappears, it leaves behind any objects it was wearing or carrying.",
+				{
+					"type": "inset",
+					"source": "FTD",
+					"page": 190,
+					"name": "Dragonnel Steeds",
+					"entries": [
+						"With the DM's permission, a paladin can summon a spirit in the form of a {@creature dragonnel|ftd} using the find greater steed spell, which appears in {@i Xanathar's Guide to Everything}."
+					]
+				}
 			],
 			"miscTags": [
 				"PRM",
 				"SMN"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Paladin",
-						"source": "PHB"
-					}
-				]
-			},
 			"hasFluffImages": true
 		},
 		{
@@ -2341,35 +1885,7 @@
 			],
 			"damageInflict": [
 				"fire"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Frostbite",
@@ -2430,35 +1946,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Guardian of Nature",
@@ -2522,31 +2010,16 @@
 						"You gain 10 temporary hit points.",
 						"You make Constitution saving throws with advantage.",
 						"You make Dexterity- and Wisdom-based attack rolls with advantage.",
-						"While you are on the ground, the ground within 15 feet of you is difficult terrain for your enemies."
+						"While you are on the ground, the ground within 15 feet of you is {@quickref difficult terrain||3} for your enemies."
 					]
 				}
 			],
 			"damageInflict": [
 				"force"
 			],
-			"savingThrow": [
-				"constitution"
-			],
 			"miscTags": [
 				"THP"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Gust",
@@ -2614,30 +2087,6 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			},
-			"races": [
-				{
-					"name": "Half-Elf (Mark of Storm)",
-					"source": "TCE",
-					"baseName": "Half-Elf",
-					"baseSource": "PHB"
-				}
 			]
 		},
 		{
@@ -2687,25 +2136,28 @@
 					]
 				}
 			],
+			"affectsCreatureType": [
+				"aberration",
+				"beast",
+				"celestial",
+				"dragon",
+				"elemental",
+				"fey",
+				"fiend",
+				"giant",
+				"humanoid",
+				"monstrosity",
+				"ooze",
+				"plant"
+			],
 			"miscTags": [
 				"HL",
-				"SGT"
+				"SGT",
+				"UBA"
 			],
 			"areaTags": [
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Holy Weapon",
@@ -2753,23 +2205,13 @@
 				"constitution"
 			],
 			"miscTags": [
-				"SGT"
+				"LGT",
+				"SGT",
+				"UBA"
 			],
 			"areaTags": [
 				"MT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					},
-					{
-						"name": "Paladin",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Ice Knife",
@@ -2829,23 +2271,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Illusory Dragon",
@@ -2904,19 +2330,12 @@
 				"intelligence"
 			],
 			"miscTags": [
-				"SGT"
+				"SGT",
+				"UBA"
 			],
 			"areaTags": [
 				"N"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Immolation",
@@ -2967,30 +2386,12 @@
 				"dexterity"
 			],
 			"miscTags": [
+				"LGT",
 				"SGT"
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Druid",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Infernal Calling",
@@ -3049,18 +2450,6 @@
 				"SGT",
 				"SMN"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			},
 			"hasFluffImages": true
 		},
 		{
@@ -3117,27 +2506,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Investiture of Flame",
@@ -3200,29 +2569,12 @@
 			"savingThrow": [
 				"dexterity"
 			],
+			"miscTags": [
+				"LGT"
+			],
 			"areaTags": [
 				"L"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Investiture of Ice",
@@ -3268,8 +2620,8 @@
 					"type": "list",
 					"items": [
 						"You are immune to cold damage and have resistance to fire damage.",
-						"You can move across difficult terrain created by ice or snow without spending extra movement.",
-						"The ground in a 10-foot radius around you is icy and is difficult terrain for creatures other than you. The radius moves with you.",
+						"You can move across {@quickref difficult terrain||3} created by ice or snow without spending extra movement.",
+						"The ground in a 10-foot radius around you is icy and is {@quickref difficult terrain||3} for creatures other than you. The radius moves with you.",
 						"You can use your action to create a 15-foot cone of freezing wind extending from your outstretched hand in a direction you choose. Each creature in the cone must make a Constitution saving throw. A creature takes {@damage 4d6} cold damage on a failed save, or half as much damage on a successful one. A creature that fails its save against this effect has its speed halved until the start of your next turn."
 					]
 				}
@@ -3289,27 +2641,7 @@
 			"areaTags": [
 				"N",
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Investiture of Stone",
@@ -3356,7 +2688,7 @@
 					"items": [
 						"You have resistance to bludgeoning, piercing, and slashing damage from nonmagical attacks.",
 						"You can use your action to create a small earthquake on the ground in a 15-foot radius centered on you. Other creatures on that ground must succeed on a Dexterity saving throw or be knocked {@condition prone}.",
-						"You can move across difficult terrain made of earth or stone without spending extra movement. You can move through solid earth or stone as if it was air and without destabilizing it, but you can't end your movement there. If you do so, you are ejected to the nearest unoccupied space, this spell ends, and you are {@condition stunned} until the end of your next turn."
+						"You can move across {@quickref difficult terrain||3} made of earth or stone without spending extra movement. You can move through solid earth or stone as if it was air and without destabilizing it, but you can't end your movement there. If you do so, you are ejected to the nearest unoccupied space, this spell ends, and you are {@condition stunned} until the end of your next turn."
 					]
 				}
 			],
@@ -3374,27 +2706,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Investiture of Wind",
@@ -3457,27 +2769,7 @@
 			],
 			"areaTags": [
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Invulnerability",
@@ -3518,15 +2810,7 @@
 			],
 			"entries": [
 				"You are immune to all damage until the spell ends."
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Life Transference",
@@ -3577,31 +2861,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Paladin",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Maddening Darkness",
@@ -3648,19 +2908,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Maelstrom",
@@ -3703,7 +2951,7 @@
 				}
 			],
 			"entries": [
-				"A swirling mass of 5-foot-deep water appears in a 30-foot radius centered on a point you can see within range. The point must be on the ground or in a body of water. Until the spell ends, that area is difficult terrain, and any creature that starts its turn there must succeed on a Strength saving throw or take {@damage 6d6} bludgeoning damage and be pulled 10 feet toward the center."
+				"A swirling mass of 5-foot-deep water appears in a 30-foot radius centered on a point you can see within range. The point must be on the ground or in a body of water. Until the spell ends, that area is {@quickref difficult terrain||3}, and any creature that starts its turn there must succeed on a Strength saving throw or take {@damage 6d6} bludgeoning damage and be pulled 10 feet toward the center."
 			],
 			"damageInflict": [
 				"bludgeoning"
@@ -3717,15 +2965,7 @@
 			],
 			"areaTags": [
 				"R"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Magic Stone",
@@ -3776,27 +3016,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Mass Polymorph",
@@ -3848,30 +3068,7 @@
 			],
 			"areaTags": [
 				"MT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Druid",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Maximilian's Earthen Grasp",
@@ -3936,19 +3133,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Melf's Minute Meteors",
@@ -4007,21 +3192,12 @@
 			"savingThrow": [
 				"dexterity"
 			],
+			"miscTags": [
+				"UBA"
+			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Mental Prison",
@@ -4069,35 +3245,22 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Bard",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Mighty Fortress",
 			"source": "XGE",
 			"page": 161,
+			"otherSources": [
+				{
+					"source": "AitFR-AVT",
+					"page": 10
+				},
+				{
+					"source": "AitFR-FCD",
+					"page": 12
+				}
+			],
 			"level": 8,
 			"school": "C",
 			"time": [
@@ -4144,14 +3307,6 @@
 				"PRM",
 				"SGT"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			},
 			"hasFluffImages": true
 		},
 		{
@@ -4209,30 +3364,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Bard",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Mold Earth",
@@ -4281,7 +3413,7 @@
 					"items": [
 						"If you target an area of loose earth, you can instantaneously excavate it, move it along the ground, and deposit it up to 5 feet away. This movement doesn't involve enough force to cause damage.",
 						"You cause shapes, colors, or both to appear on the dirt or stone, spelling out words, creating images, or shaping patterns. The changes last for 1 hour.",
-						"If the dirt or stone you target is on the ground, you cause it to become difficult terrain. Alternatively, you can cause the ground to become normal terrain if it is already difficult terrain. This change lasts for 1 hour."
+						"If the dirt or stone you target is on the ground, you cause it to become {@quickref difficult terrain||3}. Alternatively, you can cause the ground to become normal terrain if it is already {@quickref difficult terrain||3}. This change lasts for 1 hour."
 					]
 				},
 				"If you cast this spell multiple times, you can have no more than two of its non-instantaneous effects active at a time, and you can dismiss such an effect as an action."
@@ -4291,23 +3423,7 @@
 			],
 			"areaTags": [
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Negative Energy Flood",
@@ -4354,19 +3470,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Power Word Pain",
@@ -4408,30 +3512,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Bard",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Primal Savagery",
@@ -4483,22 +3564,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Primordial Ward",
@@ -4555,15 +3621,7 @@
 				"fire",
 				"lightning",
 				"thunder"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Psychic Scream",
@@ -4611,27 +3669,7 @@
 			],
 			"areaTags": [
 				"MT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Pyrotechnics",
@@ -4696,31 +3734,7 @@
 			"areaTags": [
 				"C",
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Scatter",
@@ -4761,30 +3775,7 @@
 			],
 			"areaTags": [
 				"MT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Bard",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Shadow Blade",
@@ -4834,22 +3825,9 @@
 			"damageInflict": [
 				"psychic"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			},
+			"miscTags": [
+				"UBA"
+			],
 			"hasFluffImages": true
 		},
 		{
@@ -4900,15 +3878,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Shape Water",
@@ -4971,30 +3941,6 @@
 			],
 			"areaTags": [
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			},
-			"races": [
-				{
-					"name": "Genasi (Water)",
-					"source": "EEPC",
-					"baseName": "Genasi",
-					"baseSource": "EEPC"
-				}
 			]
 		},
 		{
@@ -5045,23 +3991,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Skill Empowerment",
@@ -5101,38 +4031,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Cleric",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Skywrite",
@@ -5180,31 +4079,7 @@
 			],
 			"miscTags": [
 				"SGT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Snare",
@@ -5258,31 +4133,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Snilloc's Snowball Swarm",
@@ -5339,19 +4190,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Soul Cage",
@@ -5422,21 +4261,13 @@
 				},
 				"A creature that can see the sensor (such as one using {@spell see invisibility} or {@sense truesight}) sees a translucent image of the tormented humanoid whose soul you caged."
 			],
-			"miscTags": [
-				"HL"
+			"affectsCreatureType": [
+				"humanoid"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			"miscTags": [
+				"HL",
+				"UBA"
+			]
 		},
 		{
 			"name": "Steel Wind Strike",
@@ -5459,7 +4290,10 @@
 			},
 			"components": {
 				"s": true,
-				"m": "a melee weapon worth at least 1 sp"
+				"m": {
+					"text": "a melee weapon worth at least 1 sp",
+					"cost": 10
+				}
 			},
 			"duration": [
 				{
@@ -5482,19 +4316,7 @@
 			],
 			"areaTags": [
 				"MT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Storm Sphere",
@@ -5536,7 +4358,7 @@
 				}
 			],
 			"entries": [
-				"A 20-foot-radius sphere of whirling air springs into existence, centered on a point you choose within range. The sphere remains for the spell's duration. Each creature in the sphere when it appears or that ends its turn there must succeed on a Strength saving throw or take {@damage 2d6} bludgeoning damage. The sphere's space is difficult terrain.",
+				"A 20-foot-radius sphere of whirling air springs into existence, centered on a point you choose within range. The sphere remains for the spell's duration. Each creature in the sphere when it appears or that ends its turn there must succeed on a Strength saving throw or take {@damage 2d6} bludgeoning damage. The sphere's space is {@quickref difficult terrain||3}.",
 				"Until the spell ends, you can use a bonus action on each of your turns to cause a bolt of lightning to leap from the center of the sphere toward one creature you choose within 60 feet of the center. Make a ranged spell attack. You have advantage on the attack roll if the target is in the sphere. On a hit, the target takes {@damage 4d6} lightning damage.",
 				"Creatures within 30 feet of the sphere have disadvantage on Wisdom ({@skill Perception}) checks made to listen."
 			],
@@ -5559,22 +4381,13 @@
 			"savingThrow": [
 				"strength"
 			],
+			"miscTags": [
+				"UBA"
+			],
 			"areaTags": [
 				"ST",
 				"S"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			},
 			"hasFluffImages": true
 		},
 		{
@@ -5635,19 +4448,7 @@
 			"miscTags": [
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Summon Lesser Demons",
@@ -5745,21 +4546,10 @@
 				}
 			],
 			"miscTags": [
+				"RO",
 				"SGT",
 				"SMN"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Synaptic Static",
@@ -5802,27 +4592,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Temple of the Gods",
@@ -5873,19 +4643,18 @@
 			"savingThrow": [
 				"charisma"
 			],
+			"affectsCreatureType": [
+				"celestial",
+				"elemental",
+				"fey",
+				"fiend",
+				"undead"
+			],
 			"miscTags": [
 				"HL",
 				"PRM",
 				"SGT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Tenser's Transformation",
@@ -5946,22 +4715,7 @@
 			],
 			"miscTags": [
 				"THP"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Bard",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Thunder Step",
@@ -6015,30 +4769,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Druid",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Thunderclap",
@@ -6097,39 +4828,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Tidal Wave",
@@ -6180,23 +4879,7 @@
 			],
 			"areaTags": [
 				"W"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Tiny Servant",
@@ -6244,31 +4927,9 @@
 				}
 			],
 			"miscTags": [
-				"SMN"
+				"SMN",
+				"UBA"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Bard",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			},
 			"hasFluffImages": true
 		},
 		{
@@ -6335,23 +4996,7 @@
 			],
 			"areaTags": [
 				"ST"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Transmute Rock",
@@ -6432,27 +5077,7 @@
 			],
 			"areaTags": [
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					},
-					{
-						"name": "Artificer",
-						"source": "TCE"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Vitriolic Sphere",
@@ -6509,23 +5134,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					},
-					{
-						"name": "Artificer (Revisited)",
-						"source": "UAArtificerRevisited"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Wall of Light",
@@ -6594,30 +5203,7 @@
 			"areaTags": [
 				"ST",
 				"W"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Warlock",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Cleric",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Wall of Sand",
@@ -6670,22 +5256,7 @@
 			],
 			"areaTags": [
 				"W"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				],
-				"fromClassListVariant": [
-					{
-						"name": "Druid",
-						"source": "PHB",
-						"definedInSource": "UAClassFeatureVariants"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Wall of Water",
@@ -6736,7 +5307,7 @@
 				}
 			],
 			"entries": [
-				"You create a wall of water on the ground at a point you can see within range. You can make the wall up to 30 feet long, 10 feet high, and 1 foot thick, or you can make a ringed wall up to 20 feet in diameter, 20 feet high, and 1 foot thick. The wall vanishes when the spell ends. The wall's space is difficult terrain.",
+				"You create a wall of water on the ground at a point you can see within range. You can make the wall up to 30 feet long, 10 feet high, and 1 foot thick, or you can make a ringed wall up to 20 feet in diameter, 20 feet high, and 1 foot thick. The wall vanishes when the spell ends. The wall's space is {@quickref difficult terrain||3}.",
 				"Any ranged weapon attack that enters the wall's space has disadvantage on the attack roll, and fire damage is halved if the fire effect passes through the wall to reach its target. Spells that deal cold damage that pass through the wall cause the area of the wall they pass through to freeze solid (at least a 5-foot-square section is frozen). Each 5-foot-square frozen section has AC 5 and 15 hit points. Reducing a frozen section to 0 hit points destroys it. When a section is destroyed, the wall's water doesn't fill it."
 			],
 			"miscTags": [
@@ -6744,28 +5315,6 @@
 			],
 			"areaTags": [
 				"W"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			},
-			"races": [
-				{
-					"name": "Triton",
-					"source": "VGM"
-				}
 			]
 		},
 		{
@@ -6814,34 +5363,14 @@
 						"It {@condition deafened||deafens} you and other creatures in its area.",
 						"It extinguishes unprotected flames in its area that are torch-sized or smaller.",
 						"It hedges out vapor, gas, and fog that can be dispersed by strong wind.",
-						"The area is difficult terrain for creatures other than you.",
+						"The area is {@quickref difficult terrain||3} for creatures other than you.",
 						"The attack rolls of ranged weapon attacks have disadvantage if the attacks pass in or out of the wind."
 					]
 				}
 			],
 			"conditionInflict": [
 				"deafened"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Bard",
-						"source": "PHB"
-					},
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Watery Sphere",
@@ -6902,23 +5431,7 @@
 			],
 			"areaTags": [
 				"S"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Whirlwind",
@@ -6985,22 +5498,7 @@
 			"areaTags": [
 				"Y"
 			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Sorcerer",
-						"source": "PHB"
-					},
-					{
-						"name": "Wizard",
-						"source": "PHB"
-					}
-				]
-			}
+			"hasFluffImages": true
 		},
 		{
 			"name": "Word of Radiance",
@@ -7055,15 +5553,7 @@
 			],
 			"areaTags": [
 				"MT"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Cleric",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Wrath of Nature",
@@ -7104,7 +5594,7 @@
 					"type": "entries",
 					"name": "Grasses and Undergrowth",
 					"entries": [
-						"Any area of ground in the cube that is covered by grass or undergrowth is difficult terrain for your enemies."
+						"Any area of ground in the cube that is covered by grass or undergrowth is {@quickref difficult terrain||3} for your enemies."
 					]
 				},
 				{
@@ -7148,24 +5638,13 @@
 				"strength"
 			],
 			"miscTags": [
-				"SGT"
+				"SGT",
+				"UBA"
 			],
 			"areaTags": [
 				"ST",
 				"C"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Druid",
-						"source": "PHB"
-					},
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		},
 		{
 			"name": "Zephyr Strike",
@@ -7204,15 +5683,7 @@
 			],
 			"damageInflict": [
 				"force"
-			],
-			"classes": {
-				"fromClassList": [
-					{
-						"name": "Ranger",
-						"source": "PHB"
-					}
-				]
-			}
+			]
 		}
 	]
 }

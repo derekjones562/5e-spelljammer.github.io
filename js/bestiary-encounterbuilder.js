@@ -1,682 +1,751 @@
 "use strict";
 
+class EncounterBuilderUtils {
+	static getSublistedEncounter ({sublistItems}) {
+		return sublistItems
+			.map(li => {
+				const mon = li.data.entityBase;
+				if (!mon.cr) return null;
+
+				// (N.b.: we don't handle scaled summon creatures here, as they *shouldn't* have CRs.)
+				const crScaled = li.data.customHashId
+					? Number(Renderer.monster.getUnpackedCustomHashId(li.data.customHashId)._scaledCr)
+					: null;
+				return {
+					cr: li.values.cr,
+					crNumber: Parser.crToNumber(li.values.cr),
+					count: Number(li.data.count),
+
+					approxHp: li.data.approxHp,
+					approxAc: li.data.approxAc,
+
+					isLocked: li.data.isLocked,
+
+					// used for encounter adjuster
+					crScaled: crScaled,
+					customHashId: li.data.customHashId,
+					hash: UrlUtil.autoEncodeHash(mon),
+					baseCreature: mon,
+				};
+			})
+			.filter(it => it && it.crNumber < VeCt.CR_CUSTOM)
+			.sort((a, b) => SortUtil.ascSort(b.crNumber, a.crNumber));
+	}
+
+	static getCrCutoff (data, partyMeta) {
+		data = data.filter(it => EncounterBuilderUtils.getCr(it) < VeCt.CR_CUSTOM).sort((a, b) => SortUtil.ascSort(EncounterBuilderUtils.getCr(b), EncounterBuilderUtils.getCr(a)));
+		if (!data.length) return 0;
+
+		// no cutoff for CR 0-2
+		if (EncounterBuilderUtils.getCr(data[0]) <= 2) return 0;
+
+		// ===============================================================================================================
+		// "When making this calculation, don't count any monsters whose challenge rating is significantly below the average
+		// challenge rating of the other monsters in the group unless you think the weak monsters significantly contribute
+		// to the difficulty of the encounter." -- DMG, p. 82
+		// ===============================================================================================================
+
+		// "unless you think the weak monsters significantly contribute to the difficulty of the encounter"
+		// For player levels <5, always include every monster. We assume that levels 5> will have strong
+		//   AoE/multiattack, allowing trash to be quickly cleared.
+		if (!partyMeta.isPartyLevelFivePlus()) return 0;
+
+		// Spread the CRs into a single array
+		const crValues = [];
+		data.forEach(it => {
+			const cr = EncounterBuilderUtils.getCr(it);
+			for (let i = 0; i < it.count; ++i) crValues.push(cr);
+		});
+
+		// TODO(Future) allow this to be controlled by the user
+		let CR_THRESH_MODE = "statisticallySignificant";
+
+		switch (CR_THRESH_MODE) {
+			// "Statistically significant" method--note that this produces very passive filtering; the threshold is below
+			//   the minimum CR in the vast majority of cases.
+			case "statisticallySignificant": {
+				const cpy = MiscUtil.copy(crValues)
+					.sort(SortUtil.ascSort);
+
+				const avg = cpy.mean();
+				const deviation = cpy.meanAbsoluteDeviation();
+
+				return avg - (deviation * 2);
+			}
+
+			case "5etools": {
+				// The ideal interpretation of this:
+				//   "don't count any monsters whose challenge rating is significantly below the average
+				//   challenge rating of the other monsters in the group"
+				// Is:
+				//   Arrange the creatures in CR order, lowest to highest. Remove the lowest CR creature (or one of them, if there
+				//   are ties). Calculate the average CR without this removed creature. If the removed creature's CR is
+				//   "significantly below" this average, repeat the process with the next lowest CR creature.
+				// However, this can produce a stair-step pattern where our average CR keeps climbing as we remove more and more
+				//   creatures. Therefore, only do this "remove creature -> calculate average CR" step _once_, and use the
+				//   resulting average CR to calculate a cutoff.
+
+				const crMetas = [];
+
+				// If there's precisely one CR value, use it
+				if (crValues.length === 1) {
+					crMetas.push({
+						mean: crValues[0],
+						deviation: 0,
+					});
+				} else {
+					// Get an average CR for every possible encounter without one of the creatures in the encounter
+					for (let i = 0; i < crValues.length; ++i) {
+						const crValueFilt = crValues.filter((_, j) => i !== j);
+						const crMean = crValueFilt.mean();
+						const crStdDev = Math.sqrt((1 / crValueFilt.length) * crValueFilt.map(it => (it - crMean) ** 2).reduce((a, b) => a + b, 0));
+						crMetas.push({mean: crMean, deviation: crStdDev});
+					}
+				}
+
+				// Sort by descending average CR -> ascending deviation
+				crMetas.sort((a, b) => SortUtil.ascSort(b.mean, a.mean) || SortUtil.ascSort(a.deviation, b.deviation));
+
+				// "significantly below the average" -> cutoff at half the average
+				return crMetas[0].mean / 2;
+			}
+
+			default: return 0;
+		}
+	}
+
+	/**
+	 * @param data an array of {cr: n, count: m} objects
+	 * @param partyMeta number of players in the party
+	 */
+	static calculateEncounterXp (data, partyMeta = null) {
+		if (partyMeta == null) partyMeta = new EncounterPartyMeta([{level: 1, count: 1}]);
+
+		data = data.filter(it => EncounterBuilderUtils.getCr(it) < VeCt.CR_CUSTOM)
+			.sort((a, b) => SortUtil.ascSort(EncounterBuilderUtils.getCr(b), EncounterBuilderUtils.getCr(a)));
+
+		let baseXp = 0;
+		let relevantCount = 0;
+		let count = 0;
+		if (!data.length) return {baseXp: 0, relevantCount: 0, count: 0, adjustedXp: 0};
+
+		const crCutoff = EncounterBuilderUtils.getCrCutoff(data, partyMeta);
+		data.forEach(it => {
+			if (EncounterBuilderUtils.getCr(it) >= crCutoff) relevantCount += it.count;
+			count += it.count;
+			baseXp += (Parser.crToXpNumber(Parser.numberToCr(EncounterBuilderUtils.getCr(it))) || 0) * it.count;
+		});
+
+		const playerAdjustedXpMult = Parser.numMonstersToXpMult(relevantCount, partyMeta.cntPlayers);
+
+		const adjustedXp = playerAdjustedXpMult * baseXp;
+		return {baseXp, relevantCount, count, adjustedXp, meta: {crCutoff, playerCount: partyMeta.cntPlayers, playerAdjustedXpMult}};
+	}
+
+	static getCr (obj) {
+		if (obj.crScaled != null) return obj.crScaled;
+		if (obj.cr == null || obj.cr === "Unknown" || obj.cr === "\u2014") return null;
+		return typeof obj.cr === "string" ? obj.cr.includes("/") ? Parser.crToNumber(obj.cr) : Number(obj.cr) : obj.cr;
+	}
+}
+
 /**
  * TODO rework this to use doubled multipliers for XP, so we avoid the 0.5x issue for 6+ party sizes. Then scale
  *   everything back down at the end.
  */
 class EncounterBuilder extends ProxyBase {
-	constructor (bestiaryPage) {
+	constructor () {
 		super();
 
-		this._bestiaryPage = bestiaryPage;
+		this._bestiaryPage = null;
+		this._sublistManager = null;
 
-		this.stateInit = false;
 		this._cache = null;
 		this._lastPartyMeta = null;
-		this._advanced = false;
 		this._lock = new VeLock();
 
 		this._cachedTitle = null;
 
-		// Encounter save/load
-		this.__state = {
-			savedEncounters: {},
-			activeKey: null,
-		};
-		this._state = this._getProxy("state", this.__state);
-		this._$iptName = null;
-		this._$btnSave = null;
-		this._$btnReload = null;
-		this._$btnLoad = null;
-		this.pSetSavedEncountersThrottled = MiscUtil.throttle(this._pSetSavedEncounters.bind(this), 50);
 		this._infoHoverId = null;
 
-		this.doSaveStateDebounced = MiscUtil.debounce(this.doSaveState, 50);
+		this._sublistPlugin = null;
+
+		// region Elements
+		this._$wrpRowsSimple = null;
+		this._$wrpRowsAdvanced = null;
+		this._$wrpHeadersAdvanced = null;
+		this._$wrpFootersAdvanced = null;
+
+		this._wrpRandomAndAdjust = null;
+		this._wrpGroupAndDifficulty = null;
+
+		this._$hrHasCreatures = null;
+		this._$wrpDifficulty = null;
+		this._$dispXpEasy = null;
+		this._$dispXpMedium = null;
+		this._$dispXpHard = null;
+		this._$dispXpDeadly = null;
+		this._$dispXpAbsurd = null;
+		this._$dispTtk = null;
+		this._$dispBudgetDaily = null;
+		this._$dispDifficulty = null;
+		this._$dispXpRawTotal = null;
+		this._$dispXpRawPerPlayer = null;
+		this._$dispXpAdjustedTotal = null;
+		this._$dispXpAdjustedPerPlayer = null;
+
+		this._collectionPlayersSimple = null;
+		this._collectionColsExtraAdvanced = null;
+		this._collectionPlayersAdvanced = null;
+		// endregion
+	}
+
+	set bestiaryPage (val) {
+		this._bestiaryPage = val;
+		this._cache = new EncounterBuilder.Cache({bestiaryPage: val});
+	}
+
+	set sublistManager (val) {
+		this._sublistManager = val;
+
+		this._sublistPlugin = new EncounterBuilderSublistPlugin();
+		this._sublistPlugin.encounterBuilder = this;
+		this._sublistPlugin.sublistManager = val;
+
+		this._sublistManager.addPlugin(this._sublistPlugin);
+	}
+
+	calculateListEncounterXp (partyMeta) {
+		partyMeta = partyMeta || this._lastPartyMeta;
+
+		return EncounterBuilderUtils.calculateEncounterXp(
+			EncounterBuilderUtils.getSublistedEncounter({
+				sublistItems: this._sublistManager.sublistItems,
+			}),
+			partyMeta,
+		);
 	}
 
 	initUi () {
+		// region Init elements
+		this._wrpRandomAndAdjust = document.getElementById("wrp-encounterbuild-random-and-adjust");
+		this._wrpSaveLoad = document.getElementById("ecgen__wrp-save-controls");
+		this._wrpGroupAndDifficulty = document.getElementById("wrp-encounterbuild-group-and-difficulty");
+		// endregion
+
 		$(`#btn-encounterbuild`).click(() => Hist.setSubhash(EncounterBuilder.HASH_KEY, true));
-		$(`#btn-encounterstatblock`).click(() => Hist.setSubhash(EncounterBuilder.HASH_KEY, null));
 
-		this._initRandomHandlers();
-		this._initAdjustHandlers();
-
-		$(`.ecgen__add_players`).click(() => {
-			if (this._advanced) this.addAdvancedPlayerRow(false);
-			else this.addPlayerRow(false)
-		});
-
-		const $cbAdvanced = $(`.ecgen__players_advanced`).change(() => {
-			const party = this.getPartyMeta();
-			this._advanced = !!$cbAdvanced.prop("checked");
-			if (this._advanced) {
-				let first = true;
-				party.levelMetas.forEach(it => {
-					[...new Array(it.count)].forEach(() => {
-						this.addAdvancedPlayerRow(first, false, "", it.level);
-						first = false;
-					});
-				});
-				$(`.ecgen__player_group`).remove();
-				this.updateDifficulty();
-			} else {
-				let first = true;
-				party.levelMetas.forEach(it => {
-					this.addPlayerRow(first, false, it.count, it.level);
-					first = false;
-				});
-				$(`.ecgen__player_advanced`).remove();
-				this.updateDifficulty();
-			}
-			this.updateUiIsAdvanced(this._advanced);
-		});
-
-		const $btnSvUrl = $(`.ecgen__sv_url`).click(async () => {
-			const encounterPart = UrlUtil.packSubHash(EncounterUtil.SUB_HASH_PREFIX, [JSON.stringify(this.getSaveableState())], {isEncodeBoth: true});
-			const parts = [location.href, encounterPart];
-			await MiscUtil.pCopyTextToClipboard(parts.join(HASH_PART_SEP));
-			JqueryUtil.showCopiedEffect($btnSvUrl);
-		});
-		$(`.ecgen__sv_file`).click(() => DataUtil.userDownload(`encounter`, this.getSaveableState(), {fileType: "encounter"}));
-		$(`.ecgen__ld_file`).click(async () => {
-			const jsons = await DataUtil.pUserUpload({expectedFileType: "encounter"});
-			if (jsons?.length && jsons[0].items && jsons[0].sources) { // if it's a bestiary sublist
-				jsons.l = {
-					items: jsons.items,
-					sources: jsons.sources,
-				}
-			}
-			this.pDoLoadState(jsons[0]);
-		});
-		$(`.ecgen__reset`).title(`SHIFT-click to reset players`).click(evt => confirm("Are you sure?") && encounterBuilder.pReset({isNotResetPlayers: !evt.shiftKey, isNotAddInitialPlayers: !evt.shiftKey}));
-
-		const $btnSvTxt = $(`.ecgen__sv_text`).click(() => {
-			let xpTotal = 0;
-			const toCopyCreatures = ListUtil.sublist.items
-				.map(it => ({name: it.name, ...it.values}))
-				.sort((a, b) => SortUtil.ascSortLower(a.name, b.name))
-				.map(it => {
-					xpTotal += Parser.crToXpNumber(it.cr) * it.count;
-					return `${it.count}× ${it.name}`;
-				})
-				.join(", ");
-			MiscUtil.pCopyTextToClipboard(`${toCopyCreatures} (${xpTotal.toLocaleString()} XP)`);
-			JqueryUtil.showCopiedEffect($btnSvTxt);
-		});
+		this._renderRandomAndAdjust();
+		this._renderSaveLoad();
+		this._renderGroupAndDifficulty();
+		this._renderCollections();
+		this._renderAddHooks();
 	}
 
-	_initRandomHandlers () {
-		JqueryUtil.bindDropdownButton($(`#ecgen_dropdown_rng`));
-
-		const $btnGen = $(`.ecgen_rng`).click((evt) => {
-			evt.preventDefault();
-			this.pDoGenerateEncounter($btnGen.data("mode"))
-		});
-
-		$(`.ecgen_rng_easy`).click((evt) => {
-			evt.preventDefault();
-			this.pDoGenerateEncounter("easy");
-			$btnGen.data("mode", "easy").text("Random Easy").title("Randomly generate an Easy encounter");
-		});
-		$(`.ecgen_rng_medium`).click((evt) => {
-			evt.preventDefault();
-			this.pDoGenerateEncounter("medium");
-			$btnGen.data("mode", "medium").text("Random Medium").title("Randomly generate a Medium encounter");
-		});
-		$(`.ecgen_rng_hard`).click((evt) => {
-			evt.preventDefault();
-			this.pDoGenerateEncounter("hard");
-			$btnGen.data("mode", "hard").text("Random Hard").title("Randomly generate a Hard encounter");
-		});
-		$(`.ecgen_rng_deadly`).click((evt) => {
-			evt.preventDefault();
-			this.pDoGenerateEncounter("deadly");
-			$btnGen.data("mode", "deadly").text("Random Deadly").title("Randomly generate a Deadly encounter");
-		});
-	}
-
-	_initAdjustHandlers () {
-		JqueryUtil.bindDropdownButton($(`#ecgen_dropdown_adj`));
-
-		const $btnAdjust = $(`.ecgen_adj`).click((evt) => {
-			evt.preventDefault();
-			this.pDoAdjustEncounter($btnAdjust.data("mode"))
-		});
-
-		$(`.ecgen_adj_easy`).click((evt) => {
-			evt.preventDefault();
-			this.pDoAdjustEncounter("easy");
-			$btnAdjust.data("mode", "easy").text("Adjust to Easy").title("Adjust the current encounter difficulty to Easy");
-		});
-		$(`.ecgen_adj_medium`).click((evt) => {
-			evt.preventDefault();
-			this.pDoAdjustEncounter("medium");
-			$btnAdjust.data("mode", "medium").text("Adjust to Medium").title("Adjust the current encounter difficulty to Medium");
-		});
-		$(`.ecgen_adj_hard`).click((evt) => {
-			evt.preventDefault();
-			this.pDoAdjustEncounter("hard");
-			$btnAdjust.data("mode", "hard").text("Adjust to Hard").title("Adjust the current encounter difficulty to Hard");
-		});
-		$(`.ecgen_adj_deadly`).click((evt) => {
-			evt.preventDefault();
-			this.pDoAdjustEncounter("deadly");
-			$btnAdjust.data("mode", "deadly").text("Adjust to Deadly").title("Adjust the current encounter difficulty to Deadly");
-		});
-	}
-
-	updateUiIsAdvanced () {
-		$(`.ecgen__players_advanced`).prop("checked", this._advanced);
-		$(`.ecgen__player_advanced_extra_head `).remove();
-		$(`.ecgen__player_advanced_extra_foot`).remove();
-		if (this._advanced) {
-			$(`.ecgen__add_players`).html(`<span class="glyphicon glyphicon-plus"></span> Add Another Player`);
-			$(`.ecgen__group_lhs`).addClass(`ecgen__group_lhs--advanced`);
-			$(`.ecgen__advanced_help`).show();
-		} else {
-			$(`.ecgen__add_players`).html(`<span class="glyphicon glyphicon-plus"></span> Add Another Level`);
-			$(`.ecgen__group_lhs`).removeClass(`ecgen__group_lhs--advanced`);
-			$(`.ecgen__advanced_help`).hide();
-		}
-	}
-
-	async initState () {
-		const initialState = await EncounterUtil.pGetInitialState();
-		if (initialState && initialState.data) await this.pDoLoadState(initialState.data, initialState.type === "local");
-		else this.addInitialPlayerRows();
-		this.stateInit = true;
-		await this._initSavedEncounters();
-	}
-
-	addInitialPlayerRows (first) {
-		if (this._advanced) this.addAdvancedPlayerRow(first);
-		else this.addPlayerRow(first, true, ECGEN_BASE_PLAYERS);
-	}
-
-	/**
-	 * @param [opts] Options object
-	 * @param [opts.isNotRemoveCreatures] If creature rows should not be removed.
-	 * @param [opts.isNotResetPlayers] If player info should not be reset.
-	 * @param [opts.isNotAddInitialPlayers] If initial player info should not be added.
-	 */
-	async pReset (opts) {
-		opts = opts || {};
-		if (!opts.isNotRemoveCreatures) await ListUtil.pDoSublistRemoveAll();
-		if (!opts.isNotResetPlayers) this.removeAllPlayerRows();
-		if (!opts.isNotAddInitialPlayers) this.addInitialPlayerRows();
-
-		this._state.activeKey = null;
-		this.pSetSavedEncountersThrottled();
-	}
-
-	async pDoLoadState (savedState, playersOnly) {
-		await this.pReset({isNotAddInitialPlayers: true, isNotRemoveCreatures: playersOnly});
-		if (!savedState) return;
-		try {
-			if (savedState.a) {
-				this._advanced = true;
-				this.updateUiIsAdvanced();
-				if (savedState.d && savedState.d.length) {
-					savedState.d.forEach((details, i) => this.addAdvancedPlayerRow(!i, false, details.n, details.l, details.x));
-				} else this.addInitialPlayerRows(false);
-
-				if (savedState.c && savedState.c.length) {
-					savedState.c.forEach(col => {
-						this.addAdvancedColumnHeader(col);
-						this.addAdvancedColumnFooter();
-					});
-				}
-			} else {
-				if (savedState.p && savedState.p.length) {
-					savedState.p.forEach(({count, level}, i) => this.addPlayerRow(!i, false, count, level));
-				} else this.addInitialPlayerRows(false);
-			}
-
-			if (savedState.l && !playersOnly) {
-				await this._bestiaryPage.pPreloadSublistSources(savedState.l);
-				await ListUtil.pDoJsonLoad(savedState.l, false);
-			}
-
-			this.updateDifficulty();
-		} catch (e) {
-			JqueryUtil.doToast({content: `Could not load encounter! Was the file valid?`, type: "danger"});
-			this.pReset();
-		}
-	}
-
-	getSaveableState () {
-		const out = {
-			p: this.getPartyMeta().levelMetas,
-			l: ListUtil.getExportableSublist(),
-			a: this._advanced,
-		};
-		if (this._advanced) {
-			out.c = $(`.ecgen__players_head_advanced`).find(`.ecgen__player_advanced_extra_head`).map((i, e) => $(e).val()).get();
-			out.d = $(`.ecgen__player_advanced`).map((i, e) => {
-				const $e = $(e);
-				const extras = $e.find(`.ecgen__player_advanced_extra`).map((i, e) => $(e).val()).get();
-				while (extras.length < out.c.length) extras.push(""); // pad array to match columns length
-
-				return {
-					n: $e.find(`.ecgen__player_advanced__name`).val(),
-					l: Number($e.find(`.ecgen__player_advanced__level`).val()),
-					x: extras.slice(0, out.c.length), // cap at columns length
-				};
-			}).get();
-		}
-		return out;
-	}
-
-	doSaveState () {
-		if (this.stateInit) EncounterUtil.pDoSaveState(this.getSaveableState());
-	}
-
-	generateCache () {
-		// create a map of {XP: [monster list]}
-		if (this._cache == null) {
-			this._cache = (() => {
-				const out = {};
-				bestiaryPage._list.visibleItems.map(it => bestiaryPage._dataList[it.ix]).filter(m => !m.isNpc).forEach(m => {
-					const mXp = Parser.crToXpNumber(m.cr);
-					if (mXp) (out[mXp] = out[mXp] || []).push(m);
-				});
-				return out;
-			})();
-		}
-	}
-
-	resetCache () {
-		this._cache = null;
-	}
-
-	async pDoAdjustEncounter (difficulty) {
-		let currentEncounter = EncounterBuilderUtils.getSublistedEncounter();
-		if (!currentEncounter.length) {
-			return JqueryUtil.doToast({content: `The current encounter contained no creatures! Please add some first.`, type: "warning"})
-		}
-		currentEncounter.forEach(creatureType => creatureType.count = 1);
-
-		const partyMeta = this.getPartyMeta();
-		let encounterXp = EncounterBuilderUtils.calculateEncounterXp(currentEncounter, partyMeta.cntPlayers);
-
-		const ixLow = EncounterBuilder.TIERS.indexOf(difficulty);
-		if (!~ixLow) throw new Error(`Unhandled difficulty level: "${difficulty}"`);
-		// fudge min/max numbers slightly
-		const [targetMin, targetMax] = [
-			Math.floor(partyMeta[EncounterBuilder.TIERS[ixLow]] * 0.9),
-			Math.ceil((partyMeta[EncounterBuilder.TIERS[ixLow + 1]] - 1) * 1.1),
-		];
-
-		if (encounterXp.adjustedXp > targetMax) {
-			JqueryUtil.doToast({content: `Could not adjust the current encounter to ${difficulty.uppercaseFirst()}, try removing some creatures!`, type: "danger"})
-		} else {
-			// only calculate this once rather than during the loop, to ensure stable conditions
-			// less accurate in some cases, but should prevent infinite loops
-			const crCutoff = EncounterBuilderUtils.getCrCutoff(currentEncounter, partyMeta);
-
-			// randomly choose creatures to skip
-			// generate array of [0, 1, ... n-1] where n = number of unique creatures
-			// this will be used to determine how many of the unique creatures we want to skip
-			const numSkipTotals = [...new Array(currentEncounter.length)].map((_, ix) => ix);
-
-			const doTryAdjusting = () => {
-				if (!numSkipTotals.length) return -1; // no solution possible, so exit loop
-
-				let skipIx = 0;
-				// 7/12 * 7/12 * ... chance of moving the skipIx along one
-				while (!(RollerUtil.randomise(12) > 7) && skipIx < numSkipTotals.length - 1) skipIx++;
-
-				const numSkips = numSkipTotals.splice(skipIx, 1)[0]; // remove the selected skip amount; we'll try the others if this one fails
-				const curUniqueCreatures = [...currentEncounter];
-				if (numSkips) {
-					[...new Array(numSkips)].forEach(() => {
-						const ixRemove = RollerUtil.randomise(curUniqueCreatures.length) - 1;
-						curUniqueCreatures.splice(ixRemove, 1);
-					});
-				}
-
-				let maxTries = 999;
-				while (!(encounterXp.adjustedXp > targetMin && encounterXp.adjustedXp < targetMax) && maxTries-- > 0) {
-					// chance to skip each creature at each iteration
-					// otherwise, the case where every creature is relevant produces an equal number of every creature
-					const pickFrom = [...curUniqueCreatures];
-					if (pickFrom.length > 1) {
-						let loops = Math.floor(pickFrom.length / 2);
-						// skip [half, n-1] creatures
-						loops = RollerUtil.randomise(pickFrom.length - 1, loops);
-						while (loops-- > 0) {
-							const ix = RollerUtil.randomise(pickFrom.length) - 1;
-							pickFrom.splice(ix, 1);
-						}
-					}
-
-					while (pickFrom.length) {
-						const ix = RollerUtil.randomise(pickFrom.length) - 1;
-						const picked = pickFrom.splice(ix, 1)[0];
-						picked.count++;
-						encounterXp = EncounterBuilderUtils.calculateEncounterXp(currentEncounter, partyMeta.cntPlayers);
-						if (encounterXp.adjustedXp > targetMax) {
-							picked.count--;
-							encounterXp = EncounterBuilderUtils.calculateEncounterXp(currentEncounter, partyMeta.cntPlayers);
-						}
-					}
-				}
-
-				return maxTries < 0 ? 0 : 1; // 1 if a solution was found, 0 otherwise
-			};
-
-			const invalidSolutions = [];
-			let lastSolution;
-			while (!(lastSolution = doTryAdjusting())) { // -1/1 = complete; 0 = continue
-				invalidSolutions.push(MiscUtil.copy(currentEncounter));
-				currentEncounter.forEach(it => it.count = 1); // reset for next attempt
-			}
-
-			// no good solution was found, so pick the closest invalid solution
-			if (lastSolution === -1 && invalidSolutions.length) {
-				currentEncounter = invalidSolutions.map(is => ({
-					encounter: is,
-					distance: (() => {
-						const xp = EncounterBuilderUtils.calculateEncounterXp(is, partyMeta.cntPlayers);
-						if (xp > targetMax) return xp - targetMax;
-						else if (xp < targetMin) return targetMin - xp;
-						else return 0;
-					})(),
-				})).sort((a, b) => SortUtil.ascSort(a.distance, b.distance))[0].encounter;
-			}
-
-			const belowCrCutoff = currentEncounter.filter(it => it.cr && it.cr < crCutoff);
-
-			if (belowCrCutoff.length) {
-				// do a post-step to randomly add "irrelevant" creatures, ensuring plenty of fireball fodder
-				let budget = targetMax - encounterXp.adjustedXp;
-				if (budget > 0) {
-					belowCrCutoff.forEach(it => it._xp = Parser.crToXpNumber(Parser.numberToCr(it.cr)));
-					const usable = belowCrCutoff.filter(it => it._xp < budget);
-
-					if (usable.length) {
-						const totalPlayers = partyMeta.levelMetas.map(it => it.count).reduce((a, b) => a + b, 0);
-						const averagePlayerLevel = partyMeta.levelMetas.map(it => it.level * it.count).reduce((a, b) => a + b, 0) / totalPlayers;
-
-						// try to avoid flooding low-level parties
-						const playerToCreatureRatio = (() => {
-							if (averagePlayerLevel < 5) return [0.8, 1.3];
-							else if (averagePlayerLevel < 11) return [1, 2];
-							else if (averagePlayerLevel < 17) return [1, 3];
-							else return [1, 4];
-						})();
-
-						const [minDesired, maxDesired] = [Math.floor(playerToCreatureRatio[0] * totalPlayers), Math.ceil(playerToCreatureRatio[1] * totalPlayers)];
-
-						// keep rolling until we fail to add a creature, or until we're out of budget
-						while (encounterXp.adjustedXp <= targetMax) {
-							const totalCreatures = currentEncounter.map(it => it.count).reduce((a, b) => a + b, 0);
-
-							// if there's less than min desired, large chance of adding more
-							// if there's more than max desired, small chance of adding more
-							// if there's between min and max desired, medium chance of adding more
-							const chanceToAdd = totalCreatures < minDesired ? 90 : totalCreatures > maxDesired ? 40 : 75;
-
-							const isAdd = RollerUtil.roll(100) < chanceToAdd;
-							if (isAdd) {
-								RollerUtil.rollOnArray(belowCrCutoff).count++;
-								encounterXp = EncounterBuilderUtils.calculateEncounterXp(currentEncounter, partyMeta.cntPlayers);
-							} else break;
-						}
-					}
-				}
-			}
-		}
-
-		await this._pLoadSublist({
-			items: currentEncounter.map(creatureType => ({
-				h: creatureType.hash,
-				c: `${creatureType.count}`,
-				customHashId: creatureType.customHashId || undefined,
-			})),
-			sources: ListUtil.getExportableSublist().sources,
-		});
-	}
-
-	async pDoGenerateEncounter (difficulty) {
-		const {partyMeta} = this.calculateXp();
-
-		const ixLow = EncounterBuilder.TIERS.indexOf(difficulty);
-		if (!~ixLow) throw new Error(`Unhandled difficulty level: "${difficulty}"`);
-		const budget = partyMeta[EncounterBuilder.TIERS[ixLow + 1]] - 1;
-
-		this.generateCache();
-
-		const closestSolution = (() => {
-			// If there are enough players that single-monster XP is halved, try generating a range of solutions.
-			if (partyMeta.cntPlayers > 5) {
-				const NUM_SAMPLES = 10; // should ideally be divisible by 2
-				const solutions = [...new Array(NUM_SAMPLES)]
-					.map((_, i) => this._pDoGenerateEncounter_generateClosestEncounter(partyMeta, budget * ((i >= Math.floor(NUM_SAMPLES / 2)) + 1), budget));
-				const validSolutions = solutions.filter(it => it.adjustedXp >= (budget * 0.6) && it.adjustedXp <= (budget * 1.1));
-				if (validSolutions.length) return RollerUtil.rollOnArray(validSolutions);
-				return null;
-			} else return this._pDoGenerateEncounter_generateClosestEncounter(partyMeta, budget, budget);
-		})();
-
-		if (closestSolution) {
-			const toLoad = {items: []};
-			const sources = new Set();
-			closestSolution.encounter.forEach(it => {
-				toLoad.items.push({h: UrlUtil.autoEncodeHash(it.mon), c: String(it.count)});
-				sources.add(it.mon.source);
+	_handleClickCopyAsText (evt) {
+		let xpTotal = 0;
+		const ptsCreature = this._sublistManager.sublistItems
+			.sort((a, b) => SortUtil.ascSortLower(a.name, b.name))
+			.map(it => {
+				xpTotal += Parser.crToXpNumber(it.values.cr) * it.data.count;
+				return `${it.data.count}× ${it.name}`;
 			});
-			toLoad.sources = [...sources];
-			await this._pLoadSublist(toLoad);
+		const ptXp = `${xpTotal.toLocaleString()} XP`;
+
+		if (evt.shiftKey) {
+			MiscUtil.pCopyTextToClipboard([...ptsCreature, ptXp].join("\n")).then(null);
 		} else {
-			await ListUtil.pDoSublistRemoveAll();
-			this.updateDifficulty();
+			MiscUtil.pCopyTextToClipboard(`${ptsCreature.join(", ")} (${ptXp})`).then(null);
 		}
+		JqueryUtil.showCopiedEffect(evt.currentTarget);
 	}
 
-	_pDoGenerateEncounter_generateClosestEncounter (partyMeta, budget, rawBudget) {
-		const _xps = Object.keys(this._cache).map(it => Number(it)).sort(SortUtil.ascSort).reverse();
-		/*
-		Sorted array of:
-		{
-			cr: "1/2",
-			xp: 50,
-			crNum: 0.5
-		}
-		 */
-		const _meta = Object.entries(Parser.XP_CHART_ALT).map(([cr, xp]) => ({cr, xp, crNum: Parser.crToNumber(cr)}))
-			.sort((a, b) => SortUtil.ascSort(b.crNum, a.crNum));
-		const standardXpValues = new Set(Object.values(Parser.XP_CHART_ALT));
-		const getXps = budget => _xps.filter(it => {
-			// Make TftYP values (i.e. those that are not real XP thresholds) get skipped 9/10 times
-			if (!standardXpValues.has(it) && RollerUtil.randomise(10) !== 10) return false;
-			return it <= budget;
+	_handleClickBackToStatblocks () {
+		Hist.setSubhash(EncounterBuilder.HASH_KEY, null);
+	}
+
+	async _pGetLockedEncounterCreatures () {
+		return EncounterBuilderUtils.getSublistedEncounter({
+			sublistItems: this._sublistManager.sublistItems,
+		})
+			.filter(it => it.isLocked)
+			.pSerialAwaitMap(async ({baseCreature, count, customHashId}) => {
+				const creature = await Renderer.monster.pGetModifiedCreature(baseCreature, customHashId);
+				const xp = Parser.crToXpNumber(creature.cr);
+
+				return new EncounterBuilder.CandidateEncounterCreature({
+					xp,
+					count,
+					creature,
+					isLocked: true,
+					customHashId,
+				});
+			});
+	}
+
+	_renderRandomAndAdjust () {
+		const {
+			$btnRandom,
+			$btnRandomMode,
+			$liRandomEasy,
+			$liRandomMedium,
+			$liRandomHard,
+			$liRandomDeadly,
+		} = this._renderRandomAndAdjust_getRandomMeta();
+
+		const {
+			$btnAdjust,
+			$btnAdjustMode,
+			$liAdjustEasy,
+			$liAdjustMedium,
+			$liAdjustHard,
+			$liAdjustDeadly,
+		} = this._renderRandomAndAdjust_getAdjustMeta();
+
+		$$(this._wrpRandomAndAdjust)`<div class="ve-flex-col">
+			<div class="ve-flex-h-right">
+				<div class="btn-group mr-3">
+					${$btnRandom}
+					${$btnRandomMode}
+					<ul class="dropdown-menu">
+						${$liRandomEasy}
+						${$liRandomMedium}
+						${$liRandomHard}
+						${$liRandomDeadly}
+					</ul>
+				</div>
+
+				<div class="btn-group">
+					${$btnAdjust}
+					${$btnAdjustMode}
+					<ul class="dropdown-menu">
+						${$liAdjustEasy}
+						${$liAdjustMedium}
+						${$liAdjustHard}
+						${$liAdjustDeadly}
+					</ul>
+				</div>
+			</div>
+		</div>`;
+	}
+
+	_renderRandomAndAdjust_getRandomMeta () {
+		let modeRandom = "medium";
+
+		const pSetRandomMode = async (mode) => {
+			const randomizer = new EncounterBuilder.Randomizer({
+				partyMeta: this._getPartyMeta(),
+				cache: this._cache,
+			});
+			const random = await randomizer.pGetRandomEncounter({
+				difficulty: mode,
+				lockedEncounterCreatures: await this._pGetLockedEncounterCreatures(),
+			});
+
+			if (random != null) {
+				const nxtState = await this._sublistManager.pGetExportableSublist({isMemoryOnly: true});
+				Object.assign(nxtState, random.getAsExportedSublistState());
+				await this._sublistManager.pDoLoadExportedSublist(nxtState, {isMemoryOnly: true});
+			}
+
+			modeRandom = mode;
+			$btnRandom
+				.text(`Random ${mode.toTitleCase()}`)
+				.title(`Randomly generate ${Parser.getArticle(mode)} ${mode.toTitleCase()} encounter`);
+		};
+
+		const $getLiRandom = (mode) => {
+			return $(`<li title="Randomly generate ${Parser.getArticle(mode)} ${mode.toTitleCase()} encounter"><a href="#">Random ${mode.toTitleCase()}</a></li>`)
+				.click(async (evt) => {
+					evt.preventDefault();
+					await pSetRandomMode(mode);
+				});
+		};
+
+		const $btnRandom = $(`<button class="btn btn-primary" style="min-width: 135px;" title="Randomly generate a Medium encounter">Random Medium</button>`)
+			.click(async evt => {
+				evt.preventDefault();
+				await pSetRandomMode(modeRandom);
+			});
+
+		const $btnRandomMode = $(`<button class="btn btn-primary dropdown-toggle"><span class="caret"></span></button>`);
+		JqueryUtil.bindDropdownButton($btnRandomMode);
+
+		return {
+			$btnRandom,
+			$btnRandomMode,
+			$liRandomEasy: $getLiRandom("easy"),
+			$liRandomMedium: $getLiRandom("medium"),
+			$liRandomHard: $getLiRandom("hard"),
+			$liRandomDeadly: $getLiRandom("deadly"),
+		};
+	}
+
+	_renderRandomAndAdjust_getAdjustMeta () {
+		let modeAdjust = "medium";
+
+		const pSetAdjustMode = async (mode) => {
+			const adjuster = new EncounterBuilder.Adjuster({
+				partyMeta: this._getPartyMeta(),
+			});
+			const adjusted = await adjuster.pGetAdjustedEncounter({
+				difficulty: mode,
+				currentEncounter: EncounterBuilderUtils.getSublistedEncounter({
+					sublistItems: this._sublistManager.sublistItems,
+				}),
+			});
+
+			if (adjusted != null) {
+				const nxtState = await this._sublistManager.pGetExportableSublist({isMemoryOnly: true});
+				Object.assign(nxtState, adjusted.getAsExportedSublistState());
+				await this._sublistManager.pDoLoadExportedSublist(nxtState, {isMemoryOnly: true});
+			}
+
+			modeAdjust = mode;
+			$btnAdjust
+				.text(`Adjust to ${mode.toTitleCase()}`)
+				.title(`Adjust the current encounter difficulty to ${mode.toTitleCase()}`);
+		};
+
+		const $getLiAdjust = (mode) => {
+			return $(`<li title="Adjust the current encounter difficulty to ${mode.toTitleCase()}"><a href="#">Adjust to ${mode.toTitleCase()}</a></li>`)
+				.click(async (evt) => {
+					evt.preventDefault();
+					await pSetAdjustMode(mode);
+				});
+		};
+
+		const $btnAdjust = $(`<button class="btn btn-primary" style="min-width: 135px;" title="Adjust the current encounter difficulty to Medium">Adjust to Medium</button>`)
+			.click(async evt => {
+				evt.preventDefault();
+				await pSetAdjustMode(modeAdjust);
+			});
+
+		const $btnAdjustMode = $(`<button class="btn btn-primary dropdown-toggle"><span class="caret"></span></button>`);
+		JqueryUtil.bindDropdownButton($btnAdjustMode);
+
+		return {
+			$btnAdjust,
+			$btnAdjustMode,
+			$liAdjustEasy: $getLiAdjust("easy"),
+			$liAdjustMedium: $getLiAdjust("medium"),
+			$liAdjustHard: $getLiAdjust("hard"),
+			$liAdjustDeadly: $getLiAdjust("deadly"),
+		};
+	}
+
+	_renderSaveLoad () {
+		const $btnSave = $(`<button class="btn btn-default btn-xs">Save Encounter</button>`)
+			.click(evt => this._sublistManager.pHandleClick_save(evt));
+
+		const $btnLoad = $(`<button class="btn btn-default btn-xs">Load Encounter</button>`)
+			.click(evt => this._sublistManager.pHandleClick_load(evt));
+
+		$$(this._wrpSaveLoad)`<div class="ve-flex-col">
+				<div class="ve-flex-h-right btn-group">
+					${$btnSave}
+					${$btnLoad}
+			</div>
+		</div>`;
+	}
+
+	_renderGroupAndDifficulty () {
+		const $btnSaveToUrl = $(`<button class="btn btn-default btn-xs mr-2">Save to URL</button>`)
+			.click(() => this._sublistManager.pHandleClick_download({isUrl: true, $eleCopyEffect: $btnSaveToUrl}));
+		const $btnSaveToFile = $(`<button class="btn btn-default btn-xs">Save to File</button>`)
+			.click(() => this._sublistManager.pHandleClick_download());
+		const $btnLoadFromFile = $(`<button class="btn btn-default btn-xs">Load from File</button>`)
+			.click(evt => this._sublistManager.pHandleClick_upload({isAdditive: evt.shiftKey}));
+		const $btnCopyAsText = $(`<button class="btn btn-default btn-xs mr-2" title="SHIFT for Multi-Line Format">Copy as Text</button>`).click((evt) => this._handleClickCopyAsText(evt));
+		const $btnReset = $(`<button class="btn btn-danger btn-xs" title="SHIFT to Reset Players">Reset</button>`)
+			.click((evt) => this._sublistManager.pHandleClick_new(evt));
+
+		const $btnBackToStatblocks = $(`<button class="btn btn-success btn-xs">Back to Stat Blocks</button>`).click((evt) => this._handleClickBackToStatblocks(evt));
+
+		const {
+			$stg: $stgSimple,
+			$wrpRows: $wrpRowsSimple,
+		} = this._renderGroupAndDifficulty_getGroupEles_simple();
+		this._$wrpRowsSimple = $wrpRowsSimple;
+
+		const {
+			$stg: $stgAdvanced,
+			$wrpRows: $wrpRowsAdvanced,
+			$wrpHeaders: $wrpHeadersAdvanced,
+			$wrpFooters: $wrpFootersAdvanced,
+		} = this._renderGroupAndDifficulty_getGroupEles_advanced();
+		this._$wrpRowsAdvanced = $wrpRowsAdvanced;
+		this._$wrpHeadersAdvanced = $wrpHeadersAdvanced;
+		this._$wrpFootersAdvanced = $wrpFootersAdvanced;
+
+		this._$hrHasCreatures = $(`<hr class="hr-1">`);
+		this._$wrpDifficulty = $$`<div class="ve-flex">
+			${this._renderGroupAndDifficulty_$getDifficultyLhs()}
+			${this._renderGroupAndDifficulty_$getDifficultyRhs()}
+		</div>`;
+
+		$$(this._wrpGroupAndDifficulty)`
+		<h3 class="mt-1 m-2">Group Info</h3>
+		<div class="ve-flex">
+			${$stgSimple}
+			${$stgAdvanced}
+			${this._renderGroupAndDifficulty_$getGroupInfoRhs()}
+		</div>
+
+		${this._$hrHasCreatures}
+		${this._$wrpDifficulty}
+
+		<hr class="hr-1">
+
+		<div class="ve-flex-v-center mb-2">
+			${$btnSaveToUrl}
+			<div class="btn-group ve-flex-v-center mr-2">
+				${$btnSaveToFile}
+				${$btnLoadFromFile}
+			</div>
+			${$btnCopyAsText}
+			${$btnReset}
+		</div>
+
+		<div class="ve-flex">
+			${$btnBackToStatblocks}
+		</div>`;
+	}
+
+	_renderGroupAndDifficulty_getGroupEles_advanced () {
+		const $btnAddPlayers = $(`<button class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Add Another Player</button>`)
+			.click(() => this._sublistPlugin.doAddPlayer());
+
+		const $btnAddAdvancedCol = $(`<button class="btn btn-primary btn-xxs ecgen-player__btn-inline h-ipt-xs bl-0 bb-0 bbl-0 bbr-0 btl-0 ml-n1" title="Add Column" tabindex="-1"><span class="glyphicon glyphicon-list-alt"></span></button>`)
+			.click(() => this._sublistPlugin.doAddColExtraAdvanced());
+
+		const $wrpHeaders = $(`<div class="ve-flex"></div>`);
+		const $wrpFooters = $(`<div class="ve-flex"></div>`);
+
+		const $wrpRows = $(`<div class="ve-flex-col"></div>`);
+
+		const $stg = $$`<div class="w-70 overflow-x-auto ve-flex-col">
+			<div class="ve-flex-h-center mb-2 bb-1p small-caps ve-self-flex-start">
+				<div class="w-100p mr-1 h-ipt-xs no-shrink">Name</div>
+				<div class="w-40p text-center mr-1 h-ipt-xs no-shrink">Level</div>
+				${$wrpHeaders}
+				${$btnAddAdvancedCol}
+			</div>
+
+			${$wrpRows}
+
+			<div class="mb-1 ve-flex">
+				<div class="ecgen__wrp_add_players_btn_wrp no-shrink no-grow">
+					${$btnAddPlayers}
+				</div>
+				${$wrpFooters}
+			</div>
+
+			${this._renderGroupAndDifficulty_$getPtAdvancedMode()}
+
+			<div class="row">
+				<div class="w-100">
+					${Renderer.get().render(`{@note Additional columns will be imported into the DM Screen.}`)}
+				</div>
+			</div>
+		</div>`;
+
+		const hkIsAdvanced = () => {
+			$stg.toggleVe(this._sublistPlugin.isAdvanced);
+		};
+		this._sublistPlugin.addHookIsAdvanced(hkIsAdvanced);
+
+		return {
+			$stg,
+			$wrpRows,
+			$wrpHeaders,
+			$wrpFooters,
+		};
+	}
+
+	_renderGroupAndDifficulty_getGroupEles_simple () {
+		const $btnAddPlayers = $(`<button class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Add Another Level</button>`)
+			.click(() => this._sublistPlugin.doAddPlayer());
+
+		const $wrpRows = $(`<div class="ve-flex-col w-100"></div>`);
+
+		const $stg = $$`<div class="w-70 ve-flex-col">
+			<div class="ve-flex">
+				<div class="w-20">Players:</div>
+				<div class="w-20">Level:</div>
+			</div>
+
+			${$wrpRows}
+
+			<div class="mb-1 ve-flex">
+				<div class="ecgen__wrp_add_players_btn_wrp">
+					${$btnAddPlayers}
+				</div>
+			</div>
+
+			${this._renderGroupAndDifficulty_$getPtAdvancedMode()}
+
+		</div>`;
+
+		const hkIsAdvanced = () => {
+			$stg.toggleVe(!this._sublistPlugin.isAdvanced);
+		};
+		this._sublistPlugin.addHookIsAdvanced(hkIsAdvanced);
+
+		return {
+			$wrpRows,
+			$stg,
+		};
+	}
+
+	_renderGroupAndDifficulty_$getPtAdvancedMode () {
+		const $cbAdvanced = ComponentUiUtil.$getCbBool(this._sublistPlugin, "isAdvanced");
+
+		return $$`<div class="ve-flex-v-center">
+			<label class="ve-flex-v-center">
+				<div class="mr-2">Advanced Mode</div>
+				${$cbAdvanced}
+			</label>
+		</div>`;
+	}
+
+	_renderGroupAndDifficulty_$getGroupInfoRhs () {
+		this._$dispXpEasy = $(`<div>Easy: ? XP</div>`);
+		this._$dispXpMedium = $(`<div>Medium: ? XP</div>`);
+		this._$dispXpHard = $(`<div>Hard: ? XP</div>`);
+		this._$dispXpDeadly = $(`<div>Deadly: ? XP</div>`);
+		this._$dispXpAbsurd = $(`<div>Absurd: ? XP</div>`);
+
+		this._$dispTtk = $(`<div>TTK: ?</div>`);
+
+		this._$dispBudgetDaily = $(`<div>Daily Budget: ? XP</div>`);
+
+		return $$`<div class="w-30 text-right">
+			${this._$dispXpEasy}
+			${this._$dispXpMedium}
+			${this._$dispXpHard}
+			${this._$dispXpDeadly}
+			${this._$dispXpAbsurd}
+			<br>
+			${this._$dispTtk}
+			<br>
+			${this._$dispBudgetDaily}
+		</div>`;
+	}
+
+	_renderGroupAndDifficulty_$getDifficultyLhs () {
+		this._$dispDifficulty = $(`<h3 class="mt-2">Difficulty: ?</h3>`);
+		return $$`<div class="w-50">
+			${this._$dispDifficulty}
+		</div>`;
+	}
+
+	_renderGroupAndDifficulty_$getDifficultyRhs () {
+		this._$dispXpRawTotal = $(`<h4>Total XP: ?</h4>`);
+		this._$dispXpRawPerPlayer = $(`<i>(? per player)</i>`);
+
+		this._$hovXpAdjustedInfo = $(`<span class="glyphicon glyphicon-info-sign mr-2"></span>`);
+
+		this._$dispXpAdjustedTotal = $(`<h4 class="ve-flex-v-center">Adjusted XP: ?</h4>`);
+		this._$dispXpAdjustedPerPlayer = $(`<i>(? per player)</i>`);
+
+		return $$`<div class="w-50 text-right">
+			${this._$dispXpRawTotal}
+			<div>${this._$dispXpRawPerPlayer}</div>
+			<div class="ve-flex-v-center ve-flex-h-right">${this._$hovXpAdjustedInfo}${this._$dispXpAdjustedTotal}</div>
+			<div>${this._$dispXpAdjustedPerPlayer}</div>
+		</div>`;
+	}
+
+	_renderCollections () {
+		this._collectionPlayersSimple = new EncounterBuilder.RenderableCollectionPlayersSimple({
+			comp: this._sublistPlugin,
+			$wrpRows: this._$wrpRowsSimple,
 		});
 
-		const getCurrentEncounterMeta = (encounter) => {
-			const data = encounter.map(it => ({cr: Parser.crToNumber(it.mon.cr), count: it.count}));
-			return EncounterBuilderUtils.calculateEncounterXp(data, partyMeta);
-		};
+		this._collectionColsExtraAdvanced = new EncounterBuilder.RenderableCollectionColsExtraAdvanced({
+			comp: this._sublistPlugin,
+			$wrpHeadersAdvanced: this._$wrpHeadersAdvanced,
+			$wrpFootersAdvanced: this._$wrpFootersAdvanced,
+		});
 
-		const calcNextBudget = (encounter) => {
-			if (!encounter.length) return budget;
-
-			const curr = getCurrentEncounterMeta(encounter);
-			const budgetRemaining = budget - curr.adjustedXp;
-
-			const meta = _meta.filter(it => it.xp <= budgetRemaining);
-
-			// If we're a large party and we're doing a "single creature worth less XP" generation, force the generation
-			//   to stop.
-			if (rawBudget !== budget && curr.count === 1 && (rawBudget - curr.baseXp) <= 0) {
-				return 0;
-			}
-
-			// if the highest CR creature has CR greater than the cutoff, adjust for next multiplier
-			if (meta.length && meta[0].crNum >= curr.meta.crCutoff) {
-				const nextMult = Parser.numMonstersToXpMult(curr.relevantCount + 1, partyMeta.cntPlayers);
-				return Math.floor((budget - (nextMult * curr.baseXp)) / nextMult);
-			}
-
-			// otherwise, no creature has CR greater than the cutoff, don't worry about multipliers
-			return budgetRemaining;
-		};
-
-		const addToEncounter = (encounter, xp) => {
-			const existing = encounter.filter(it => it.xp === xp);
-			if (existing.length && RollerUtil.roll(100) < 85) { // 85% chance to add another copy of an existing monster
-				RollerUtil.rollOnArray(existing).count++;
-			} else {
-				const rolled = RollerUtil.rollOnArray(this._cache[xp]);
-				// add to an existing group, if present
-				const existing = encounter.find(it => it.mon.source === rolled.source && it.mon.name === rolled.name);
-				if (existing) existing.count++;
-				else {
-					encounter.push({
-						xp: xp,
-						mon: rolled,
-						count: 1,
-					});
-				}
-			}
-		};
-
-		let skipCount = 0;
-		const doSkip = (xps, encounter, xp) => {
-			// if there are existing entries at this XP, don't skip
-			const existing = encounter.filter(it => it.xp === xp);
-			if (existing.length) return false;
-
-			// skip 70% of the time by default, less 13% chance per item skipped
-			if (xps.length > 1) {
-				const isSkip = RollerUtil.roll(100) < (70 - (13 * skipCount));
-				if (isSkip) {
-					skipCount++;
-					const maxSkip = xps.length - 1;
-					// flip coins; so long as we get heads, keep skipping
-					for (let i = 0; i < maxSkip; ++i) {
-						if (RollerUtil.roll(2) === 0) {
-							return i;
-						}
-					}
-					return maxSkip - 1;
-				} else return 0;
-			} else return false;
-		};
-
-		const doInitialSkip = xps => {
-			// 50% of the time, skip the first 0-1/3rd of available CRs
-			if (xps.length > 4 && RollerUtil.roll(2) === 1) {
-				const skips = RollerUtil.roll(Math.ceil(xps.length / 3));
-				return xps.slice(skips);
-			} else return xps;
-		};
-
-		const doFind = (budget) => {
-			const enc = [];
-			const xps = doInitialSkip(getXps(budget));
-
-			let nextBudget = budget;
-			let skips = 0;
-			let steps = 0;
-			while (xps.length) {
-				if (steps++ > 100) break;
-
-				if (skips) {
-					skips--;
-					xps.shift();
-					continue;
-				}
-
-				const xp = xps[0];
-
-				if (xp > nextBudget) {
-					xps.shift();
-					continue;
-				}
-
-				skips = doSkip(xps, enc, xp);
-				if (skips) {
-					skips--;
-					xps.shift();
-					continue;
-				}
-
-				addToEncounter(enc, xp);
-
-				nextBudget = calcNextBudget(enc);
-			}
-
-			return enc;
-		};
-
-		const encounter = doFind(budget);
-		return {encounter, adjustedXp: getCurrentEncounterMeta(encounter).adjustedXp};
+		this._collectionPlayersAdvanced = new EncounterBuilder.RenderableCollectionPlayersAdvanced({
+			comp: this._sublistPlugin,
+			$wrpRows: this._$wrpRowsAdvanced,
+		});
 	}
 
-	async _pLoadSublist (toLoad) {
-		await this._bestiaryPage.pPreloadSublistSources(toLoad);
-		await ListUtil.pDoJsonLoad(toLoad, false);
-		this.updateDifficulty();
+	_renderAddHooks () {
+		const hkPlayersSimple = () => {
+			this._collectionPlayersSimple.render();
+
+			this.updateDifficulty();
+		};
+		this._sublistPlugin.addHookPlayersSimple(hkPlayersSimple);
+
+		const hkPlayersAdvanced = () => {
+			this._collectionPlayersAdvanced.render();
+
+			this.updateDifficulty();
+		};
+		this._sublistPlugin.addHookPlayersAdvanced(hkPlayersAdvanced);
+
+		const hkColsExtraAdvanced = () => {
+			this._collectionColsExtraAdvanced.render();
+		};
+		this._sublistPlugin.addHookColsExtraAdvanced(hkColsExtraAdvanced);
+
+		this._sublistPlugin.addHookIsAdvanced(hkPlayersSimple, {isCall: false});
+		this._sublistPlugin.addHookIsAdvanced(hkPlayersAdvanced, {isCall: false});
+
+		this._sublistPlugin.addHookPulseSublist(hkPlayersSimple, {isCall: false});
+		this._sublistPlugin.addHookPulseSublist(hkPlayersAdvanced, {isCall: false});
 	}
 
-	addAdvancedPlayerRow (first = true, doUpdate = true, name, level, extraCols) {
-		$(`.ecgen__wrp_add_players`).before(EncounterBuilder.getAdvancedPlayerRow(first, name, level, extraCols));
-		if (doUpdate) this.updateDifficulty();
-	}
-
-	addPlayerRow (first = true, doUpdate = true, count, level) {
-		$(`.ecgen__wrp_add_players`).before(EncounterBuilder.getPlayerRow(first, count, level));
-		if (doUpdate) this.updateDifficulty();
-	}
-
-	removeAllPlayerRows () {
-		$(`.ecgen__player_group`).remove();
-		$(`.ecgen__player_advanced`).remove();
-	}
+	resetCache () { this._cache.reset(); }
 
 	isActive () {
 		return Hist.getSubHash(EncounterBuilder.HASH_KEY) === "true";
 	}
 
-	showBuilder () {
+	_showBuilder () {
 		this._cachedTitle = this._cachedTitle || document.title;
 		document.title = "Encounter Builder - 5etools";
-		$(`body`).addClass("ecgen_active");
-		this.updateDifficulty();
-		ListUtil.doDeselectAll();
-		ListUtil.doSublistDeselectAll();
+		$(document.body).addClass("ecgen_active");
+		this._bestiaryPage.doDeselectAll();
+		this._sublistManager.doSublistDeselectAll();
 	}
 
-	hideBuilder () {
+	_hideBuilder () {
 		if (this._cachedTitle) {
 			document.title = this._cachedTitle;
 			this._cachedTitle = null;
 		}
-		$(`body`).removeClass("ecgen_active");
+		$(document.body).removeClass("ecgen_active");
 	}
 
-	handleClick (evt, ix, add, customHashId) {
-		const data = customHashId ? {customHashId} : undefined;
-		if (add) ListUtil.pDoSublistAdd(ix, {doFinalize: true, addCount: evt.shiftKey ? 5 : 1, data});
-		else ListUtil.pDoSublistSubtract(ix, {subtractCount: evt.shiftKey ? 5 : 1, data});
+	_handleClick ({evt, mode, entity}) {
+		if (mode === "add") {
+			return this._sublistManager.pDoSublistAdd({entity, doFinalize: true, addCount: evt.shiftKey ? 5 : 1});
+		}
+
+		return this._sublistManager.pDoSublistSubtract({entity, subtractCount: evt.shiftKey ? 5 : 1});
 	}
 
-	async pHandleShuffleClick (ix) {
+	async _pHandleShuffleClick (ix) {
 		await this._lock.pLock();
 
 		try {
-			const mon = bestiaryPage._dataList[ix];
+			const mon = this._bestiaryPage.dataList_[ix];
 			const xp = Parser.crToXpNumber(mon.cr);
 			if (!xp) return; // if Unknown/etc
 
-			const curr = ListUtil.getExportableSublist();
+			const curr = await this._sublistManager.pGetExportableSublist({isForceIncludePlugins: true, isMemoryOnly: true});
 			const hash = UrlUtil.autoEncodeHash(mon);
 			const itemToSwitch = curr.items.find(it => it.h === hash);
 
-			this.generateCache();
-			const availMons = this._cache[xp];
-			if (availMons.length !== 1) {
+			const availMons = this._cache.getCreaturesByXp(xp);
+			if (availMons.length > 1) {
 				// note that this process does not remove any old sources
 
 				let reroll = mon;
@@ -704,7 +773,7 @@ class EncounterBuilder extends ProxyBase {
 					}
 				}
 
-				await this._pLoadSublist(curr);
+				await this._sublistManager.pDoLoadExportedSublist(curr, {isMemoryOnly: true});
 			} // else can't reroll
 		} finally {
 			this._lock.unlock();
@@ -712,26 +781,17 @@ class EncounterBuilder extends ProxyBase {
 	}
 
 	handleSubhash () {
-		// loading state from the URL is instead handled as part of EncounterUtil.pGetInitialState
-		if (Hist.getSubHash(EncounterBuilder.HASH_KEY) === "true") this.showBuilder();
-		else this.hideBuilder();
-	}
-
-	removeAdvancedPlayerRow (ele) {
-		const $ele = $(ele);
-		$ele.closest(`.ecgen__player_advanced`).remove();
-		this.updateDifficulty();
-	}
-
-	removePlayerRow (ele) {
-		const $ele = $(ele);
-		$ele.closest(`.ecgen__player_group`).remove();
-		this.updateDifficulty();
+		if (Hist.getSubHash(EncounterBuilder.HASH_KEY) === "true") this._showBuilder();
+		else this._hideBuilder();
 	}
 
 	_getApproxTurnsToKill () {
-		const party = this.getPartyMeta().levelMetas;
-		const encounter = EncounterBuilderUtils.getSublistedEncounter();
+		const party = this._getPartyMeta().levelMetas;
+		if (!party.length) return 0;
+
+		const encounter = EncounterBuilderUtils.getSublistedEncounter({
+			sublistItems: this._sublistManager.sublistItems,
+		});
 
 		const totalDpt = party
 			.map(it => this._getApproxDpt(it.level) * it.count)
@@ -765,17 +825,18 @@ class EncounterBuilder extends ProxyBase {
 	}
 
 	updateDifficulty () {
-		const {partyMeta, encounter} = this.calculateXp();
+		const partyMeta = this._getPartyMeta();
+		const encounter = this.calculateListEncounterXp(partyMeta);
 
-		const $elEasy = $(`.ecgen__easy`).removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_EASY}">Easy:</span> ${partyMeta.easy.toLocaleString()} XP`);
-		const $elmed = $(`.ecgen__medium`).removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_MEDIUM}">Medium:</span> ${partyMeta.medium.toLocaleString()} XP`);
-		const $elHard = $(`.ecgen__hard`).removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_HARD}">Hard:</span> ${partyMeta.hard.toLocaleString()} XP`);
-		const $elDeadly = $(`.ecgen__deadly`).removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_DEADLY}">Deadly:</span> ${partyMeta.deadly.toLocaleString()} XP`);
-		const $elAbsurd = $(`.ecgen__absurd`).removeClass("bold").html(`<span class="help" title="${EncounterBuilder._TITLE_ABSURD}">Absurd:</span> ${partyMeta.absurd.toLocaleString()} XP`);
+		const $elEasy = this._$dispXpEasy.removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_EASY}">Easy:</span> ${partyMeta.easy.toLocaleString()} XP`);
+		const $elmed = this._$dispXpMedium.removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_MEDIUM}">Medium:</span> ${partyMeta.medium.toLocaleString()} XP`);
+		const $elHard = this._$dispXpHard.removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_HARD}">Hard:</span> ${partyMeta.hard.toLocaleString()} XP`);
+		const $elDeadly = this._$dispXpDeadly.removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_DEADLY}">Deadly:</span> ${partyMeta.deadly.toLocaleString()} XP`);
+		const $elAbsurd = this._$dispXpAbsurd.removeClass("bold").html(`<span class="help" title="${EncounterBuilder._TITLE_ABSURD}">Absurd:</span> ${partyMeta.absurd.toLocaleString()} XP`);
 
-		$(`.ecgen__ttk`).html(`<span class="help" title="${EncounterBuilder._TITLE_TTK}">TTK:</span> ${this._getApproxTurnsToKill().toFixed(2)}`);
+		this._$dispTtk.html(`<span class="help" title="${EncounterBuilder._TITLE_TTK}">TTK:</span> ${this._getApproxTurnsToKill().toFixed(2)}`);
 
-		$(`.ecgen__daily_budget`).removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_BUDGET_DAILY}">Daily Budget:</span> ${partyMeta.dailyBudget.toLocaleString()} XP`);
+		this._$dispBudgetDaily.removeClass("bold").html(`<span class="help-subtle" title="${EncounterBuilder._TITLE_BUDGET_DAILY}">Daily Budget:</span> ${partyMeta.dailyBudget.toLocaleString()} XP`);
 
 		let difficulty = "Trivial";
 		if (encounter.adjustedXp >= partyMeta.absurd) {
@@ -796,10 +857,12 @@ class EncounterBuilder extends ProxyBase {
 		}
 
 		if (encounter.relevantCount) {
-			$(`.ecgen__req_creatures`).showVe();
-			$(`.ecgen__rating`).text(`Difficulty: ${difficulty}`);
-			$(`.ecgen__raw_total`).text(`Total XP: ${encounter.baseXp.toLocaleString()}`);
-			$(`.ecgen__raw_per_player`).text(`(${Math.floor(encounter.baseXp / partyMeta.cntPlayers).toLocaleString()} per player)`);
+			this._$hrHasCreatures.showVe();
+			this._$wrpDifficulty.showVe();
+
+			this._$dispDifficulty.text(`Difficulty: ${difficulty}`);
+			this._$dispXpRawTotal.text(`Total XP: ${encounter.baseXp.toLocaleString()}`);
+			this._$dispXpRawPerPlayer.text(`(${Math.floor(encounter.baseXp / partyMeta.cntPlayers).toLocaleString()} per player)`);
 
 			// TODO(Future) update this based on the actual method being used
 			const infoEntry = {
@@ -862,61 +925,42 @@ class EncounterBuilder extends ProxyBase {
 				const hoverMeta = Renderer.hover.getMakePredefinedHover(infoEntry, {isBookContent: true});
 				this._infoHoverId = hoverMeta.id;
 
-				const $hvInfo = $(`.ecgen__adjusted_total_info`);
-				$hvInfo.on("mouseover", function (event) { hoverMeta.mouseOver(event, this) });
-				$hvInfo.on("mousemove", function (event) { hoverMeta.mouseMove(event, this) });
-				$hvInfo.on("mouseleave", function (event) { hoverMeta.mouseLeave(event, this) });
+				this._$hovXpAdjustedInfo
+					.off("mouseover")
+					.off("mousemove")
+					.off("mouseleave")
+					.on("mouseover", function (event) { hoverMeta.mouseOver(event, this); })
+					.on("mousemove", function (event) { hoverMeta.mouseMove(event, this); })
+					.on("mouseleave", function (event) { hoverMeta.mouseLeave(event, this); });
 			} else {
 				Renderer.hover.updatePredefinedHover(this._infoHoverId, infoEntry);
 			}
 
-			$(`.ecgen__adjusted_total`).text(`Adjusted XP: ${encounter.adjustedXp.toLocaleString()}`);
-			$(`.ecgen__adjusted_per_player`).text(`(${Math.floor(encounter.adjustedXp / partyMeta.cntPlayers).toLocaleString()} per player)`);
+			this._$dispXpAdjustedTotal.html(`Adjusted XP <span class="ve-small ve-muted ml-2" title="XP Multiplier">(×${encounter.meta.playerAdjustedXpMult})</span>: ${encounter.adjustedXp.toLocaleString()}`);
+			this._$dispXpAdjustedPerPlayer.text(`(${Math.floor(encounter.adjustedXp / partyMeta.cntPlayers).toLocaleString()} per player)`);
 		} else {
-			$(`.ecgen__req_creatures`).hideVe();
+			this._$hrHasCreatures.hideVe();
+			this._$wrpDifficulty.hideVe();
 		}
-
-		this.doSaveState();
 	}
 
-	getPartyMeta () {
-		let rawPlayerArr;
-		if (this._advanced) {
-			const $players = $(`.ecgen__player_advanced`);
-			const countByLevel = {};
-			$players.each((i, e) => {
-				const level = $(e).find(`.ecgen__player_advanced__level`).val();
-				countByLevel[level] = (countByLevel[level] || 0) + 1;
-			});
-			rawPlayerArr = Object.entries(countByLevel).map(([level, count]) => ({level: Number(level), count}));
-		} else {
-			rawPlayerArr = $(`.ecgen__player_group`).map((i, e) => {
-				const $e = $(e);
-				return {
-					count: Number($e.find(`.ecgen__player_group__count`).val()),
-					level: Number($e.find(`.ecgen__player_group__level`).val()),
-				}
-			}).get();
-		}
-
-		const out = new EncounterPartyMeta(rawPlayerArr);
+	_getPartyMeta () {
+		const out = new EncounterPartyMeta(this._sublistPlugin.getRawPartyMeta());
 		this._lastPartyMeta = out;
 		return out;
 	}
 
-	get lastPartyMeta () { return this._lastPartyMeta; }
-
-	calculateXp () {
-		const partyMeta = this.getPartyMeta();
-		const encounter = EncounterBuilderUtils.calculateListEncounterXp(partyMeta);
-		return {partyMeta: partyMeta, encounter: encounter};
-	}
-
-	static async doStatblockMouseOver (evt, ele, ixMon, metadata) {
-		const mon = bestiaryPage._dataList[ixMon];
-
-		const hash = UrlUtil.autoEncodeHash(mon);
-		return Renderer.hover.pHandleLinkMouseOver(evt, ele, {page: UrlUtil.PG_BESTIARY, source: mon.source, hash, preloadId: metadata?.customHashId});
+	async doStatblockMouseOver ({evt, ele, source, hash, customHashId}) {
+		return Renderer.hover.pHandleLinkMouseOver(
+			evt,
+			ele,
+			{
+				page: UrlUtil.PG_BESTIARY,
+				source,
+				hash,
+				customHashId,
+			},
+		);
 	}
 
 	static getTokenHoverMeta (mon) {
@@ -938,11 +982,9 @@ class EncounterBuilder extends ProxyBase {
 		);
 	}
 
-	static async handleImageMouseOver (evt, $ele, ixMon) {
+	async handleImageMouseOver (evt, $ele, mon) {
 		// We'll rebuild the mouseover handler with whatever we load
 		$ele.off("mouseover");
-
-		const mon = bestiaryPage._dataList[ixMon];
 
 		const handleNoImages = () => {
 			const hoverMeta = Renderer.hover.getMakePredefinedHover(
@@ -992,13 +1034,18 @@ class EncounterBuilder extends ProxyBase {
 		return {name, source, _isScaledCr: scaledTo != null, _scaledCr: scaledTo};
 	}
 
-	async pDoCrChange ($iptCr, ixMon, scaledTo) {
+	async pDoCrChange ($iptCr, monScaled, scaledTo) {
 		await this._lock.pLock();
 
 		if (!$iptCr) return; // Should never occur, but if the creature has a non-adjustable CR, this field will not exist
 
 		try {
-			const mon = bestiaryPage._dataList[ixMon];
+			// Fetch original
+			const mon = await DataLoader.pCacheAndGetHash(
+				UrlUtil.PG_BESTIARY,
+				UrlUtil.autoEncodeHash(monScaled),
+			);
+
 			const baseCr = mon.cr.cr || mon.cr;
 			if (baseCr == null) return;
 			const baseCrNum = Parser.crToNumber(baseCr);
@@ -1009,7 +1056,7 @@ class EncounterBuilder extends ProxyBase {
 
 				if (targetCrNum === scaledTo) return;
 
-				const state = ListUtil.getExportableSublist();
+				const state = await this._sublistManager.pGetExportableSublist({isForceIncludePlugins: true, isMemoryOnly: true});
 				const toFindHash = UrlUtil.autoEncodeHash(mon);
 
 				const toFindUid = !(scaledTo == null || baseCrNum === scaledTo) ? Renderer.monster.getCustomHashId(EncounterBuilder._getFauxMon(mon.name, mon.source, scaledTo)) : null;
@@ -1036,7 +1083,7 @@ class EncounterBuilder extends ProxyBase {
 					else state.items[ixCurrItem].customHashId = Renderer.monster.getCustomHashId(EncounterBuilder._getFauxMon(mon.name, mon.source, targetCrNum));
 				}
 
-				await this._pLoadSublist(state);
+				await this._sublistManager.pDoLoadExportedSublist(state, {isMemoryOnly: true});
 			} else {
 				JqueryUtil.doToast({
 					content: `"${$iptCr.val()}" is not a valid Challenge Rating! Please enter a valid CR (0-30). For fractions, "1/X" should be used.`,
@@ -1049,97 +1096,10 @@ class EncounterBuilder extends ProxyBase {
 		}
 	}
 
-	addAdvancedColumnHeader (name) {
-		$(`.ecgen__advanced_add_col`).before(EncounterBuilder.getAdvancedPlayerDetailHeader(name));
-	}
-
-	addAdvancedColumnFooter () {
-		$(`.ecgen__wrp_add_players`).append(`
-			<div class="ecgen__player_advanced_narrow ecgen__player_advanced_extra_foot mr-1">
-				<button class="btn btn-xs btn-danger ecgen__advanced_remove_col" onclick="encounterBuilder.removeAdvancedColumn(this)" title="Remove Column"><span class="glyphicon-trash glyphicon"/></button>
-			</div>
-		`);
-	}
-
-	addAdvancedColumn () {
-		this.addAdvancedColumnHeader();
-		$(`.ecgen__player_advanced`).each((i, e) => {
-			$(e).find(`input`).last().after(EncounterBuilder.getAdvancedPlayerDetailColumn());
-		});
-		this.addAdvancedColumnFooter();
-		this.doSaveStateDebounced();
-	}
-
-	removeAdvancedColumn (ele) {
-		const $e = $(ele);
-		const pos = $(`.ecgen__wrp_add_players`).find(`.ecgen__player_advanced_extra_foot`).index($e.parent());
-		$e.parent().remove();
-		$(`.ecgen__player_advanced`).each((i, e) => {
-			$($(e).find(`.ecgen__player_advanced_extra`)[pos]).remove();
-		});
-		$($(`.ecgen__players_head_advanced .ecgen__player_advanced_extra_head`)[pos]).remove();
-	}
-
-	static getAdvancedPlayerDetailHeader (name) {
-		return `
-			<input class="ecgen__player_advanced_narrow ecgen__player_advanced_extra_head form-control form-control--minimal input-xs text-center mr-1" autocomplete="new-password" value="${(name || "").escapeQuotes()}" onchange="encounterBuilder.doSaveStateDebounced()">
-		`;
-	}
-
-	static getAdvancedPlayerDetailColumn (value) {
-		return `
-			<input class="ecgen__player_advanced_narrow ecgen__player_advanced_extra form-control form-control--minimal input-xs text-center mr-1" value="${(value || "").escapeQuotes()}" onchange="encounterBuilder.doSaveStateDebounced()">
-		`;
-	}
-
-	static getAdvancedPlayerRow (isFirst, name, level, extraVals) {
-		extraVals = extraVals || [...new Array($(`.ecgen__player_advanced_extra_head`).length)].map(() => "");
-		return `
-			<div class="row mb-2 ecgen__player_advanced">
-				<div class="w-100 flex ecgen__player_advanced_flex">
-					<input class="ecgen__player_advanced__name form-control form-control--minimal input-xs mr-1" value="${(name || "").escapeQuotes()}" onchange="encounterBuilder.doSaveStateDebounced()">
-					<input value="${level || 1}" min="1" max="20" type="number" class="ecgen__player_advanced__level ecgen__player_advanced_narrow form-control form-control--minimal input-xs text-right mr-1" onchange="encounterBuilder.updateDifficulty()">
-					${extraVals.map(it => EncounterBuilder.getAdvancedPlayerDetailColumn(it)).join("")}
-					${!isFirst ? `
-					<button class="btn btn-danger btn-xs ecgen__del_players" onclick="encounterBuilder.removeAdvancedPlayerRow(this)" title="Remove Player">
-						<span class="glyphicon glyphicon-trash"></span>
-					</button>
-					` : `<div class="ecgen__del_players_filler"/>`}
-				</div>
-			</div>
-		`;
-	}
-
-	static getPlayerRow (isFirst, count, level) {
-		count = Number(count) || 1;
-		level = Number(level) || 1;
-		return `
-			<div class="flex-v-center mb-2 ecgen__player_group">
-				<div class="w-20">
-					<select class="ecgen__player_group__count form-control form-control--minimal input-xs" onchange="encounterBuilder.updateDifficulty()">
-					${[...new Array(12)].map((_, i) => `<option ${(count === i + 1) ? "selected" : ""}>${i + 1}</option>`).join("")}
-					</select>
-				</div>
-				<div class="w-20">
-					<select class="ecgen__player_group__level form-control form-control--minimal input-xs" onchange="encounterBuilder.updateDifficulty()" >
-						${[...new Array(20)].map((_, i) => `<option ${(level === i + 1) ? "selected" : ""}>${i + 1}</option>`).join("")}
-					</select>
-				</div>
-				${!isFirst ? `
-				<div class="ml-2 flex-v-center" style="height: 20px;">
-					<button class="btn btn-danger btn-xs ecgen__del_players" onclick="encounterBuilder.removePlayerRow(this)" title="Remove Player Group">
-						<span class="glyphicon glyphicon-trash"></span>
-					</button>
-				</div>
-				` : ""}
-			</div>
-		`;
-	}
-
-	static getButtons (monId) {
+	getButtons (monId) {
 		return e_({
 			tag: "span",
-			clazz: `ecgen__visible col-1 no-wrap pl-0`,
+			clazz: `ecgen__visible col-1 no-wrap pl-0 btn-group`,
 			click: evt => {
 				evt.preventDefault();
 				evt.stopPropagation();
@@ -1149,7 +1109,7 @@ class EncounterBuilder extends ProxyBase {
 					tag: "button",
 					title: `Add (SHIFT for 5)`,
 					clazz: `btn btn-success btn-xs ecgen__btn_list`,
-					click: evt => encounterBuilder.handleClick(evt, monId, 1),
+					click: evt => this._handleClick({evt, entity: this._bestiaryPage.dataList_[monId], mode: "add"}),
 					children: [
 						e_({
 							tag: "span",
@@ -1161,7 +1121,7 @@ class EncounterBuilder extends ProxyBase {
 					tag: "button",
 					title: `Subtract (SHIFT for 5)`,
 					clazz: `btn btn-danger btn-xs ecgen__btn_list`,
-					click: evt => encounterBuilder.handleClick(evt, monId, 0),
+					click: evt => this._handleClick({evt, entity: this._bestiaryPage.dataList_[monId], mode: "subtract"}),
 					children: [
 						e_({
 							tag: "span",
@@ -1173,200 +1133,36 @@ class EncounterBuilder extends ProxyBase {
 		});
 	}
 
-	static $getSublistButtons (monId, customHashId) {
-		const $btnAdd = $(`<button title="Add (SHIFT for 5)" class="btn btn-success btn-xs ecgen__btn_list"><span class="glyphicon glyphicon-plus"/></button>`)
-			.click(evt => encounterBuilder.handleClick(evt, monId, true, customHashId));
+	getSublistButtonsMeta (sublistItem) {
+		const $btnAdd = $(`<button title="Add (SHIFT for 5)" class="btn btn-success btn-xs ecgen__btn_list"><span class="glyphicon glyphicon-plus"></span></button>`)
+			.click(evt => this._handleClick({evt, entity: sublistItem.data.entity, mode: "add"}));
 
-		const $btnSub = $(`<button title="Subtract (SHIFT for 5)" class="btn btn-danger btn-xs ecgen__btn_list"><span class="glyphicon glyphicon-minus"/></button>`)
-			.click(evt => encounterBuilder.handleClick(evt, monId, false, customHashId));
+		const $btnSub = $(`<button title="Subtract (SHIFT for 5)" class="btn btn-danger btn-xs ecgen__btn_list"><span class="glyphicon glyphicon-minus"></span></button>`)
+			.click(evt => this._handleClick({evt, entity: sublistItem.data.entity, mode: "subtract"}));
 
-		const $btnRandomize = $(`<button title="Randomize Monster" class="btn btn-default btn-xs ecgen__btn_list"><span class="glyphicon glyphicon-random" style="right: 1px"/></button>`)
-			.click(() => encounterBuilder.pHandleShuffleClick(monId));
+		const $btnRandomize = $(`<button title="Randomize Monster" class="btn btn-default btn-xs ecgen__btn_list"><span class="glyphicon glyphicon-random"></span></button>`)
+			.click(() => this._pHandleShuffleClick(sublistItem.ix));
 
-		return $$`<span class="ecgen__visible col-1-5 no-wrap pl-0">
+		const $btnLock = $(`<button title="Lock Monster against Randomizing/Adjusting" class="btn btn-default btn-xs ecgen__btn_list"><span class="glyphicon glyphicon-lock"></span></button>`)
+			.click(() => this._sublistManager.pSetDataEntry({sublistItem, key: "isLocked", value: !sublistItem.data.isLocked}))
+			.toggleClass("active", sublistItem.data.isLocked);
+
+		const $wrp = $$`<span class="ecgen__visible col-1-5 no-wrap pl-0 btn-group">
 			${$btnAdd}
 			${$btnSub}
 			${$btnRandomize}
+			${$btnLock}
 		</span>`
 			.click(evt => {
 				evt.preventDefault();
-				evt.stopPropagation()
+				evt.stopPropagation();
 			});
+
+		return {
+			$wrp,
+			fnUpdate: () => $btnLock.toggleClass("active", sublistItem.data.isLocked),
+		};
 	}
-
-	// region saved encounters
-	async _initSavedEncounters () {
-		const $wrpControls = $(`#ecgen__wrp-save-controls`).empty();
-
-		const savedState = await EncounterUtil.pGetSavedState();
-		Object.assign(this._state, savedState);
-
-		const pLoadActiveEncounter = async () => {
-			// save/restore the active key, to prevent it from being killed by the reset
-			const cached = this._state.activeKey;
-			const encounter = this._state.savedEncounters[this._state.activeKey];
-			await this.pDoLoadState(encounter.data);
-			this._state.activeKey = cached;
-			this.pSetSavedEncountersThrottled();
-		};
-
-		this._$iptName = $(`<input class="form-control form-control--minimal mb-3 mt-0 px-2 text-right bold" style="max-width: 330px;"/>`)
-			.change(() => {
-				const name = this._$iptName.val().trim() || "(Unnamed Encounter)";
-				this._$iptName.val(name);
-				const encounter = this._state.savedEncounters[this._state.activeKey];
-				encounter.name = name;
-				this._state.savedEncounters = {
-					...this._state.savedEncounters,
-					[this._state.activeKey]: encounter,
-				};
-				this.pSetSavedEncountersThrottled();
-			});
-		const hookName = () => {
-			if (this._state.activeKey) {
-				const encounter = this._state.savedEncounters[this._state.activeKey];
-				this._$iptName.val(encounter.name);
-			} else this._$iptName.val("");
-			this.pSetSavedEncountersThrottled();
-		};
-		this._addHook("state", "savedEncounters", hookName);
-		this._addHook("state", "activeKey", hookName);
-		hookName();
-
-		this._$btnNew = $(`<button class="btn btn-default btn-xs mr-2" title="New Encounter (SHIFT-click to reset players)"><span class="glyphicon glyphicon glyphicon-file"/></button>`)
-			.click(evt => {
-				this._state.activeKey = null;
-				encounterBuilder.pReset({isNotResetPlayers: !evt.shiftKey, isNotAddInitialPlayers: !evt.shiftKey});
-			});
-		const hookDisplayNew = () => this._$btnNew.toggleClass("hidden", !this._state.activeKey);
-		this._addHook("state", "activeKey", hookDisplayNew);
-		hookDisplayNew();
-
-		// TODO set window title to encounter name on save?
-		this._$btnSave = $(`<button class="btn btn-default btn-xs mr-2" title="Save Encounter"/>`)
-			.click(async () => {
-				if (this._state.activeKey) {
-					const encounter = this._state.savedEncounters[this._state.activeKey];
-					encounter.data = this.getSaveableState();
-
-					this._state.savedEncounters = {
-						...this._state.savedEncounters,
-						[this._state.activeKey]: encounter,
-					};
-					this.pSetSavedEncountersThrottled();
-					JqueryUtil.doToast({type: "success", content: "Saved!"});
-				} else {
-					const name = await InputUiUtil.pGetUserString({title: "Enter Encounter Name"});
-
-					if (name != null) {
-						const key = CryptUtil.uid();
-						this._state.savedEncounters = {
-							...this._state.savedEncounters,
-							[key]: {
-								name,
-								data: this.getSaveableState(),
-							},
-						};
-						this._state.activeKey = key;
-						this.pSetSavedEncountersThrottled();
-						JqueryUtil.doToast({type: "success", content: "Saved!"});
-					}
-				}
-			});
-		const hookButtonText = () => this._$btnSave.html(this._state.activeKey ? `<span class="glyphicon glyphicon-floppy-disk"/>` : "Save Encounter");
-		this._addHook("state", "activeKey", hookButtonText);
-		hookButtonText();
-
-		const pDoReload = async () => {
-			const inStorage = await EncounterUtil.pGetSavedState();
-			const prev = inStorage.savedEncounters[this._state.activeKey];
-			if (!prev) {
-				return JqueryUtil.doToast({
-					content: `Could not find encounter in storage! Has it been deleted?`,
-					type: "danger",
-				});
-			} else {
-				this._state.savedEncounters = {
-					...this._state.savedEncounters,
-					[this._state.activeKey]: prev,
-				};
-				await pLoadActiveEncounter();
-			}
-		};
-		this._$btnReload = $(`<button class="btn btn-default btn-xs mr-2" title="Reload Current Encounter"><span class="glyphicon glyphicon-refresh"/></button>`)
-			.click(() => pDoReload());
-
-		this._$btnLoad = $(`<button class="btn btn-default btn-xs">Load Encounter</button>`)
-			.click(async () => {
-				const inStorage = await EncounterUtil.pGetSavedState();
-				const {$modalInner} = UiUtil.getShowModal({title: "Saved Encounters"});
-				const $wrpRows = $(`<div class="flex-col w-100 h-100"/>`).appendTo($modalInner);
-
-				const encounters = inStorage.savedEncounters;
-				if (Object.keys(encounters).length) {
-					let rendered = Object.keys(encounters).length;
-					Object.entries(encounters)
-						.sort((a, b) => SortUtil.ascSortLower(a[1].name || "", b[1].name || ""))
-						.forEach(([k, v]) => {
-							const $iptName = $(`<input class="input input-xs form-control form-control--minimal mr-2">`)
-								.val(v.name)
-								.change(() => {
-									const name = $iptName.val().trim() || "(Unnamed Encounter)";
-									$iptName.val(name);
-									const loaded = this._state.savedEncounters[k];
-									loaded.name = name;
-									this._state.savedEncounters = {...this._state.savedEncounters};
-									this.pSetSavedEncountersThrottled();
-								});
-
-							const $btnLoad = $(`<button class="btn btn-primary btn-xs mr-2">Load</button>`)
-								.click(async () => {
-									// if we've already got the correct encounter loaded, reload it
-									if (this._state.activeKey === k) await pDoReload();
-									else this._state.activeKey = k;
-
-									await pLoadActiveEncounter();
-								});
-
-							const $btnDelete = $(`<button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"/></button>`)
-								.click(() => {
-									if (this._state.activeKey === k) this._state.activeKey = null;
-									this._state.savedEncounters = Object.keys(this._state.savedEncounters)
-										.filter(it => it !== k)
-										.mergeMap(it => ({[it]: this._state.savedEncounters[it]}));
-									$row.remove();
-									if (!--rendered) $$`<div class="w-100 flex-vh-center italic">No saved encounters</div>`.appendTo($wrpRows);
-									this.pSetSavedEncountersThrottled();
-								});
-
-							const $row = $$`<div class="flex-v-center w-100 mb-2">
-								${$iptName}
-								${$btnLoad}
-								${$btnDelete}
-							</div>`.appendTo($wrpRows);
-						});
-				} else $$`<div class="w-100 flex-vh-center italic">No saved encounters</div>`.appendTo($wrpRows)
-			});
-
-		const hookActiveKey = () => {
-			// show/hide controls
-			this._$iptName.toggle(!!this._state.activeKey);
-			this._$btnReload.toggle(!!this._state.activeKey);
-		};
-		this._addHook("state", "activeKey", hookActiveKey);
-		hookActiveKey();
-
-		$$`<div class="flex-col" style="align-items: flex-end;">
-			${this._$iptName}
-			<div class="flex-h-right">${this._$btnNew}${this._$btnSave}${this._$btnReload}${this._$btnLoad}</div>
-		</div>`.appendTo($wrpControls);
-	}
-
-	_pSetSavedEncounters () {
-		if (!this.stateInit) return;
-		return StorageUtil.pSet(EncounterUtil.SAVED_ENCOUNTER_SAVE_LOCATION, this.__state);
-	}
-	// endregion
 }
 EncounterBuilder.HASH_KEY = "encounterbuilder";
 EncounterBuilder.TIERS = ["easy", "medium", "hard", "deadly", "absurd"];
@@ -1378,6 +1174,729 @@ EncounterBuilder._TITLE_ABSURD = "An &quot;absurd&quot; encounter is a deadly en
 EncounterBuilder._TITLE_BUDGET_DAILY = "This provides a rough estimate of the adjusted XP value for encounters the party can handle before the characters will need to take a long rest.";
 EncounterBuilder._TITLE_TTK = "Time to Kill: The estimated number of turns the party will require to defeat the encounter. This assumes single-target damage only.";
 
+EncounterBuilder.RenderableCollectionPlayersSimple = class extends RenderableCollectionBase {
+	constructor (
+		{
+			comp,
+
+			$wrpRows,
+		},
+	) {
+		super(comp, "playersSimple");
+		this._$wrpRows = $wrpRows;
+	}
+
+	getNewRender (playerGroup, i) {
+		playerGroup.entity.count = playerGroup.entity.count || 1;
+		playerGroup.entity.level = playerGroup.entity.level || 1;
+
+		const comp = BaseComponent.fromObject(playerGroup.entity, "*");
+		comp._addHookAll("state", () => {
+			this._getCollectionItem(playerGroup.id).entity = comp.toObject("*");
+			this._comp._triggerCollectionUpdate("playersSimple");
+		});
+
+		const $selCount = ComponentUiUtil.$getSelEnum(
+			comp,
+			"count",
+			{
+				values: [...new Array(12)].map((_, i) => i + 1),
+			},
+		).addClass("form-control--minimal no-shrink");
+
+		const $selLevel = ComponentUiUtil.$getSelEnum(
+			comp,
+			"level",
+			{
+				values: [...new Array(20)].map((_, i) => i + 1),
+			},
+		).addClass("form-control--minimal no-shrink bl-0");
+
+		const $btnRemove = $(`<button class="btn btn-danger btn-xxs ecgen-player__btn-inline h-ipt-xs no-shrink bl-0 bbl-0 btl-0" title="Remove Player Group" tabindex="-1"><span class="glyphicon glyphicon-trash"></span></button>`)
+			.click(() => {
+				this._comp.playersSimple = this._comp.playersSimple.filter(it => it.id !== playerGroup.id);
+			});
+
+		const $wrpRow = $$`<div class="ve-flex-v-center mb-2 ecgen-player__wrp-row">
+			<div class="w-20">${$selCount}</div>
+			<div class="w-20">${$selLevel}</div>
+			<div class="ve-flex-v-center">${$btnRemove}</div>
+		</div>`.appendTo(this._$wrpRows);
+
+		return {
+			comp,
+			$wrpRow,
+		};
+	}
+
+	doUpdateExistingRender (renderedMeta, playerGroup, i) {
+		renderedMeta.comp._proxyAssignSimple("state", playerGroup.entity, true);
+		if (!renderedMeta.$wrpRow.parent().is(this._$wrpRows)) renderedMeta.$wrpRow.appendTo(this._$wrpRows);
+	}
+};
+
+EncounterBuilder.RenderableCollectionColsExtraAdvanced = class extends RenderableCollectionBase {
+	constructor (
+		{
+			comp,
+
+			$wrpHeadersAdvanced,
+			$wrpFootersAdvanced,
+		},
+	) {
+		super(comp, "colsExtraAdvanced");
+
+		this._$wrpHeadersAdvanced = $wrpHeadersAdvanced;
+		this._$wrpFootersAdvanced = $wrpFootersAdvanced;
+	}
+
+	getNewRender (colExtra, i) {
+		const comp = BaseComponent.fromObject(colExtra.entity, "*");
+		comp._addHookAll("state", () => {
+			this._getCollectionItem(colExtra.id).entity = comp.toObject("*");
+			this._comp._triggerCollectionUpdate("colsExtraAdvanced");
+		});
+
+		const $iptName = ComponentUiUtil.$getIptStr(comp, "name")
+			.addClass("w-40p form-control--minimal no-shrink text-center mr-1 bb-0");
+
+		const $wrpHeader = $$`<div class="ve-flex">
+			${$iptName}
+		</div>`
+			.appendTo(this._$wrpHeadersAdvanced);
+
+		const $btnDelete = $(`<button class="btn btn-xxs ecgen-player__btn-inline w-40p btn-danger no-shrink mt-n2 bt-0 btl-0 btr-0" title="Remove Column" tabindex="-1"><span class="glyphicon-trash glyphicon"></span></button>`)
+			.click(() => this._comp.doRemoveColExtraAdvanced(colExtra.id));
+
+		const $wrpFooter = $$`<div class="w-40p ve-flex-v-baseline ve-flex-h-center no-shrink no-grow mr-1">
+			${$btnDelete}
+		</div>`
+			.appendTo(this._$wrpFootersAdvanced);
+
+		return {
+			comp,
+			$wrpHeader,
+			$wrpFooter,
+			fmRemoveEles: () => {
+				$wrpHeader.remove();
+				$wrpFooter.remove();
+			},
+		};
+	}
+
+	doUpdateExistingRender (renderedMeta, colExtra, i) {
+		renderedMeta.comp._proxyAssignSimple("state", colExtra.entity, true);
+		if (!renderedMeta.$wrpHeader.parent().is(this._$wrpHeadersAdvanced)) renderedMeta.$wrpHeader.appendTo(this._$wrpHeadersAdvanced);
+		if (!renderedMeta.$wrpFooter.parent().is(this._$wrpFootersAdvanced)) renderedMeta.$wrpFooter.appendTo(this._$wrpFootersAdvanced);
+	}
+};
+
+EncounterBuilder.RenderableCollectionPlayersAdvanced = class extends RenderableCollectionBase {
+	constructor (
+		{
+			comp,
+
+			$wrpRows,
+		},
+	) {
+		super(comp, "playersAdvanced");
+		this._$wrpRows = $wrpRows;
+	}
+
+	getNewRender (player, i) {
+		player.entity.name = player.entity.name || "";
+		player.entity.level = player.entity.level || 1;
+		player.entity.extraCols = player.entity.extraCols || this._comp.colsExtraAdvanced.map(() => "");
+
+		const comp = BaseComponent.fromObject(player.entity, "*");
+		comp._addHookAll("state", () => {
+			this._getCollectionItem(player.id).entity = comp.toObject("*");
+			this._comp._triggerCollectionUpdate("playersAdvanced");
+		});
+
+		const $iptName = ComponentUiUtil.$getIptStr(comp, "name")
+			.addClass(`w-100p form-control--minimal no-shrink mr-1`);
+
+		const $iptLevel = ComponentUiUtil.$getIptInt(
+			comp,
+			"level",
+			1,
+			{
+				min: 1,
+				max: 20,
+				fallbackOnNaN: 1,
+			},
+		).addClass("w-40p form-control--minimal no-shrink mr-1 text-center");
+
+		const $wrpIptsExtra = $(`<div class="ve-flex-v-center"></div>`);
+		const collectionExtras = new EncounterBuilder.RenderableCollectionPlayerAdvancedExtras({
+			comp,
+			$wrpIptsExtra,
+		});
+		const hkExtras = () => collectionExtras.render();
+		comp._addHookBase("extras", hkExtras);
+		hkExtras();
+
+		const $btnRemove = $(`<button class="btn btn-danger btn-xxs ecgen-player__btn-inline h-ipt-xs no-shrink ml-n1 bl-0 bbl-0 btl-0" title="Remove Player" tabindex="-1"><span class="glyphicon glyphicon-trash"></span></button>`)
+			.click(() => {
+				this._comp.playersAdvanced = this._comp.playersAdvanced.filter(it => it.id !== player.id);
+			});
+
+		const $wrpRow = $$`<div class="ve-flex-v-center mb-2 ecgen-player__wrp-row">
+			${$iptName}
+			${$iptLevel}
+			${$wrpIptsExtra}
+			${$btnRemove}
+		</div>`.appendTo(this._$wrpRows);
+
+		return {
+			comp,
+			$wrpRow,
+			$wrpIptsExtra,
+		};
+	}
+
+	doUpdateExistingRender (renderedMeta, player, i) {
+		renderedMeta.comp._proxyAssignSimple("state", player.entity, true);
+		if (!renderedMeta.$wrpRow.parent().is(this._$wrpRows)) renderedMeta.$wrpRow.appendTo(this._$wrpRows);
+	}
+};
+
+EncounterBuilder.RenderableCollectionPlayerAdvancedExtras = class extends RenderableCollectionBase {
+	constructor (
+		{
+			comp,
+
+			$wrpIptsExtra,
+		},
+	) {
+		super(comp, "extras");
+		this._$wrpIptsExtra = $wrpIptsExtra;
+	}
+
+	getNewRender (extra, i) {
+		const comp = BaseComponent.fromObject(extra.entity, "*");
+		comp._addHookAll("state", () => {
+			this._getCollectionItem(extra.id).entity = comp.toObject("*");
+			this._comp._triggerCollectionUpdate("extras");
+		});
+
+		const $iptVal = ComponentUiUtil.$getIptStr(comp, "value")
+			.addClass(`w-40p no-shrink form-control--minimal text-center mr-1`);
+
+		const $wrpRow = $$`<div class="ve-flex-v-h-center">
+			${$iptVal}
+		</div>`
+			.appendTo(this._$wrpIptsExtra);
+
+		return {
+			comp,
+			$wrpRow,
+		};
+	}
+
+	doUpdateExistingRender (renderedMeta, extra, i) {
+		renderedMeta.comp._proxyAssignSimple("state", extra.entity, true);
+		if (!renderedMeta.$wrpRow.parent().is(this._$wrpIptsExtra)) renderedMeta.$wrpRow.appendTo(this._$wrpIptsExtra);
+	}
+};
+
+/**
+ * A cache of XP value -> creature.
+ */
+EncounterBuilder.Cache = class {
+	constructor ({bestiaryPage}) {
+		this._bestiaryPage = bestiaryPage;
+		this._cache = null;
+	}
+
+	_build () {
+		if (this._cache != null) return;
+		// create a map of {XP: [monster list]}
+		this._cache = this._getBuiltCache();
+	}
+
+	_getBuiltCache () {
+		const out = {};
+		this._bestiaryPage.list_.visibleItems.map(it => this._bestiaryPage.dataList_[it.ix]).filter(m => !m.isNpc).forEach(m => {
+			const mXp = Parser.crToXpNumber(m.cr);
+			if (mXp) (out[mXp] = out[mXp] || []).push(m);
+		});
+		return out;
+	}
+
+	reset () { this._cache = null; }
+
+	getCreaturesByXp (xp) {
+		this._build();
+		return this._cache[xp] || [];
+	}
+
+	getXpKeys () {
+		this._build();
+		return Object.keys(this._cache).map(it => Number(it));
+	}
+};
+
+EncounterBuilder.Adjuster = class {
+	static _INCOMPLETE_EXHAUSTED = 0;
+	static _INCOMPLETE_FAILED = -1;
+	static _COMPLETE = 1;
+
+	constructor ({partyMeta}) {
+		this._partyMeta = partyMeta;
+	}
+
+	async pGetAdjustedEncounter ({difficulty, currentEncounter}) {
+		if (!currentEncounter.length) {
+			JqueryUtil.doToast({content: `The current encounter contained no creatures! Please add some first.`, type: "warning"});
+			return;
+		}
+
+		if (currentEncounter.every(it => it.isLocked)) {
+			JqueryUtil.doToast({content: `The current encounter contained only locked creatures! Please unlock or add some other creatures some first.`, type: "warning"});
+			return;
+		}
+
+		currentEncounter
+			.filter(it => !it.isLocked)
+			.forEach(creatureMeta => creatureMeta.count = 1);
+
+		const ixLow = EncounterBuilder.TIERS.indexOf(difficulty);
+		if (!~ixLow) throw new Error(`Unhandled difficulty level: "${difficulty}"`);
+
+		// fudge min/max numbers slightly
+		const [targetMin, targetMax] = [
+			Math.floor(this._partyMeta[EncounterBuilder.TIERS[ixLow]] * 0.9),
+			Math.ceil((this._partyMeta[EncounterBuilder.TIERS[ixLow + 1]] - 1) * 1.1),
+		];
+
+		if (EncounterBuilderUtils.calculateEncounterXp(currentEncounter, this._partyMeta).adjustedXp > targetMax) {
+			JqueryUtil.doToast({content: `Could not adjust the current encounter to ${difficulty.uppercaseFirst()}, try removing some creatures!`, type: "danger"});
+			return;
+		}
+
+		// only calculate this once rather than during the loop, to ensure stable conditions
+		// less accurate in some cases, but should prevent infinite loops
+		const crCutoff = EncounterBuilderUtils.getCrCutoff(currentEncounter, this._partyMeta);
+
+		// randomly choose creatures to skip
+		// generate array of [0, 1, ... n-1] where n = number of unique creatures
+		// this will be used to determine how many of the unique creatures we want to skip
+		const numSkipTotals = [...new Array(currentEncounter.filter(it => !it.isLocked).length)].map((_, ix) => ix);
+
+		const invalidSolutions = [];
+		let lastAdjustResult;
+		for (let maxTries = 999; maxTries >= 0; --maxTries) {
+			// -1/1 = complete; 0 = continue
+			lastAdjustResult = this._pGetAdjustedEncounter_doTryAdjusting({currentEncounter, numSkipTotals, targetMin, targetMax});
+			if (lastAdjustResult !== EncounterBuilder.Adjuster._INCOMPLETE_EXHAUSTED) break;
+
+			invalidSolutions.push(MiscUtil.copy(currentEncounter));
+
+			// reset for next attempt
+			currentEncounter
+				.filter(it => !it.isLocked)
+				.forEach(creatureMeta => creatureMeta.count = 1);
+		}
+
+		// no good solution was found, so pick the closest invalid solution
+		if (lastAdjustResult !== EncounterBuilder.Adjuster._COMPLETE && invalidSolutions.length) {
+			currentEncounter = invalidSolutions
+				.map(soln => ({
+					encounter: soln,
+					distance: (() => {
+						const xp = EncounterBuilderUtils.calculateEncounterXp(soln, this._partyMeta);
+						if (xp > targetMax) return xp - targetMax;
+						else if (xp < targetMin) return targetMin - xp;
+						else return 0;
+					})(),
+				}))
+				.sort((a, b) => SortUtil.ascSort(a.distance, b.distance))[0].encounter;
+		}
+
+		// do a post-step to randomly bulk out our counts of "irrelevant" creatures, ensuring plenty of fireball fodder
+		this._pGetAdjustedEncounter_doIncreaseIrrelevantCreatureCount({currentEncounter, crCutoff, targetMax});
+
+		return new EncounterBuilder.AdjustedEncounter({currentEncounter});
+	}
+
+	_pGetAdjustedEncounter_doTryAdjusting ({currentEncounter, numSkipTotals, targetMin, targetMax}) {
+		if (!numSkipTotals.length) return EncounterBuilder.Adjuster._INCOMPLETE_FAILED; // no solution possible, so exit loop
+
+		let skipIx = 0;
+		// 7/12 * 7/12 * ... chance of moving the skipIx along one
+		while (!(RollerUtil.randomise(12) > 7) && skipIx < numSkipTotals.length - 1) skipIx++;
+
+		const numSkips = numSkipTotals.splice(skipIx, 1)[0]; // remove the selected skip amount; we'll try the others if this one fails
+		const curUniqueCreatures = [...currentEncounter.filter(it => !it.isLocked)];
+		if (numSkips) {
+			[...new Array(numSkips)].forEach(() => {
+				const ixRemove = RollerUtil.randomise(curUniqueCreatures.length) - 1;
+				if (!~ixRemove) return;
+				curUniqueCreatures.splice(ixRemove, 1);
+			});
+		}
+
+		for (let maxTries = 999; maxTries >= 0; --maxTries) {
+			const encounterXp = EncounterBuilderUtils.calculateEncounterXp(currentEncounter, this._partyMeta);
+			if (encounterXp.adjustedXp > targetMin && encounterXp.adjustedXp < targetMax) {
+				return EncounterBuilder.Adjuster._COMPLETE;
+			}
+
+			// chance to skip each creature at each iteration
+			// otherwise, the case where every creature is relevant produces an equal number of every creature
+			const pickFrom = [...curUniqueCreatures];
+			if (pickFrom.length > 1) {
+				let loops = Math.floor(pickFrom.length / 2);
+				// skip [half, n-1] creatures
+				loops = RollerUtil.randomise(pickFrom.length - 1, loops);
+				while (loops-- > 0) {
+					const ix = RollerUtil.randomise(pickFrom.length) - 1;
+					pickFrom.splice(ix, 1);
+				}
+			}
+
+			while (pickFrom.length) {
+				const ix = RollerUtil.randomise(pickFrom.length) - 1;
+				const picked = pickFrom.splice(ix, 1)[0];
+				picked.count++;
+				if (EncounterBuilderUtils.calculateEncounterXp(currentEncounter, this._partyMeta).adjustedXp > targetMax) {
+					picked.count--;
+				}
+			}
+		}
+
+		return EncounterBuilder.Adjuster._INCOMPLETE_EXHAUSTED;
+	}
+
+	_pGetAdjustedEncounter_doIncreaseIrrelevantCreatureCount ({currentEncounter, crCutoff, targetMax}) {
+		const belowCrCutoff = currentEncounter.filter(it => !it.isLocked && it.cr && it.cr < crCutoff);
+		if (!belowCrCutoff.length) return;
+
+		let budget = targetMax - EncounterBuilderUtils.calculateEncounterXp(currentEncounter, this._partyMeta).adjustedXp;
+		if (budget > 0) {
+			belowCrCutoff.forEach(it => it._xp = Parser.crToXpNumber(Parser.numberToCr(it.cr)));
+			const usable = belowCrCutoff.filter(it => it._xp < budget);
+
+			if (usable.length) {
+				const totalPlayers = this._partyMeta.levelMetas.map(it => it.count).reduce((a, b) => a + b, 0);
+				const averagePlayerLevel = this._partyMeta.levelMetas.map(it => it.level * it.count).reduce((a, b) => a + b, 0) / totalPlayers;
+
+				// try to avoid flooding low-level parties
+				const playerToCreatureRatio = (() => {
+					if (averagePlayerLevel < 5) return [0.8, 1.3];
+					else if (averagePlayerLevel < 11) return [1, 2];
+					else if (averagePlayerLevel < 17) return [1, 3];
+					else return [1, 4];
+				})();
+
+				const [minDesired, maxDesired] = [Math.floor(playerToCreatureRatio[0] * totalPlayers), Math.ceil(playerToCreatureRatio[1] * totalPlayers)];
+
+				// keep rolling until we fail to add a creature, or until we're out of budget
+				while (EncounterBuilderUtils.calculateEncounterXp(currentEncounter, this._partyMeta).adjustedXp <= targetMax) {
+					const totalCreatures = currentEncounter.map(it => it.count).reduce((a, b) => a + b, 0);
+
+					// if there's less than min desired, large chance of adding more
+					// if there's more than max desired, small chance of adding more
+					// if there's between min and max desired, medium chance of adding more
+					const chanceToAdd = totalCreatures < minDesired ? 90 : totalCreatures > maxDesired ? 40 : 75;
+
+					const isAdd = RollerUtil.roll(100) < chanceToAdd;
+					if (isAdd) {
+						RollerUtil.rollOnArray(belowCrCutoff).count++;
+					} else break;
+				}
+			}
+		}
+	}
+};
+
+// TODO use this earlier in the adjuster
+EncounterBuilder.AdjustedEncounter = class {
+	constructor ({currentEncounter}) {
+		this._currentEncounter = currentEncounter;
+	}
+
+	getAsExportedSublistState () {
+		return {
+			items: this._currentEncounter.map(creatureMeta => ({
+				h: creatureMeta.hash,
+				c: `${creatureMeta.count}`,
+				customHashId: creatureMeta.customHashId || undefined,
+				l: creatureMeta.isLocked,
+			})),
+		};
+	}
+};
+
+EncounterBuilder.Randomizer = class {
+	static _NUM_SAMPLES = 20;
+
+	constructor ({partyMeta, cache}) {
+		this._partyMeta = partyMeta;
+		this._cache = cache;
+
+		// region Pre-cache various "constants" required during generation, for performance
+		this._STANDARD_XP_VALUES = new Set(Object.values(Parser.XP_CHART_ALT));
+		this._DESCENDING_AVAILABLE_XP_VALUES = this._cache.getXpKeys().sort(SortUtil.ascSort).reverse();
+
+		/*
+		Sorted array of:
+		{
+			cr: "1/2",
+			xp: 50,
+			crNum: 0.5
+		}
+		 */
+		this._CR_METAS = Object.entries(Parser.XP_CHART_ALT)
+			.map(([cr, xp]) => ({cr, xp, crNum: Parser.crToNumber(cr)}))
+			.sort((a, b) => SortUtil.ascSort(b.crNum, a.crNum));
+		// endregion
+	}
+
+	async pGetRandomEncounter ({difficulty, lockedEncounterCreatures}) {
+		const ixLow = EncounterBuilder.TIERS.indexOf(difficulty);
+		if (!~ixLow) throw new Error(`Unhandled difficulty level: "${difficulty}"`);
+
+		const budget = this._partyMeta[EncounterBuilder.TIERS[ixLow + 1]] - 1;
+
+		const closestSolution = this._pDoGenerateEncounter_getSolution({budget, lockedEncounterCreatures});
+
+		if (!closestSolution) {
+			JqueryUtil.doToast({content: `Failed to generate a valid encounter within the provided parameters!`, type: "warning"});
+			return;
+		}
+
+		return closestSolution;
+	}
+
+	_pDoGenerateEncounter_getSolution ({budget, lockedEncounterCreatures}) {
+		const solutions = this._pDoGenerateEncounter_getSolutions({budget, lockedEncounterCreatures});
+		const validSolutions = solutions.filter(it => this._isValidEncounter({candidateEncounter: it, budget}));
+		if (validSolutions.length) return RollerUtil.rollOnArray(validSolutions);
+		return null;
+	}
+
+	_pDoGenerateEncounter_getSolutions ({budget, lockedEncounterCreatures}) {
+		// If there are enough players that single-monster XP is halved, generate twice as many solutions, half with double XP cap
+		if (this._partyMeta.cntPlayers > 5) {
+			return [...new Array(EncounterBuilder.Randomizer._NUM_SAMPLES * 2)]
+				.map((_, i) => {
+					return this._pDoGenerateEncounter_generateClosestEncounter({
+						budget: budget * (Number((i >= EncounterBuilder.Randomizer._NUM_SAMPLES)) + 1),
+						rawBudget: budget,
+						lockedEncounterCreatures,
+					});
+				});
+		}
+
+		return [...new Array(EncounterBuilder.Randomizer._NUM_SAMPLES)]
+			.map(() => this._pDoGenerateEncounter_generateClosestEncounter({budget: budget, lockedEncounterCreatures}));
+	}
+
+	_isValidEncounter ({candidateEncounter, budget}) {
+		const encounterXp = candidateEncounter.getXp({partyMeta: this._partyMeta});
+		return encounterXp.adjustedXp >= (budget * 0.6) && encounterXp.adjustedXp <= (budget * 1.1);
+	}
+
+	_pDoGenerateEncounter_generateClosestEncounter ({budget, rawBudget, lockedEncounterCreatures}) {
+		if (rawBudget == null) rawBudget = budget;
+
+		const candidateEncounter = new EncounterBuilder.CandidateEncounter({lockedEncounterCreatures});
+		const xps = this._getUsableXpsForBudget({budget});
+
+		let nextBudget = budget;
+		let skips = 0;
+		let steps = 0;
+		while (xps.length) {
+			if (steps++ > 100) break;
+
+			if (skips) {
+				skips--;
+				xps.shift();
+				continue;
+			}
+
+			const xp = xps[0];
+
+			if (xp > nextBudget) {
+				xps.shift();
+				continue;
+			}
+
+			skips = this._getNumSkips({xps, candidateEncounter, xp});
+			if (skips) {
+				skips--;
+				xps.shift();
+				continue;
+			}
+
+			this._mutEncounterAddCreatureByXp({candidateEncounter, xp});
+
+			nextBudget = this._getBudgetRemaining({candidateEncounter, budget, rawBudget});
+		}
+
+		return candidateEncounter;
+	}
+
+	_getUsableXpsForBudget ({budget}) {
+		const xps = this._DESCENDING_AVAILABLE_XP_VALUES
+			.filter(it => {
+				// Make TftYP values (i.e. those that are not real XP thresholds) get skipped 9/10 times
+				if (!this._STANDARD_XP_VALUES.has(it) && RollerUtil.randomise(10) !== 10) return false;
+				return it <= budget;
+			});
+
+		// region Do initial skips--discard some potential XP values early
+		// 50% of the time, skip the first 0-1/3rd of available CRs
+		if (xps.length > 4 && RollerUtil.roll(2) === 1) {
+			const skips = RollerUtil.roll(Math.ceil(xps.length / 3));
+			return xps.slice(skips);
+		}
+
+		return xps;
+		// endregion
+	}
+
+	_getBudgetRemaining ({candidateEncounter, budget, rawBudget}) {
+		if (!candidateEncounter.creatures.length) return budget;
+
+		const curr = candidateEncounter.getXp({partyMeta: this._partyMeta});
+		const budgetRemaining = budget - curr.adjustedXp;
+
+		const meta = this._CR_METAS.filter(it => it.xp <= budgetRemaining);
+
+		// If we're a large party, and we're doing a "single creature worth less XP" generation, force the generation
+		//   to stop.
+		if (rawBudget !== budget && curr.count === 1 && (rawBudget - curr.baseXp) <= 0) {
+			return 0;
+		}
+
+		// if the highest CR creature has CR greater than the cutoff, adjust for next multiplier
+		if (meta.length && meta[0].crNum >= curr.meta.crCutoff) {
+			const nextMult = Parser.numMonstersToXpMult(curr.relevantCount + 1, this._partyMeta.cntPlayers);
+			return Math.floor((budget - (nextMult * curr.baseXp)) / nextMult);
+		}
+
+		// otherwise, no creature has CR greater than the cutoff, don't worry about multipliers
+		return budgetRemaining;
+	}
+
+	_mutEncounterAddCreatureByXp ({candidateEncounter, xp}) {
+		// region Try to add another copy of an existing creature
+		const existingMetas = candidateEncounter.creatures.filter(it => !it.isLocked && it.xp === xp);
+		if (existingMetas.length && RollerUtil.roll(100) < 85) { // 85% chance to add another copy of an existing monster
+			RollerUtil.rollOnArray(existingMetas).count++;
+			return;
+		}
+		// endregion
+
+		// region Try to add a new creature
+		// We retrieve the list of all available creatures for this XP, then randomly pick creatures from that list until
+		//   we exhaust all options.
+		// Generally, the first creature picked should be usable. We only need to continue our search loop if the creature
+		//   picked is already included in our encounter, and is locked.
+		const availableCreatures = [...this._cache.getCreaturesByXp(xp)];
+		while (availableCreatures.length) {
+			const ixRolled = RollerUtil.randomise(availableCreatures.length) - 1;
+			const rolled = availableCreatures[ixRolled];
+			availableCreatures.splice(ixRolled, 1);
+
+			const existingMeta = candidateEncounter.creatures
+				.find(it => it.creature.source === rolled.source && (it.creature._displayName || it.creature.name) === rolled.name);
+			if (existingMeta?.isLocked) continue;
+
+			if (existingMeta) existingMeta.count++;
+			else candidateEncounter.addCreature({xp, creature: rolled, count: 1});
+
+			break;
+		}
+		// endregion
+	}
+
+	_getNumSkips ({xps, candidateEncounter, xp}) {
+		// if there are existing entries at this XP, don't skip
+		const existing = candidateEncounter.creatures.filter(it => it.xp === xp);
+		if (existing.length) return 0;
+
+		if (xps.length <= 1) return 0;
+
+		// skip 70% of the time by default, less 13% chance per item skipped
+		const isSkip = RollerUtil.roll(100) < (70 - (13 * candidateEncounter.skipCount));
+		if (!isSkip) return 0;
+
+		candidateEncounter.skipCount++;
+		const maxSkip = xps.length - 1;
+		// flip coins; so long as we get heads, keep skipping
+		for (let i = 0; i < maxSkip; ++i) {
+			if (RollerUtil.roll(2) === 0) {
+				return i;
+			}
+		}
+		return maxSkip - 1;
+	}
+};
+
+EncounterBuilder.CandidateEncounter = class {
+	constructor ({lockedEncounterCreatures = null} = {}) {
+		this.skipCount = 0;
+		this.creatures = [...(lockedEncounterCreatures || [])];
+	}
+
+	getXp ({partyMeta}) {
+		const data = this.creatures
+			// Avoid including e.g. locked "summon" creatures.
+			// Since we always use "10 XP" for CR 0 creatures, this condition is logical.
+			// Note that this effectively discounts non-XP-carrying creatures from "creature count XP multiplier"
+			//   calculations. This is intentional; we make the simplifying assumption that if a creature doesn't carry XP,
+			//   it should have no impact on the difficulty encounter.
+			.filter(it => it.xp)
+			.map(it => ({cr: Parser.crToNumber(it.creature.cr), count: it.count}));
+		return EncounterBuilderUtils.calculateEncounterXp(data, partyMeta);
+	}
+
+	addCreature ({xp, count, creature}) {
+		this.creatures.push(
+			new EncounterBuilder.CandidateEncounterCreature({
+				xp,
+				creature,
+				count,
+			}),
+		);
+	}
+
+	getAsExportedSublistState () {
+		const toLoad = {items: []};
+		const sources = new Set();
+		this.creatures
+			.forEach(it => {
+				toLoad.items.push({
+					h: UrlUtil.autoEncodeHash(it.creature),
+					c: String(it.count),
+					l: it.isLocked,
+					customHashId: it.customHashId ?? undefined,
+				});
+				sources.add(it.creature.source);
+			});
+		toLoad.sources = [...sources];
+		return toLoad;
+	}
+};
+
+EncounterBuilder.CandidateEncounterCreature = class {
+	constructor ({xp, creature, count, isLocked = false, customHashId}) {
+		this.xp = xp;
+		this.creature = creature;
+		this.count = count;
+
+		// region These are stored and passed back to the list if/when we load our generated encounter
+		this.isLocked = !!isLocked;
+		this.customHashId = customHashId;
+		// endregion
+	}
+};
+
 class EncounterPartyMeta {
 	constructor (arr) {
 		this.levelMetas = []; // Array of `{level: x, count: y}`
@@ -1385,7 +1904,7 @@ class EncounterPartyMeta {
 		arr.forEach(it => {
 			const existingLvl = this.levelMetas.find(x => x.level === it.level);
 			if (existingLvl) existingLvl.count += it.count;
-			else this.levelMetas.push({count: it.count, level: it.level})
+			else this.levelMetas.push({count: it.count, level: it.level});
 		});
 
 		this.cntPlayers = 0;
@@ -1405,12 +1924,12 @@ class EncounterPartyMeta {
 			this.avgPlayerLevel += meta.level * meta.count;
 			this.maxPlayerLevel = Math.max(this.maxPlayerLevel, meta.level);
 
-			this.threshEasy += LEVEL_TO_XP_EASY[meta.level] * meta.count;
-			this.threshMedium += LEVEL_TO_XP_MEDIUM[meta.level] * meta.count;
-			this.threshHard += LEVEL_TO_XP_HARD[meta.level] * meta.count;
-			this.threshDeadly += LEVEL_TO_XP_DEADLY[meta.level] * meta.count;
+			this.threshEasy += Parser.LEVEL_TO_XP_EASY[meta.level] * meta.count;
+			this.threshMedium += Parser.LEVEL_TO_XP_MEDIUM[meta.level] * meta.count;
+			this.threshHard += Parser.LEVEL_TO_XP_HARD[meta.level] * meta.count;
+			this.threshDeadly += Parser.LEVEL_TO_XP_DEADLY[meta.level] * meta.count;
 
-			this.dailyBudget += LEVEL_TO_XP_DAILY[meta.level] * meta.count;
+			this.dailyBudget += Parser.LEVEL_TO_XP_DAILY[meta.level] * meta.count;
 		});
 		if (this.avgPlayerLevel) this.avgPlayerLevel /= this.cntPlayers;
 

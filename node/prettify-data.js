@@ -1,11 +1,12 @@
 "use strict";
 
-const fs = require("fs");
-const ut = require("./util");
-require("../js/utils");
-const PropOrder = require("../js/utils-proporder");
+import * as fs from "fs";
+import * as ut from "./util.js";
+import "../js/parser.js";
+import "../js/utils.js";
+import "../js/utils-proporder.js";
 
-const FILE_BLACKLIST = new Set([
+const FILE_BLOCKLIST = new Set([
 	"loot.json",
 	"msbcr.json",
 	"monsterfeatures.json",
@@ -15,11 +16,7 @@ const FILE_BLACKLIST = new Set([
 	"life.json",
 	"makecards.json",
 	"renderdemo.json",
-	"roll20-items.json",
-	"roll20-spells.json",
-	"roll20-tables.json",
 	"foundry.json",
-	"roll20.json",
 	"makebrew-creature.json",
 ]);
 
@@ -32,7 +29,7 @@ const _FILE_PROP_ORDER = [
 	"subclassFeature",
 ];
 
-const KEY_BLACKLIST = new Set(["data", "itemTypeAdditionalEntries", "itemType", "itemProperty", "itemEntry"]);
+const KEY_BLOCKLIST = new Set(["data", "itemTypeAdditionalEntries", "itemType", "itemProperty", "itemEntry"]);
 
 const PROPS_TO_UNHANDLED_KEYS = {};
 
@@ -56,15 +53,17 @@ function getFnListSort (prop) {
 		case "vehicle":
 		case "vehicleUpgrade":
 		case "backgroundFluff":
+		case "featFluff":
 		case "conditionFluff":
 		case "spellFluff":
 		case "itemFluff":
 		case "languageFluff":
 		case "vehicleFluff":
+		case "objectFluff":
 		case "raceFluff":
 		case "item":
 		case "baseitem":
-		case "variant":
+		case "magicvariant":
 		case "itemGroup":
 		case "object":
 		case "optionalfeature":
@@ -79,9 +78,11 @@ function getFnListSort (prop) {
 		case "charoptionFluff":
 		case "recipe":
 		case "recipeFluff":
-			return (a, b) => SortUtil.ascSortLower(a.name, b.name) || SortUtil.ascSortLower(a.source, b.source);
+		case "sense":
+		case "skill":
+			return SortUtil.ascSortGenericEntity.bind(SortUtil);
 		case "deity":
-			return (a, b) => SortUtil.ascSortLower(a.name, b.name) || SortUtil.ascSortLower(a.source, b.source) || SortUtil.ascSortLower(a.pantheon, b.pantheon);
+			return SortUtil.ascSortDeity.bind(SortUtil);
 		case "class":
 			return (a, b) => SortUtil.ascSortDateString(Parser.sourceJsonToDate(b.source), Parser.sourceJsonToDate(a.source)) || SortUtil.ascSortLower(a.name, b.name) || SortUtil.ascSortLower(a.source, b.source);
 		case "subclass":
@@ -99,9 +100,12 @@ function getFnListSort (prop) {
 			|| SortUtil.ascSort(a.header || 0, b.header || 0)
 			|| SortUtil.ascSortLower(a.name, b.name)
 			|| SortUtil.ascSortLower(a.source, b.source);
-		case "adventure":
-		case "book":
-			return (a, b) => SortUtil.ascSortDate(new Date(b.published), new Date(a.published) || SortUtil.ascSortLower(a.name, b.name));
+		case "subrace": return (a, b) => SortUtil.ascSortLower(a.raceName, b.raceName)
+			|| SortUtil.ascSortLower(a.raceSource, b.raceSource)
+			|| SortUtil.ascSortLower(a.name || "", b.name || "")
+			|| SortUtil.ascSortLower(a.source, b.source);
+		case "adventure": return SortUtil.ascSortAdventure.bind(SortUtil);
+		case "book": return SortUtil.ascSortBook.bind(SortUtil);
 		default: throw new Error(`Unhandled prop "${prop}"`);
 	}
 }
@@ -110,7 +114,7 @@ function prettifyFolder (folder) {
 	console.log(`Prettifying directory ${folder}...`);
 	const files = ut.listFiles({dir: folder});
 	files
-		.filter(file => file.endsWith(".json") && !FILE_BLACKLIST.has(file.split("/").last()))
+		.filter(file => file.endsWith(".json") && !FILE_BLOCKLIST.has(file.split("/").last()))
 		.forEach(file => {
 			console.log(`\tPrettifying ${file}...`);
 			let json = ut.readJson(file);
@@ -118,7 +122,7 @@ function prettifyFolder (folder) {
 
 			// region Sort keys within entities
 			Object.entries(json)
-				.filter(([k, v]) => !KEY_BLACKLIST.has(k) && v instanceof Array)
+				.filter(([k, v]) => !KEY_BLOCKLIST.has(k) && v instanceof Array)
 				.forEach(([k, v]) => {
 					if (PropOrder.hasOrder(k)) {
 						PROPS_TO_UNHANDLED_KEYS[k] = PROPS_TO_UNHANDLED_KEYS[k] || new Set();
@@ -136,7 +140,7 @@ function prettifyFolder (folder) {
 			const keyOrder = Object.keys(json)
 				.sort((a, b) => {
 					const ixA = _FILE_PROP_ORDER.indexOf(a);
-					const ixB = _FILE_PROP_ORDER.indexOf(b)
+					const ixB = _FILE_PROP_ORDER.indexOf(b);
 					return SortUtil.ascSort(~ixA ? ixA : Number.MAX_SAFE_INTEGER, ~ixB ? ixB : Number.MAX_SAFE_INTEGER);
 				});
 			const numUnhandledKeys = Object.keys(json).filter(it => !~_FILE_PROP_ORDER.indexOf(it));
@@ -157,7 +161,7 @@ function prettifyFolder (folder) {
 		.forEach(([prop, set]) => {
 			console.warn(`Unhandled keys for data property "${prop}":`);
 			set.forEach(k => console.warn(`\t${k}`));
-		})
+		});
 }
 
 prettifyFolder(`./data`);

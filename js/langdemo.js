@@ -1,3 +1,5 @@
+"use strict";
+
 import {Ro_Lexer, Ro_Parser, Ro_Lang} from "./rolang.js";
 
 class LangDemoUi {
@@ -46,7 +48,7 @@ class LangDemoUi {
 		const loadContext = () => {
 			const loaded = StorageUtil.syncGetForPage("context");
 			if (loaded != null) {
-				loaded.forEach(it => addContextRow(it.name, it.val))
+				loaded.forEach(it => addContextRow(it.name, it.val));
 			}
 		};
 
@@ -71,13 +73,13 @@ class LangDemoUi {
 
 			const out = {$iptName, $iptVal};
 			LangDemoUi._metasContext.push(out);
-			const $row = $$`<div class="mb-2 flex-v-center">${$iptName}<span class="mr-2">=</span>${$iptVal}${$btnDel}</div>`.appendTo(LangDemoUi._$wrpContext);
+			const $row = $$`<div class="mb-2 ve-flex-v-center">${$iptName}<span class="mr-2">=</span>${$iptVal}${$btnDel}</div>`.appendTo(LangDemoUi._$wrpContext);
 		};
 
 		LangDemoUi._$wrpContext = $(`#wrp_context`);
 		const $btnAdd = $(`<button class="btn btn-xs btn-default">Add Context</button>`)
 			.click(() => addContextRow());
-		$$`<div class="mb-2 flex-v-center">${$btnAdd}</div>`.appendTo(LangDemoUi._$wrpContext);
+		$$`<div class="mb-2 ve-flex-v-center">${$btnAdd}</div>`.appendTo(LangDemoUi._$wrpContext);
 
 		loadContext();
 		// endregion

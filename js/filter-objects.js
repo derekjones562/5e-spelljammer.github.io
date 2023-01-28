@@ -4,12 +4,14 @@ class PageFilterObjects extends PageFilter {
 	constructor () {
 		super();
 
-		this._sourceFilter = new SourceFilter();
-		this._miscFilter = new Filter({header: "Miscellaneous", items: ["SRD"], isSrdFilter: true});
+		this._miscFilter = new Filter({header: "Miscellaneous", items: ["SRD", "Has Images", "Has Info", "Has Token"], isMiscFilter: true});
 	}
 
 	static mutateForFilters (obj) {
 		obj._fMisc = obj.srd ? ["SRD"] : [];
+		if (obj.tokenUrl || obj.hasToken) obj._fMisc.push("Has Token");
+		if (obj.hasFluff || obj.fluff?.entries) obj._fMisc.push("Has Info");
+		if (obj.hasFluffImages || obj.fluff?.images) obj._fMisc.push("Has Images");
 	}
 
 	addToFilters (obj, isExcluded) {
@@ -30,6 +32,20 @@ class PageFilterObjects extends PageFilter {
 			values,
 			obj.source,
 			obj._fMisc,
-		)
+		);
 	}
 }
+
+globalThis.PageFilterObjects = PageFilterObjects;
+
+class ListSyntaxObjects extends ListUiUtil.ListSyntax {
+	_getSearchCacheStats (entity) {
+		if (!entity.entries && !entity.actionEntries) return "";
+		const ptrOut = {_: ""};
+		this._getSearchCache_handleEntryProp(entity, "entries", ptrOut);
+		this._getSearchCache_handleEntryProp(entity, "actionEntries", ptrOut);
+		return ptrOut._;
+	}
+}
+
+globalThis.ListSyntaxObjects = ListSyntaxObjects;

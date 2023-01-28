@@ -19,7 +19,9 @@
 			"isNamedCreature": true,
 			"source": "ERLW",
 			"page": 286,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "aberration",
 			"alignment": [
 				"C",
@@ -145,25 +147,25 @@
 							"items": [
 								{
 									"type": "item",
-									"name": "1. Psyche-Reconstruction Ray.",
+									"name": "1. Psyche-Reconstruction Ray",
 									"style": "italic",
-									"entry": "The target must make a {@dc 22} Wisdom saving throw, taking 49 ({@damage 9d10}) psychic damage on a failed save, or half as much damage on a successful one. If this damage reduces a creature to 0 hit points, it dies and transforms into a spectator under Belashyrra's control and acts immediately after Belashyrra in the initiative order. The target can't be returned to its original form by any means short of a wish spell."
+									"entry": "The target must make a {@dc 22} Wisdom saving throw, taking 49 ({@damage 9d10}) psychic damage on a failed save, or half as much damage on a successful one. If this damage reduces a creature to 0 hit points, it dies and transforms into a spectator under Belashyrra's control and acts immediately after Belashyrra in the initiative order. The target can't be returned to its original form by any means short of a {@spell wish} spell."
 								},
 								{
 									"type": "item",
-									"name": "2. Domination Ray.",
+									"name": "2. Domination Ray",
 									"style": "italic",
 									"entry": "The target must succeed on a {@dc 22} Wisdom saving throw or be {@condition charmed} by Belashyrra for 1 minute or until the target takes damage. Belashyrra can issue telepathic commands to the {@condition charmed} creature (no action required), which it does its best to obey."
 								},
 								{
 									"type": "item",
-									"name": "3. Mind-Weakening Ray.",
+									"name": "3. Mind-Weakening Ray",
 									"style": "italic",
 									"entry": "The target must succeed on a {@dc 22} Intelligence saving throw or take 36 ({@damage 8d8}) psychic damage and be unable to cast spells or activate magic items for 1 minute. The target can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success."
 								},
 								{
 									"type": "item",
-									"name": "4. Blinding Ray.",
+									"name": "4. Blinding Ray",
 									"style": "italic",
 									"entry": "The target and each creature within 10 feet of it must succeed on a {@dc 22} Constitution saving throw or take 19 ({@damage 3d12}) radiant damage and be {@condition blinded} for 1 minute. Until this blindness ends, Belyshyrra can see through the {@condition blinded} creature's eyes. The {@condition blinded} creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success."
 								}
@@ -196,7 +198,6 @@
 				"name": "Belashyrra",
 				"source": "ERLW"
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -230,6 +231,7 @@
 			"conditionInflictLegendary": [
 				"charmed"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -237,7 +239,9 @@
 			"name": "Bone Knight",
 			"source": "ERLW",
 			"page": 316,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -354,7 +358,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"actionTags": [
 				"Multiattack"
 			],
@@ -366,6 +369,11 @@
 				"P",
 				"S"
 			],
+			"damageTagsSpell": [
+				"F",
+				"R",
+				"Y"
+			],
 			"spellcastingTags": [
 				"CP"
 			],
@@ -374,6 +382,7 @@
 				"RNG",
 				"RW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -381,7 +390,9 @@
 			"name": "Changeling",
 			"source": "ERLW",
 			"page": 317,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -457,7 +468,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"actionTags": [
 				"Multiattack"
 			],
@@ -479,11 +489,14 @@
 			"conditionInflict": [
 				"frightened"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
 			"name": "Clawfoot",
-			"group": "Dinosaurs",
+			"group": [
+				"Dinosaurs"
+			],
 			"source": "ERLW",
 			"page": 289,
 			"otherSources": [
@@ -492,7 +505,9 @@
 					"page": 81
 				}
 			],
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "beast",
 			"alignment": [
 				"U"
@@ -553,7 +568,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"altArt": [
 				{
 					"name": "Clawfoot Raptor",
@@ -577,7 +591,9 @@
 			"conditionInflict": [
 				"prone"
 			],
-			"hasFluff": true
+			"hasToken": true,
+			"hasFluff": true,
+			"hasFluffImages": true
 		},
 		{
 			"name": "Corrin Delmaco",
@@ -608,17 +624,19 @@
 				"average": 21,
 				"formula": "6d6"
 			},
-			"hasToken": true,
 			"languageTags": [
 				"H",
 				"X"
-			]
+			],
+			"hasToken": true
 		},
 		{
 			"name": "Dolgaunt",
 			"source": "ERLW",
 			"page": 290,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "aberration",
 			"alignment": [
 				"L",
@@ -702,7 +720,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"B"
 			],
@@ -725,6 +742,7 @@
 			"conditionInflict": [
 				"grappled"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -732,7 +750,9 @@
 			"name": "Dolgrim",
 			"source": "ERLW",
 			"page": 291,
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"type": "aberration",
 			"alignment": [
 				"C",
@@ -803,7 +823,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -823,6 +842,7 @@
 				"RW",
 				"THW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -830,7 +850,9 @@
 			"name": "Dusk Hag",
 			"source": "ERLW",
 			"page": 292,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "fey",
 			"alignment": [
 				"N",
@@ -941,7 +963,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Magic Resistance"
 			],
@@ -960,6 +981,9 @@
 				"S",
 				"Y"
 			],
+			"damageTagsSpell": [
+				"Y"
+			],
 			"spellcastingTags": [
 				"I"
 			],
@@ -971,6 +995,7 @@
 				"incapacitated",
 				"unconscious"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -979,7 +1004,9 @@
 			"isNamedCreature": true,
 			"source": "ERLW",
 			"page": 288,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "aberration",
 			"alignment": [
 				"C",
@@ -1126,7 +1153,6 @@
 				"name": "Dyrrn",
 				"source": "ERLW"
 			},
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -1148,6 +1174,9 @@
 				"S",
 				"Y"
 			],
+			"damageTagsLegendary": [
+				"Y"
+			],
 			"miscTags": [
 				"AOE",
 				"MW",
@@ -1160,15 +1189,20 @@
 			"conditionInflictLegendary": [
 				"restrained"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
 		{
 			"name": "Expeditious Messenger",
-			"group": "Homunculi",
+			"group": [
+				"Homunculi"
+			],
 			"source": "ERLW",
 			"page": 293,
-			"size": "T",
+			"size": [
+				"T"
+			],
 			"type": "construct",
 			"alignment": [
 				"N"
@@ -1231,7 +1265,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Flyby"
 			],
@@ -1244,14 +1277,19 @@
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
 			"name": "Fastieth",
-			"group": "Dinosaurs",
+			"group": [
+				"Dinosaurs"
+			],
 			"source": "ERLW",
 			"page": 289,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "beast",
 			"alignment": [
 				"U"
@@ -1290,13 +1328,13 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"damageTags": [
 				"P"
 			],
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -1318,10 +1356,14 @@
 		},
 		{
 			"name": "Hashalaq Quori",
-			"group": "Quori",
+			"group": [
+				"Quori"
+			],
 			"source": "ERLW",
 			"page": 305,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "aberration",
 			"alignment": [
 				"L",
@@ -1432,7 +1474,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -1446,6 +1487,9 @@
 				"O",
 				"Y"
 			],
+			"damageTagsSpell": [
+				"Y"
+			],
 			"spellcastingTags": [
 				"I",
 				"P"
@@ -1457,6 +1501,7 @@
 			"conditionInflictSpell": [
 				"charmed"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -1464,7 +1509,9 @@
 			"name": "Inspired",
 			"source": "ERLW",
 			"page": 294,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -1595,7 +1642,7 @@
 									"type": "entries",
 									"name": "All Around Vision",
 									"entries": [
-										"The Inspired can't be surprised."
+										"The Inspired can't be {@quickref Surprise|PHB|3|0|surprised}."
 									]
 								},
 								{
@@ -1623,7 +1670,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"actionTags": [
 				"Multiattack"
 			],
@@ -1635,6 +1681,10 @@
 				"P",
 				"Y"
 			],
+			"damageTagsSpell": [
+				"N",
+				"Y"
+			],
 			"spellcastingTags": [
 				"I",
 				"P"
@@ -1642,15 +1692,76 @@
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
-			"hasFluffImages": true
+			"hasFluffImages": true,
+			"_versions": [
+				{
+					"name": "Inspired (Quori Vessel; Hashalaq)",
+					"source": "EGW",
+					"_mod": {
+						"_": {
+							"mode": "addSpells",
+							"daily": {
+								"3e": [
+									"{@spell suggestion}"
+								]
+							}
+						}
+					},
+					"variant": null
+				},
+				{
+					"name": "Inspired (Quori Vessel; Kalaraq)",
+					"source": "EGW",
+					"_mod": {
+						"_": {
+							"mode": "addSpells",
+							"daily": {
+								"3e": [
+									"{@spell arcane eye}"
+								]
+							}
+						},
+						"trait": {
+							"mode": "appendArr",
+							"items": {
+								"name": "All Around Vision",
+								"entries": [
+									"The Inspired can't be {@quickref Surprise|PHB|3|0|surprised}."
+								]
+							}
+						}
+					},
+					"variant": null
+				},
+				{
+					"name": "Inspired (Quori Vessel; Tsucora)",
+					"source": "EGW",
+					"_mod": {
+						"_": {
+							"mode": "addSpells",
+							"daily": {
+								"1e": [
+									"{@spell fear}"
+								]
+							}
+						}
+					},
+					"variant": null
+				}
+			]
 		},
 		{
 			"name": "Iron Defender",
-			"group": "Homunculi",
+			"group": [
+				"Homunculi"
+			],
 			"source": "ERLW",
 			"page": 293,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "construct",
 			"alignment": [
 				"N"
@@ -1717,7 +1828,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Keen Senses"
 			],
@@ -1736,15 +1846,20 @@
 			"conditionInflict": [
 				"grappled"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
 		{
 			"name": "Kalaraq Quori",
-			"group": "Quori",
+			"group": [
+				"Quori"
+			],
 			"source": "ERLW",
 			"page": 306,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "aberration",
 			"alignment": [
 				"L",
@@ -1845,13 +1960,13 @@
 				{
 					"name": "All-Around Vision",
 					"entries": [
-						"The quori can't be surprised while it isn't {@condition incapacitated}."
+						"The quori can't be {@quickref Surprise|PHB|3|0|surprised} while it isn't {@condition incapacitated}."
 					]
 				},
 				{
 					"name": "Incorporeal Movement",
 					"entries": [
-						"The quori can move through other creatures and objects as if they were difficult terrain. It takes 5 ({@damage 1d10}) force damage if it ends its turn inside an object."
+						"The quori can move through other creatures and objects as if they were {@quickref difficult terrain||3}. It takes 5 ({@damage 1d10}) force damage if it ends its turn inside an object."
 					]
 				},
 				{
@@ -1877,13 +1992,13 @@
 				{
 					"name": "Soul Binding",
 					"entries": [
-						"{@atk ms} {@hit 13} to hit, reach 5 ft., one target. {@h}29 ({@damage 4d10 + 7}) necrotic damage. A creature reduced to 0 hit points from this attack dies and has its soul imprisoned in one of the quori's eyes. The target can't be revived by any means short of a wish spell until the quori is destroyed."
+						"{@atk ms} {@hit 13} to hit, reach 5 ft., one target. {@h}29 ({@damage 4d10 + 7}) necrotic damage. A creature reduced to 0 hit points from this attack dies and has its soul imprisoned in one of the quori's eyes. The target can't be revived by any means short of a {@spell wish} spell until the quori is destroyed."
 					]
 				},
 				{
 					"name": "Mind Seed (1/Day)",
 					"entries": [
-						"The quori touches one humanoid, which must succeed on a {@dc 21} Intelligence saving throw or be cursed. The curse lasts until it's removed by a remove curse or greater restoration spell.",
+						"The quori touches one humanoid, which must succeed on a {@dc 21} Intelligence saving throw or be cursed. The curse lasts until it's removed by a remove curse or {@spell greater restoration} spell.",
 						"The cursed target suffers 1 level of {@condition exhaustion} every 24 hours, and finishing a long rest doesn't reduce its {@condition exhaustion}. If the cursed target reaches {@condition exhaustion} level 6, it doesn't die; it instead becomes a thrall under the quori's control, and all its {@condition exhaustion} is removed. Only the {@spell wish} spell can free the thrall from this control."
 					]
 				},
@@ -1901,7 +2016,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Incorporeal Movement",
 				"Magic Resistance"
@@ -1921,6 +2035,9 @@
 				"O",
 				"Y"
 			],
+			"damageTagsSpell": [
+				"Y"
+			],
 			"spellcastingTags": [
 				"I",
 				"P"
@@ -1936,6 +2053,7 @@
 				"frightened",
 				"unconscious"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -1943,7 +2061,9 @@
 			"name": "Kalashtar",
 			"source": "ERLW",
 			"page": 317,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -2005,7 +2125,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"languageTags": [
 				"C",
 				"TP"
@@ -2019,6 +2138,7 @@
 				"RW",
 				"THW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -2026,7 +2146,9 @@
 			"name": "Karrnathi Undead Soldier",
 			"source": "ERLW",
 			"page": 295,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "undead",
 			"alignment": [
 				"L",
@@ -2116,7 +2238,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Pack Tactics",
 				"Undead Fortitude"
@@ -2140,6 +2261,7 @@
 				"RNG",
 				"RW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -2148,7 +2270,9 @@
 			"isNamedCreature": true,
 			"source": "ERLW",
 			"page": 296,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "undead",
 			"alignment": [
 				"N",
@@ -2289,8 +2413,7 @@
 							"spells": [
 								"{@spell chain lightning}",
 								"{@spell circle of death}",
-								"{@spell create undead}",
-								"{@spell scrying}"
+								"{@spell create undead}"
 							]
 						},
 						"7": {
@@ -2386,7 +2509,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -2394,6 +2516,9 @@
 			],
 			"senseTags": [
 				"U"
+			],
+			"actionTags": [
+				"Breath Weapon"
 			],
 			"languageTags": [
 				"C",
@@ -2405,6 +2530,15 @@
 				"I",
 				"N",
 				"S"
+			],
+			"damageTagsSpell": [
+				"A",
+				"C",
+				"F",
+				"I",
+				"L",
+				"N",
+				"O"
 			],
 			"spellcastingTags": [
 				"CW"
@@ -2425,6 +2559,7 @@
 				"restrained",
 				"unconscious"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -2432,7 +2567,9 @@
 			"name": "Living Burning Hands",
 			"source": "ERLW",
 			"page": 298,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "construct",
 			"alignment": [
 				"U"
@@ -2516,7 +2653,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Amorphous",
 				"Magic Resistance"
@@ -2530,6 +2666,7 @@
 			"miscTags": [
 				"AOE"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -2537,7 +2674,9 @@
 			"name": "Living Cloudkill",
 			"source": "ERLW",
 			"page": 299,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "construct",
 			"alignment": [
 				"U"
@@ -2628,7 +2767,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Amorphous",
 				"Magic Resistance"
@@ -2645,6 +2783,7 @@
 			"miscTags": [
 				"RCH"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -2652,7 +2791,9 @@
 			"name": "Living Lightning Bolt",
 			"source": "ERLW",
 			"page": 299,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "construct",
 			"alignment": [
 				"U"
@@ -2742,7 +2883,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Amorphous",
 				"Magic Resistance"
@@ -2759,6 +2899,7 @@
 			"miscTags": [
 				"RCH"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -2766,7 +2907,9 @@
 			"name": "Magewright",
 			"source": "ERLW",
 			"page": 318,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -2824,7 +2967,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"languageTags": [
 				"C",
 				"X"
@@ -2832,11 +2974,15 @@
 			"damageTags": [
 				"P"
 			],
+			"spellcastingTags": [
+				"O"
+			],
 			"miscTags": [
 				"MW",
 				"RW",
 				"THW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -2845,7 +2991,9 @@
 			"isNamedCreature": true,
 			"source": "ERLW",
 			"page": 301,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "fiend",
 			"alignment": [
 				"L",
@@ -2970,7 +3118,7 @@
 				{
 					"name": "Attack",
 					"entries": [
-						"Mordakhesh makes one weapon attack or casts chromatic orb."
+						"Mordakhesh makes one weapon attack or casts {@spell chromatic orb}."
 					]
 				},
 				{
@@ -2986,7 +3134,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -3001,12 +3148,25 @@
 				"O",
 				"S"
 			],
+			"damageTagsSpell": [
+				"A",
+				"C",
+				"F",
+				"I",
+				"L",
+				"N",
+				"O",
+				"R",
+				"T",
+				"Y"
+			],
 			"spellcastingTags": [
 				"I"
 			],
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -3014,7 +3174,9 @@
 			"name": "Radiant Idol",
 			"source": "ERLW",
 			"page": 308,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "celestial",
 			"alignment": [
 				"L",
@@ -3135,7 +3297,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Magic Resistance"
 			],
@@ -3153,6 +3314,9 @@
 				"B",
 				"R"
 			],
+			"damageTagsSpell": [
+				"P"
+			],
 			"spellcastingTags": [
 				"I"
 			],
@@ -3166,6 +3330,7 @@
 			"conditionInflictSpell": [
 				"charmed"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -3175,7 +3340,9 @@
 			"isNamedCreature": true,
 			"source": "ERLW",
 			"page": 303,
-			"size": "H",
+			"size": [
+				"H"
+			],
 			"type": "fiend",
 			"alignment": [
 				"N",
@@ -3338,7 +3505,7 @@
 				{
 					"name": "End Magic (Costs 2 Actions)",
 					"entries": [
-						"Rak Tulkhesh casts dispel magic."
+						"Rak Tulkhesh casts {@spell dispel magic}."
 					]
 				},
 				{
@@ -3348,7 +3515,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance"
@@ -3357,7 +3523,8 @@
 				"U"
 			],
 			"actionTags": [
-				"Multiattack"
+				"Multiattack",
+				"Shapechanger"
 			],
 			"languageTags": [
 				"TP",
@@ -3365,6 +3532,12 @@
 			],
 			"damageTags": [
 				"O"
+			],
+			"damageTagsSpell": [
+				"N",
+				"O",
+				"R",
+				"Y"
 			],
 			"spellcastingTags": [
 				"I"
@@ -3374,12 +3547,13 @@
 				"RCH",
 				"RW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
 		{
 			"name": "Sergeant",
-			"source": "WDH",
+			"source": "ERLW",
 			"page": 197,
 			"_copy": {
 				"name": "Guard",
@@ -3391,7 +3565,9 @@
 			"name": "Shifter",
 			"source": "ERLW",
 			"page": 319,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -3458,7 +3634,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -3471,6 +3646,7 @@
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -3480,7 +3656,9 @@
 			"isNamedCreature": true,
 			"source": "ERLW",
 			"page": 304,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "fiend",
 			"alignment": [
 				"L",
@@ -3635,7 +3813,7 @@
 				{
 					"name": "Arcane Cataclysm (Recharges after a Long Rest)",
 					"entries": [
-						"Sul Khatesh conjures orbs of magical energy that plummet to the ground at three different points she can see within 1 mile of her. Each creature in a 40-foot-radius sphere centered on each point must make a {@dc 26} Dexterity saving throw, taking 71 ({@damage 11d12}) force damage on a failed save or half as much damage on a successful one. A creature in the area of more than one arcane burst is affected only once. The area of each arcane burst then acts as an antimagic field for 1 hour. Sul Khatesh and spells she casts are unaffected by these fields."
+						"Sul Khatesh conjures orbs of magical energy that plummet to the ground at three different points she can see within 1 mile of her. Each creature in a 40-foot-radius sphere centered on each point must make a {@dc 26} Dexterity saving throw, taking 71 ({@damage 11d12}) force damage on a failed save or half as much damage on a successful one. A creature in the area of more than one arcane burst is affected only once. The area of each arcane burst then acts as an {@spell antimagic field} for 1 hour. Sul Khatesh and spells she casts are unaffected by these fields."
 					]
 				},
 				{
@@ -3666,7 +3844,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance"
@@ -3675,7 +3852,8 @@
 				"U"
 			],
 			"actionTags": [
-				"Multiattack"
+				"Multiattack",
+				"Shapechanger"
 			],
 			"languageTags": [
 				"TP",
@@ -3683,6 +3861,11 @@
 			],
 			"damageTags": [
 				"O"
+			],
+			"damageTagsSpell": [
+				"F",
+				"L",
+				"Y"
 			],
 			"spellcastingTags": [
 				"I"
@@ -3697,6 +3880,7 @@
 				"paralyzed",
 				"unconscious"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -3704,7 +3888,9 @@
 			"name": "Tarkanan Assassin",
 			"source": "ERLW",
 			"page": 320,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -3722,7 +3908,7 @@
 				{
 					"ac": 15,
 					"from": [
-						"{@item studded leather armor|phb}"
+						"{@item studded leather armor|phb|studded leather}"
 					]
 				}
 			],
@@ -3806,7 +3992,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -3823,12 +4008,21 @@
 				"O",
 				"P"
 			],
+			"damageTagsSpell": [
+				"A",
+				"C",
+				"F",
+				"I",
+				"L",
+				"T"
+			],
 			"spellcastingTags": [
 				"I"
 			],
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -3838,7 +4032,9 @@
 			"isNamedCreature": true,
 			"source": "ERLW",
 			"page": 300,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -4035,7 +4231,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Charge"
 			],
@@ -4053,6 +4248,13 @@
 				"O",
 				"S"
 			],
+			"damageTagsSpell": [
+				"B",
+				"F",
+				"P",
+				"S",
+				"T"
+			],
 			"spellcastingTags": [
 				"CA"
 			],
@@ -4061,15 +4263,23 @@
 				"RCH",
 				"RW"
 			],
+			"conditionInflict": [
+				"prone"
+			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
 		{
 			"name": "Tsucora Quori",
-			"group": "Quori",
+			"group": [
+				"Quori"
+			],
 			"source": "ERLW",
 			"page": 307,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "aberration",
 			"alignment": [
 				"L",
@@ -4170,7 +4380,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"senseTags": [
 				"D"
 			],
@@ -4203,6 +4412,7 @@
 				"charmed",
 				"frightened"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -4210,7 +4420,9 @@
 			"name": "Undying Councilor",
 			"source": "ERLW",
 			"page": 311,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "undead",
 			"alignment": [
 				"N",
@@ -4400,7 +4612,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Magic Resistance"
 			],
@@ -4418,6 +4629,11 @@
 				"F",
 				"R"
 			],
+			"damageTagsSpell": [
+				"F",
+				"N",
+				"R"
+			],
 			"spellcastingTags": [
 				"CC"
 			],
@@ -4432,13 +4648,16 @@
 				"paralyzed",
 				"prone"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
 			"name": "Undying Soldier",
 			"source": "ERLW",
 			"page": 311,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "undead",
 			"alignment": [
 				"N",
@@ -4531,7 +4750,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Illumination",
 				"Turn Resistance"
@@ -4556,6 +4774,7 @@
 				"RW",
 				"THW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -4563,7 +4782,9 @@
 			"name": "Valenar Hawk",
 			"source": "ERLW",
 			"page": 312,
-			"size": "T",
+			"size": [
+				"T"
+			],
 			"type": "fey",
 			"alignment": [
 				"N"
@@ -4617,7 +4838,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Keen Senses"
 			],
@@ -4633,13 +4853,16 @@
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
 			"name": "Valenar Hound",
 			"source": "ERLW",
 			"page": 312,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "fey",
 			"alignment": [
 				"N"
@@ -4697,7 +4920,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Keen Senses"
 			],
@@ -4716,6 +4938,7 @@
 			"conditionInflict": [
 				"prone"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -4723,7 +4946,9 @@
 			"name": "Valenar Steed",
 			"source": "ERLW",
 			"page": 313,
-			"size": "L",
+			"size": [
+				"L"
+			],
 			"type": "fey",
 			"alignment": [
 				"N"
@@ -4770,7 +4995,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"languageTags": [
 				"C",
 				"CS",
@@ -4783,6 +5007,7 @@
 			"miscTags": [
 				"MW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -4790,7 +5015,9 @@
 			"name": "Warforged Colossus",
 			"source": "ERLW",
 			"page": 314,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": "construct",
 			"alignment": [
 				"U"
@@ -4917,7 +5144,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Immutable Form",
 				"Legendary Resistances",
@@ -4949,13 +5175,16 @@
 				"prone",
 				"restrained"
 			],
+			"hasToken": true,
 			"hasFluff": true
 		},
 		{
 			"name": "Warforged Soldier",
 			"source": "ERLW",
 			"page": 320,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": {
 				"type": "humanoid",
 				"tags": [
@@ -5036,7 +5265,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"actionTags": [
 				"Multiattack"
 			],
@@ -5052,6 +5280,7 @@
 				"RW",
 				"THW"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -5059,7 +5288,9 @@
 			"name": "Warforged Titan",
 			"source": "ERLW",
 			"page": 315,
-			"size": "H",
+			"size": [
+				"H"
+			],
 			"type": "construct",
 			"alignment": [
 				"L",
@@ -5146,7 +5377,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Siege Monster"
 			],
@@ -5170,6 +5400,7 @@
 			"conditionInflict": [
 				"prone"
 			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		},
@@ -5177,7 +5408,9 @@
 			"name": "Zakya Rakshasa",
 			"source": "ERLW",
 			"page": 309,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "fiend",
 			"alignment": [
 				"L",
@@ -5296,7 +5529,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Magic Weapons"
 			],
@@ -5322,6 +5554,10 @@
 				"RW",
 				"THW"
 			],
+			"conditionInflict": [
+				"prone"
+			],
+			"hasToken": true,
 			"hasFluff": true,
 			"hasFluffImages": true
 		}

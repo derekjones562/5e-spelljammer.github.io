@@ -1,6 +1,5 @@
 "use strict";
 
-// TODO add deep sorting, e.g. "_copy" sections should be sorted
 class PropOrder {
 	/**
 	 * @param obj
@@ -113,9 +112,14 @@ PropOrder._MONSTER = [
 	"page",
 
 	"srd",
+	"basicRules",
+	"additionalSources",
 	"otherSources",
+	"reprintedAs",
 
 	"summonedBySpell",
+	"summonedBySpellLevel",
+	"summonedByClass",
 
 	"_isCopy",
 	new PropOrder._ObjectKey("_copy", {
@@ -135,6 +139,7 @@ PropOrder._MONSTER = [
 	"sizeNote",
 	"type",
 	"alignment",
+	"alignmentPrefix",
 
 	"ac",
 	"hp",
@@ -159,11 +164,38 @@ PropOrder._MONSTER = [
 	"cr",
 	"pbNote",
 
-	"spellcasting",
+	new PropOrder._ArrayKey("spellcasting", {
+		fnGetOrder: () => [
+			"name",
+			"headerEntries",
+
+			"will",
+			"rest",
+			"daily",
+			"charges",
+
+			"ritual",
+
+			"spells",
+
+			"footerEntries",
+
+			"chargesItem",
+
+			"ability",
+			"displayAs",
+			"hidden",
+		],
+	}),
 	"trait",
 	"actionNote",
+	"actionHeader",
 	"action",
+	"bonusNote",
+	"bonusHeader",
 	"bonus",
+	"reactionNote",
+	"reactionHeader",
 	"reaction",
 	"legendaryHeader",
 	"legendaryActions",
@@ -177,8 +209,8 @@ PropOrder._MONSTER = [
 	"fluff",
 	"familiar",
 	"dragonCastingColor",
+	"dragonAge",
 
-	"hasToken",
 	"tokenUrl",
 	"soundClip",
 
@@ -189,19 +221,46 @@ PropOrder._MONSTER = [
 	new PropOrder._ArrayKey("actionTags", {fnSort: SortUtil.ascSortLower}),
 	new PropOrder._ArrayKey("languageTags", {fnSort: SortUtil.ascSortLower}),
 	new PropOrder._ArrayKey("damageTags", {fnSort: SortUtil.ascSortLower}),
+	new PropOrder._ArrayKey("damageTagsLegendary", {fnSort: SortUtil.ascSortLower}),
+	new PropOrder._ArrayKey("damageTagsSpell", {fnSort: SortUtil.ascSortLower}),
 	new PropOrder._ArrayKey("spellcastingTags", {fnSort: SortUtil.ascSortLower}),
 	new PropOrder._ArrayKey("miscTags", {fnSort: SortUtil.ascSortLower}),
 	new PropOrder._ArrayKey("conditionInflict", {fnSort: SortUtil.ascSortLower}),
 	new PropOrder._ArrayKey("conditionInflictLegendary", {fnSort: SortUtil.ascSortLower}),
 	new PropOrder._ArrayKey("conditionInflictSpell", {fnSort: SortUtil.ascSortLower}),
 
+	"hasToken",
 	"hasFluff",
 	"hasFluffImages",
+
+	new PropOrder._ArrayKey("_versions", {
+		fnGetOrder: () => [
+			"name",
+			"source",
+			new PropOrder._ObjectKey("_mod", {
+				fnGetOrder: () => PropOrder._MONSTER__COPY_MOD,
+			}),
+			"_template",
+			"_implementations",
+			...PropOrder._MONSTER,
+		],
+		fnSort: (a, b) => SortUtil.ascSortLower(a.name || "", b.name || "") || SortUtil.ascSortLower(a.source || "", b.source || ""),
+	}),
 ];
 PropOrder._MONSTER__COPY_MOD = [
 	"*",
 	"_",
-	...PropOrder._MONSTER,
+	...PropOrder._MONSTER
+		.map(it => {
+			if (typeof it === "string") return it;
+
+			if (it instanceof PropOrder._ArrayKey) {
+				if (it.key === "spellcasting") return it.key;
+				return it;
+			}
+
+			return it;
+		}),
 ];
 PropOrder._GENERIC_FLUFF = [
 	"name",
@@ -218,7 +277,8 @@ PropOrder._SPELL = [
 	"source",
 	"page",
 	"srd",
-
+	"basicRules",
+	"additionalSources",
 	"otherSources",
 
 	"level",
@@ -238,6 +298,7 @@ PropOrder._SPELL = [
 	"damageResist",
 	"damageImmune",
 	"damageVulnerable",
+	"conditionImmune",
 
 	"damageInflict",
 	"conditionInflict",
@@ -246,13 +307,10 @@ PropOrder._SPELL = [
 	"savingThrow",
 	"abilityCheck",
 
+	"affectsCreatureType",
+
 	"miscTags",
 	"areaTags",
-
-	"classes",
-	"races",
-	"backgrounds",
-	"eldritchInvocations",
 
 	"hasFluff",
 	"hasFluffImages",
@@ -263,6 +321,7 @@ PropOrder._ACTION = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 
 	"fromVariant",
 
@@ -274,9 +333,13 @@ PropOrder._ACTION = [
 ];
 PropOrder._ADVENTURE = [
 	"name",
+	"alias",
 
 	"id",
 	"source",
+	"parentSource",
+
+	"group",
 
 	"coverUrl",
 	"published",
@@ -288,9 +351,12 @@ PropOrder._ADVENTURE = [
 ];
 PropOrder._BOOK = [
 	"name",
+	"alias",
 
 	"id",
 	"source",
+
+	"group",
 
 	"coverUrl",
 	"published",
@@ -304,7 +370,7 @@ PropOrder._BACKGROUND = [
 	"source",
 	"page",
 	"srd",
-
+	"basicRules",
 	"additionalSources",
 	"otherSources",
 
@@ -320,12 +386,20 @@ PropOrder._BACKGROUND = [
 		],
 	}),
 
-	"entries",
+	"prerequisite",
+
+	"feats",
 
 	"skillProficiencies",
 	"languageProficiencies",
 	"toolProficiencies",
 	"startingEquipment",
+
+	"additionalSpells",
+
+	"fromFeature",
+
+	"entries",
 
 	"hasFluff",
 	"hasFluffImages",
@@ -362,9 +436,30 @@ PropOrder._TRAIT = [
 PropOrder._LEGENDARY_GROUP = [
 	"name",
 	"source",
+	"page",
+
+	"additionalSources",
+
+	new PropOrder._ObjectKey("_copy", {
+		order: [
+			"name",
+			"source",
+			"_trait",
+			new PropOrder._ObjectKey("_mod", {
+				fnGetOrder: () => PropOrder._LEGENDARY_GROUP__COPY_MOD,
+			}),
+			"_preserve",
+		],
+	}),
+
 	"lairActions",
 	"regionalEffects",
 	"mythicEncounter",
+];
+PropOrder._LEGENDARY_GROUP__COPY_MOD = [
+	"*",
+	"_",
+	...PropOrder._LEGENDARY_GROUP,
 ];
 PropOrder._CLASS = [
 	"name",
@@ -373,7 +468,7 @@ PropOrder._CLASS = [
 	"page",
 	"srd",
 	"isReprinted",
-
+	"basicRules",
 	"otherSources",
 
 	"isSidekick",
@@ -419,7 +514,7 @@ PropOrder._SUBCLASS = [
 	"page",
 	"srd",
 	"isReprinted",
-
+	"basicRules",
 	"otherSources",
 
 	new PropOrder._ObjectKey("_copy", {
@@ -444,6 +539,8 @@ PropOrder._SUBCLASS = [
 
 	"additionalSpells",
 
+	"optionalfeatureProgression",
+
 	"subclassTableGroups",
 	"subclassFeatures",
 ];
@@ -458,7 +555,7 @@ PropOrder._CLASS_FEATURE = [
 	"source",
 	"page",
 	"srd",
-
+	"basicRules",
 	"otherSources",
 
 	"className",
@@ -469,6 +566,9 @@ PropOrder._CLASS_FEATURE = [
 
 	"header",
 	"type",
+
+	"consumes",
+
 	"entries",
 ];
 PropOrder._SUBCLASS_FEATURE = [
@@ -477,7 +577,7 @@ PropOrder._SUBCLASS_FEATURE = [
 	"source",
 	"page",
 	"srd",
-
+	"basicRules",
 	"otherSources",
 
 	"className",
@@ -492,6 +592,9 @@ PropOrder._SUBCLASS_FEATURE = [
 
 	"header",
 	"type",
+
+	"consumes",
+
 	"entries",
 ];
 PropOrder._LANGUAGE = [
@@ -501,8 +604,9 @@ PropOrder._LANGUAGE = [
 	"source",
 	"page",
 	"srd",
-
+	"basicRules",
 	"additionalSources",
+	"otherSources",
 
 	"type",
 	"typicalSpeakers",
@@ -525,6 +629,8 @@ PropOrder._CONDITION = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
+	"otherSources",
 
 	"entries",
 
@@ -537,6 +643,8 @@ PropOrder._DISEASE = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
+	"otherSources",
 
 	"entries",
 ];
@@ -546,6 +654,7 @@ PropOrder._STATUS = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 
 	"entries",
 ];
@@ -555,6 +664,10 @@ PropOrder._CULT = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
+	"additionalSources",
+	"otherSources",
+	"reprintedAs",
 
 	"type",
 
@@ -570,6 +683,10 @@ PropOrder._BOON = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
+	"additionalSources",
+	"otherSources",
+	"reprintedAs",
 
 	"type",
 
@@ -589,6 +706,7 @@ PropOrder._DEITY = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 
 	"additionalSources",
 
@@ -600,6 +718,7 @@ PropOrder._DEITY = [
 			new PropOrder._ObjectKey("_mod", {
 				fnGetOrder: () => PropOrder._DEITY__COPY_MOD,
 			}),
+			"_preserve",
 		],
 	}),
 
@@ -631,6 +750,7 @@ PropOrder._FEAT = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 
 	"additionalSources",
 	"otherSources",
@@ -643,10 +763,23 @@ PropOrder._FEAT = [
 	"toolProficiencies",
 	"weaponProficiencies",
 	"armorProficiencies",
+	"skillToolLanguageProficiencies",
+	"savingThrowProficiencies",
+	"expertise",
+
+	"immune",
+	"resist",
+	"vulnerable",
+	"conditionImmune",
 
 	"additionalSpells",
 
+	"optionalfeatureProgression",
+
 	"entries",
+
+	"hasFluff",
+	"hasFluffImages",
 ];
 PropOrder._VEHICLE = [
 	"name",
@@ -654,6 +787,8 @@ PropOrder._VEHICLE = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
+	"otherSources",
 
 	"vehicleType",
 
@@ -666,8 +801,11 @@ PropOrder._VEHICLE = [
 
 	"capCreature",
 	"capCrew",
+	"capCrewNote",
 	"capPassenger",
 	"capCargo",
+
+	"cost",
 
 	"ac",
 	"pace",
@@ -698,9 +836,9 @@ PropOrder._VEHICLE = [
 	"actionStation",
 	"reaction",
 
-	"hasToken",
 	"tokenUrl",
 
+	"hasToken",
 	"hasFluff",
 	"hasFluffImages",
 ];
@@ -710,6 +848,7 @@ PropOrder._VEHICLE_UPGRADE = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 	"otherSources",
 
 	"upgradeType",
@@ -737,6 +876,7 @@ PropOrder._ITEM = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 
 	"additionalSources",
 	"otherSources",
@@ -748,12 +888,14 @@ PropOrder._ITEM = [
 			new PropOrder._ObjectKey("_mod", {
 				fnGetOrder: () => PropOrder._ITEM__COPY_MOD,
 			}),
+			"_preserve",
 		],
 	}),
 
 	"baseItem",
 
 	"type",
+	"typeAlt",
 	"scfType",
 
 	"immune",
@@ -772,7 +914,6 @@ PropOrder._ITEM = [
 	"reqAttuneAltTags",
 
 	"wondrous",
-	"ammunition",
 	"tattoo",
 	"curse",
 	"sentient",
@@ -822,6 +963,7 @@ PropOrder._ITEM = [
 	"bonusWeapon",
 	"bonusWeaponAttack",
 	"bonusWeaponDamage",
+	"bonusWeaponCritDamage",
 	"bonusSpellAttack",
 	"bonusSpellDamage",
 	"bonusSpellSaveDc",
@@ -829,8 +971,11 @@ PropOrder._ITEM = [
 	"bonusSavingThrow",
 	"bonusAbilityCheck",
 	"bonusProficiencyBonus",
+	"modifySpeed",
+	"critThreshold",
 
 	"recharge",
+	"rechargeAmount",
 	"charges",
 
 	"axe",
@@ -864,8 +1009,14 @@ PropOrder._ITEM = [
 	"atomicPackContents",
 	"containerCapacity",
 
+	"optionalfeatures",
 	"attachedSpells",
+	"spellScrollLevel",
 	"lootTables",
+
+	"seeAlsoVehicle",
+
+	"miscTags",
 
 	"hasFluff",
 	"hasFluffImages",
@@ -875,7 +1026,7 @@ PropOrder._ITEM__COPY_MOD = [
 	"_",
 	...PropOrder._ITEM,
 ];
-PropOrder._VARIANT = [
+PropOrder._MAGICVARIANT = [
 	"name",
 	"source",
 
@@ -903,6 +1054,7 @@ PropOrder._OBJECT = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 
 	"size",
 	"objectType",
@@ -929,8 +1081,10 @@ PropOrder._OBJECT = [
 	"entries",
 	"actionEntries",
 
-	"hasToken",
 	"tokenUrl",
+	"hasToken",
+	"hasFluff",
+	"hasFluffImages",
 ];
 PropOrder._OPTIONALFEATURE = [
 	"name",
@@ -938,6 +1092,7 @@ PropOrder._OPTIONALFEATURE = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 	"otherSources",
 
 	"isClassFeatureVariant",
@@ -953,7 +1108,13 @@ PropOrder._OPTIONALFEATURE = [
 	"weaponProficiencies",
 	"armorProficiencies",
 
+	"senses",
+
 	"additionalSpells",
+
+	"optionalfeatureProgression",
+
+	"consumes",
 
 	"entries",
 ];
@@ -979,6 +1140,8 @@ PropOrder._REWARD = [
 
 	"type",
 
+	"rarity",
+
 	"entries",
 ];
 PropOrder._VARIANTRULE = [
@@ -987,24 +1150,22 @@ PropOrder._VARIANTRULE = [
 	"source",
 	"page",
 	"srd",
-
+	"basicRules",
 	"additionalSources",
+	"otherSources",
 
 	"ruleType",
 
 	"type",
 	"entries",
 ];
-PropOrder._RACE = [
-	"name",
-	"alias",
-
-	"source",
+PropOrder._RACE_SUBRACE = [
 	"page",
 	"srd",
-
+	"basicRules",
 	"additionalSources",
 	"otherSources",
+	"reprintedAs",
 
 	new PropOrder._ObjectKey("_copy", {
 		order: [
@@ -1019,21 +1180,26 @@ PropOrder._RACE = [
 
 	"lineage",
 	"creatureTypes",
+	"creatureTypeTags",
 
-	"size",
+	new PropOrder._ArrayKey("size", {fnSort: SortUtil.ascSortSize}),
 	"speed",
 	"ability",
 
 	"heightAndWeight",
+	"age",
 
 	"darkvision",
+	"blindsight",
 	"feats",
 
 	new PropOrder._ArrayKey("traitTags", {fnSort: SortUtil.ascSortLower}),
 	"skillProficiencies",
 	"languageProficiencies",
+	"toolProficiencies",
 	"weaponProficiencies",
 	"armorProficiencies",
+	"skillToolLanguageProficiencies",
 
 	"resist",
 	"immune",
@@ -1046,26 +1212,58 @@ PropOrder._RACE = [
 
 	"entries",
 
-	new PropOrder._ArrayKey("subraces", {
-		fnGetOrder: () => PropOrder._RACE,
-		fnSort: (a, b) => SortUtil.ascSortLower(a.name || "", b.name || "") || SortUtil.ascSortLower(a.source || "", b.source || ""),
-	}),
-
 	"overwrite",
 
 	"hasFluff",
 	"hasFluffImages",
+
+	new PropOrder._ArrayKey("_versions", {
+		fnGetOrder: () => [
+			"name",
+			"source",
+			new PropOrder._ObjectKey("_mod", {
+				fnGetOrder: () => PropOrder._RACE__COPY_MOD,
+			}),
+			"_template",
+			"_implementations",
+			...PropOrder._RACE,
+		],
+		fnSort: (a, b) => SortUtil.ascSortLower(a.name || "", b.name || "") || SortUtil.ascSortLower(a.source || "", b.source || ""),
+	}),
+];
+PropOrder._RACE = [
+	"name",
+	"alias",
+
+	"source",
+
+	...PropOrder._RACE_SUBRACE,
 ];
 PropOrder._RACE__COPY_MOD = [
 	"*",
 	"_",
 	...PropOrder._RACE,
 ];
+PropOrder._SUBRACE = [
+	"name",
+	"alias",
+
+	"source",
+
+	"raceName",
+	"raceSource",
+
+	...PropOrder._RACE_SUBRACE,
+];
 PropOrder._TABLE = [
 	"name",
 
 	"source",
 	"page",
+	"srd",
+	"basicRules",
+
+	"otherSources",
 
 	"caption",
 
@@ -1080,6 +1278,7 @@ PropOrder._TRAP = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
 
 	"trapHazType",
 
@@ -1106,6 +1305,10 @@ PropOrder._HAZARD = [
 	"source",
 	"page",
 	"srd",
+	"basicRules",
+	"additionalSources",
+	"otherSources",
+	"reprintedAs",
 
 	"trapHazType",
 
@@ -1126,6 +1329,7 @@ PropOrder._RECIPE = [
 	"makes",
 	"serves",
 	"ingredients",
+	"equipment",
 	"instructions",
 	"noteCook",
 
@@ -1142,6 +1346,10 @@ PropOrder._CHAROPTION = [
 	"source",
 	"page",
 
+	"otherSources",
+
+	"prerequisite",
+
 	"optionType",
 
 	"entries",
@@ -1149,15 +1357,37 @@ PropOrder._CHAROPTION = [
 	"hasFluff",
 	"hasFluffImages",
 ];
+PropOrder._SKILL = [
+	"name",
+
+	"source",
+	"page",
+	"srd",
+	"basicRules",
+
+	"entries",
+];
+PropOrder._SENSE = [
+	"name",
+
+	"source",
+	"page",
+	"srd",
+	"basicRules",
+
+	"entries",
+];
 
 PropOrder._PROP_TO_LIST = {
 	"monster": PropOrder._MONSTER,
 	"monsterFluff": PropOrder._GENERIC_FLUFF,
 	"backgroundFluff": PropOrder._GENERIC_FLUFF,
+	"featFluff": PropOrder._GENERIC_FLUFF,
 	"conditionFluff": PropOrder._GENERIC_FLUFF,
 	"itemFluff": PropOrder._GENERIC_FLUFF,
 	"languageFluff": PropOrder._GENERIC_FLUFF,
 	"vehicleFluff": PropOrder._GENERIC_FLUFF,
+	"objectFluff": PropOrder._GENERIC_FLUFF,
 	"raceFluff": PropOrder._RACE_FLUFF,
 	"spell": PropOrder._SPELL,
 	"action": PropOrder._ACTION,
@@ -1183,7 +1413,7 @@ PropOrder._PROP_TO_LIST = {
 	"vehicleUpgrade": PropOrder._VEHICLE_UPGRADE,
 	"item": PropOrder._ITEM,
 	"baseitem": PropOrder._ITEM,
-	"variant": PropOrder._VARIANT,
+	"magicvariant": PropOrder._MAGICVARIANT,
 	"itemGroup": PropOrder._ITEM,
 	"object": PropOrder._OBJECT,
 	"optionalfeature": PropOrder._OPTIONALFEATURE,
@@ -1192,6 +1422,7 @@ PropOrder._PROP_TO_LIST = {
 	"variantrule": PropOrder._VARIANTRULE,
 	"spellFluff": PropOrder._GENERIC_FLUFF,
 	"race": PropOrder._RACE,
+	"subrace": PropOrder._SUBRACE,
 	"table": PropOrder._TABLE,
 	"trap": PropOrder._TRAP,
 	"hazard": PropOrder._HAZARD,
@@ -1199,8 +1430,8 @@ PropOrder._PROP_TO_LIST = {
 	"recipeFluff": PropOrder._GENERIC_FLUFF,
 	"charoption": PropOrder._CHAROPTION,
 	"charoptionFluff": PropOrder._GENERIC_FLUFF,
+	"skill": PropOrder._SKILL,
+	"sense": PropOrder._SENSE,
 };
 
-if (typeof module !== "undefined") {
-	module.exports = PropOrder;
-}
+globalThis.PropOrder = PropOrder;

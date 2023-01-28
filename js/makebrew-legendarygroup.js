@@ -7,7 +7,6 @@ class LegendaryGroupBuilder extends Builder {
 			titleSidebarDownloadJson: "Download Legendary Groups as JSON",
 			prop: "legendaryGroup",
 			titleSelectDefaultSource: "(Same as Legendary Group)",
-			typeRenderData: "dataLegendaryGroup",
 		});
 
 		this._renderOutputDebounced = MiscUtil.debounce(() => this._renderOutput(), 50);
@@ -16,7 +15,7 @@ class LegendaryGroupBuilder extends Builder {
 	async pHandleSidebarLoadExistingClick () {
 		const result = await SearchWidget.pGetUserLegendaryGroupSearch();
 		if (result) {
-			const legGroup = MiscUtil.copy(await Renderer.hover.pCacheAndGet(result.page, result.source, result.hash));
+			const legGroup = MiscUtil.copy(await DataLoader.pCacheAndGet(result.page, result.source, result.hash));
 			return this.pHandleSidebarLoadExistingData(legGroup);
 		}
 	}
@@ -33,7 +32,7 @@ class LegendaryGroupBuilder extends Builder {
 
 		delete legGroup.uniqueId;
 
-		const meta = {...(opts.meta || {}), ...this.getInitialMetaState()};
+		const meta = {...(opts.meta || {}), ...this._getInitialMetaState()};
 
 		this.setStateFromLoaded({s: legGroup, m: meta});
 
@@ -43,24 +42,30 @@ class LegendaryGroupBuilder extends Builder {
 
 	_getInitialState () {
 		return {
+			...super._getInitialState(),
 			name: "New Legendary Group",
 			lairActions: [],
 			regionalEffects: [],
 			mythicEncounter: [],
 			source: this._ui ? this._ui.source : "",
-		}
+		};
 	}
 
 	setStateFromLoaded (state) {
-		if (state && state.s && state.m) {
-			this.__state = state.s;
-			this.__meta = state.m;
-		}
+		if (!state?.s || !state?.m) return;
+
+		this._doResetProxies();
+
+		if (!state.s.uniqueId) state.s.uniqueId = CryptUtil.uid();
+
+		this.__state = state.s;
+		this.__meta = state.m;
 	}
 
 	doHandleSourcesAdd () { /* No-op */ }
 
 	_renderInputImpl () {
+		this.doCreateProxies();
 		this.renderInputControls();
 		this._renderInputMain();
 	}
@@ -68,19 +73,17 @@ class LegendaryGroupBuilder extends Builder {
 	_renderInputMain () {
 		this._sourcesCache = MiscUtil.copy(this._ui.allSources);
 		const $wrp = this._ui.$wrpInput.empty();
-		this.doCreateProxies();
 
 		const _cb = () => {
 			// Prefer numerical pages if possible
 			if (!isNaN(this._state.page)) this._state.page = Number(this._state.page);
 
 			// do post-processing
-			TagCondition.tryTagConditions(this._state, true);
+			TagCondition.tryTagConditions(this._state, {isTagInflicted: true});
 
 			this.renderOutput();
 			this.doUiSave();
-			this.isEntrySaved = false;
-			this.mutSavedButtonText();
+			this._meta.isModified = true;
 		};
 		const cb = MiscUtil.debounce(_cb, 33);
 		this._cbCache = cb; // cache for use when updating sources
@@ -101,11 +104,11 @@ class LegendaryGroupBuilder extends Builder {
 			},
 		);
 		const [infoTab, lairActionsTab, regionalEffectsTab, mythicEncounterTab] = tabs;
-		$$`<div class="flex-v-center w-100 no-shrink ui-tab__wrp-tab-heads--border">${tabs.map(it => it.$btnTab)}</div>`.appendTo($wrp);
+		$$`<div class="ve-flex-v-center w-100 no-shrink ui-tab__wrp-tab-heads--border">${tabs.map(it => it.$btnTab)}</div>`.appendTo($wrp);
 		tabs.forEach(it => it.$wrpTab.appendTo($wrp));
 
 		// INFO
-		BuilderUi.$getStateIptString("Name", cb, this._state, {nullable: false, callback: () => this.renderSideMenu()}, "name").appendTo(infoTab.$wrpTab);
+		BuilderUi.$getStateIptString("Name", cb, this._state, {nullable: false, callback: () => this.pRenderSideMenu()}, "name").appendTo(infoTab.$wrpTab);
 		this._$selSource = this.$getSourceInput(cb).appendTo(infoTab.$wrpTab);
 
 		// LAIR ACTIONS
@@ -132,7 +135,6 @@ class LegendaryGroupBuilder extends Builder {
 
 	renderOutput () {
 		this._renderOutputDebounced();
-		this.mutSavedButtonText();
 	}
 
 	_renderOutput () {
@@ -151,11 +153,11 @@ class LegendaryGroupBuilder extends Builder {
 			},
 		);
 		const [legGroupTab, dataTab] = tabs;
-		$$`<div class="flex-v-center w-100 no-shrink">${tabs.map(it => it.$btnTab)}</div>`.appendTo($wrp);
+		$$`<div class="ve-flex-v-center w-100 no-shrink">${tabs.map(it => it.$btnTab)}</div>`.appendTo($wrp);
 		tabs.forEach(it => it.$wrpTab.appendTo($wrp));
 
 		// Legendary Group
-		const $tblLegGroup = $(`<table class="stats"/>`).appendTo(legGroupTab.$wrpTab);
+		const $tblLegGroup = $(`<table class="w-100 stats"/>`).appendTo(legGroupTab.$wrpTab);
 		RenderBestiary.$getRenderedLegendaryGroup(this._state).appendTo($tblLegGroup);
 
 		// Data
@@ -175,8 +177,8 @@ class LegendaryGroupBuilder extends Builder {
 		$tblData.append(Renderer.utils.getBorderTr());
 	}
 
-	async pDoPostSave () { ui.creatureBuilder.updateLegendaryGroups(); }
-	async pDoPostDelete () { ui.creatureBuilder.updateLegendaryGroups(); }
+	async pDoPostSave () { await ui.creatureBuilder.pUpdateLegendaryGroups(); }
+	async pDoPostDelete () { await ui.creatureBuilder.pUpdateLegendaryGroups(); }
 }
 
 const legendaryGroupBuilder = new LegendaryGroupBuilder();

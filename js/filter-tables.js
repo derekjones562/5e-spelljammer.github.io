@@ -8,14 +8,15 @@ class PageFilterTables extends PageFilter {
 	// endregion
 
 	constructor () {
-		super();
+		super({sourceFilterOpts: {selFn: PageFilterTables._sourceSelFn}});
 
-		this._sourceFilter = new SourceFilter({
-			selFn: PageFilterTables._sourceSelFn,
-		});
+		this._miscFilter = new Filter({header: "Miscellaneous", items: ["SRD", "Basic Rules"], isMiscFilter: true});
 	}
 
-	static mutateForFilters (it) { /* no-op */ }
+	static mutateForFilters (it) {
+		it._fMisc = it.srd ? ["SRD"] : [];
+		if (it.basicRules) it._fMisc.push("Basic Rules");
+	}
 
 	addToFilters (it, isExcluded) {
 		if (isExcluded) return;
@@ -26,6 +27,7 @@ class PageFilterTables extends PageFilter {
 	async _pPopulateBoxOptions (opts) {
 		opts.filters = [
 			this._sourceFilter,
+			this._miscFilter,
 		];
 	}
 
@@ -33,6 +35,21 @@ class PageFilterTables extends PageFilter {
 		return this._filterBox.toDisplay(
 			values,
 			it.source,
-		)
+			it._fMisc,
+		);
 	}
 }
+
+globalThis.PageFilterTables = PageFilterTables;
+
+class ListSyntaxTables extends ListUiUtil.ListSyntax {
+	_getSearchCacheStats (entity) {
+		if (!entity.rows && !entity.tables) return "";
+		const ptrOut = {_: ""};
+		this._getSearchCache_handleEntryProp(entity, "rows", ptrOut);
+		this._getSearchCache_handleEntryProp(entity, "tables", ptrOut);
+		return ptrOut._;
+	}
+}
+
+globalThis.ListSyntaxTables = ListSyntaxTables;

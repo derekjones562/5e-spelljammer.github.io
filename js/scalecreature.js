@@ -1,7 +1,13 @@
 "use strict";
 
 // Global variable for Roll20 compatibility
-(typeof module !== "undefined" ? global : window).ScaleCreature = {
+globalThis.ScaleCreature = {
+	isCrInScaleRange (mon) {
+		if ([VeCt.CR_UNKNOWN, VeCt.CR_CUSTOM].includes(Parser.crToNumber(mon.cr))) return false;
+		// Only allow scaling for creatures in the 0-30 CR range (homebrew may specify e.g. >30)
+		const xpVal = Parser.XP_CHART_ALT[mon.cr?.cr ?? mon.cr];
+		return xpVal != null;
+	},
 
 	_crRangeToVal (cr, ranges) {
 		return Object.keys(ranges).find(k => {
@@ -265,15 +271,17 @@
 	_crToCasterLevel (cr) {
 		if (cr === 0) return 2;
 		if (cr >= 19) return 20;
-		return this._crToCasterLevelAvg[cr]
+		return this._crToCasterLevelAvg[cr];
 	},
 
 	_calcNewAbility (mon, prop, modifier) {
 		// at least 1
-		return Math.max(1,
+		const out = Math.max(1,
 			((modifier + 5) * 2)
 			+ (mon[prop] % 2), // add trailing odd numbers from the original ability, just for fun
 		);
+		// Avoid breaking 30 unless we really mean to
+		return out === 31 ? 30 : out;
 	},
 
 	_rng: null,
@@ -296,7 +304,7 @@
 		if (toCr == null || toCr === "Unknown") throw new Error("Attempting to scale unknown CR!");
 
 		this._initRng(mon, toCr);
-		mon = JSON.parse(JSON.stringify(mon));
+		mon = MiscUtil.copyFast(mon);
 
 		const crIn = mon.cr.cr || mon.cr;
 		const crInNumber = Parser.crToNumber(crIn);
@@ -328,6 +336,8 @@
 		if (mon.cr.cr) mon.cr.cr = crOutStr;
 		else mon.cr = crOutStr;
 
+		Renderer.monster.updateParsed(mon);
+
 		mon._displayName = `${mon.name} (CR ${crOutStr})`;
 		mon._scaledCr = toCr;
 		mon._isScaledCr = true;
@@ -348,7 +358,7 @@
 				const expert = actualPb === pbIn * 2;
 
 				mon.save[k] = this._applyPb_getNewSkillSaveMod(pbIn, pbOut, bonus, expert);
-			})
+			});
 		}
 
 		this._applyPb_skills(mon, pbIn, pbOut, mon.skill);
@@ -359,13 +369,13 @@
 				const curToHit = Number(m1);
 				const outToHit = curToHit + pbDelta;
 				return `{@hit ${outToHit}}`;
-			})
+			});
 		};
 
 		const handleDc = (str) => {
 			return str
 				.replace(/DC (\d+)/g, (m0, m1) => `{@dc ${m1}}`)
-				.replace(/{@dc (\d+)}/g, (m0, m1) => {
+				.replace(/{@dc (\d+)(?:\|[^}]+)?}/g, (m0, m1) => {
 					const curDc = Number(m1);
 					const outDc = curDc + pbDelta;
 					return `DC ${outDc}`;
@@ -699,7 +709,7 @@
 							name: name.trim(),
 							ench: ench,
 							source: source,
-						}
+						};
 					} else {
 						const m = /@item ([^|}]+)(\|[^|}]+)?(\|[^|}]+)?/gi.exec(f);
 						if (m) {
@@ -770,7 +780,7 @@
 						return { // fill the gap with natural armor
 							ac: target,
 							from: ["natural armor"],
-						}
+						};
 					}
 				} else if (dexMismatch < 0 && canAdjustDex) { // increase/reduce DEX to move the AC up/down
 					adjustDex();
@@ -876,7 +886,7 @@
 						case 20:
 							return `+2 plate armor|dmg`;
 						case PL3_PLATE:
-							return `+3 plate armor|dmg`
+							return `+3 plate armor|dmg`;
 					}
 				};
 
@@ -1336,7 +1346,9 @@
 	_wepThrownFinesse: ["dagger", "dart"],
 	_wepFinesse: ["dagger", "dart", "rapier", "scimitar", "shortsword", "whip"],
 	_wepThrown: ["handaxe", "javelin", "light hammer", "spear", "trident", "net"],
-	_getModBeingScaled (strMod, dexMod, modFromAbil, name, content) {
+	_getAbilBeingScaled ({strMod, dexMod, modFromAbil, name, content}) {
+		if (modFromAbil == null) return null;
+
 		const guessMod = () => {
 			name = name.toLowerCase();
 			content = content.replace(/{@atk ([A-Za-z,]+)}/gi, (_, p1) => Renderer.attackTagToFull(p1)).toLowerCase();
@@ -1370,7 +1382,7 @@
 			}
 		};
 
-		if (!modFromAbil || (strMod === dexMod && strMod === modFromAbil)) return guessMod();
+		if (strMod === dexMod && strMod === modFromAbil) return guessMod();
 		return strMod === modFromAbil ? "str" : dexMod === modFromAbil ? "dex" : null;
 	},
 
@@ -1389,7 +1401,7 @@
 
 			// Otherwise, for high CR -> low CR
 			return this._getScaledToRatio(toHitIn, idealHitIn, idealHitOut);
-		}
+		};
 
 		const handleHit = (str, name) => {
 			const offsetEnchant = name != null ? this._getEnchantmentBonus(name) : 0;
@@ -1398,28 +1410,52 @@
 				const curToHit = Number(m1);
 
 				const modFromAbil = curToHit - (offsetEnchant + pbOut);
-				const modBeingScaled = name != null ? this._getModBeingScaled(strMod, dexMod, modFromAbil, name, str) : null; // ignore spell attacks here, as they'll be scaled using DCs later
+				// Handle e.g. "Hobgoblin Warlord" expertise on attacks
+				const modFromAbilExpertise = curToHit - (offsetEnchant + (pbOut * 2));
+				// Handle e.g. "Ghast" lack of proficiency on attacks
+				const modFromAbilNoProf = curToHit - offsetEnchant;
 
-				const origToHitNoEnch = curToHit + (pbIn - pbOut) - offsetEnchant;
+				// ignore spell attacks here, as they'll be scaled using DCs later
+				const abilBeingScaled = name != null
+					? this._getAbilBeingScaled({strMod, dexMod, modFromAbil, name, content: str})
+					: null;
+				const abilBeingScaledExpertise = name != null
+					? this._getAbilBeingScaled({strMod, dexMod, modFromAbil: modFromAbilExpertise, name, content: str})
+					: null;
+				const abilBeingScaledNoProf = name != null
+					? this._getAbilBeingScaled({strMod, dexMod, modFromAbil: modFromAbilNoProf, name, content: str})
+					: null;
+
+				const {abil, profMult} = [
+					abilBeingScaled ? {abil: abilBeingScaled, profMult: 1} : null,
+					abilBeingScaledExpertise ? {abil: abilBeingScaledExpertise, profMult: 2} : null,
+					abilBeingScaledNoProf ? {abil: abilBeingScaledNoProf, profMult: 0} : null,
+				].filter(Boolean)[0] || {abil: null, profMult: 1};
+
+				const pbInMult = profMult * pbIn;
+				const pbOutMult = profMult * pbOut;
+
+				const origToHitNoEnch = curToHit + (pbInMult - pbOutMult) - offsetEnchant;
 				const targetToHitNoEnch = getAdjustedHitFlat(origToHitNoEnch);
 
 				if (origToHitNoEnch === targetToHitNoEnch) return m0; // this includes updated PB, so just return it
 
-				if (modBeingScaled != null) {
-					const modDiff = (targetToHitNoEnch - pbOut) - (origToHitNoEnch - pbIn);
+				if (abil != null) {
+					const modDiff = (targetToHitNoEnch - pbOutMult) - (origToHitNoEnch - pbInMult);
 					const modFromAbilOut = modFromAbil + modDiff;
 
 					// Written out in full to make ctrl-F easier
 					const tmpModListProp = {
 						"str": `_strTmpMods`,
 						"dex": `_dexTmpMods`,
-					}[modBeingScaled];
+					}[abil];
 
 					mon[tmpModListProp] = mon[tmpModListProp] || [];
 					mon[tmpModListProp].push(modFromAbilOut);
 				}
+
 				return `{@hit ${targetToHitNoEnch + offsetEnchant}}`;
-			})
+			});
 		};
 
 		const idealDcIn = this._crToDc(crIn);
@@ -1430,7 +1466,7 @@
 		const handleDc = (str, castingAbility) => {
 			return str
 				.replace(/DC (\d+)/g, (m0, m1) => `{@dc ${m1}}`)
-				.replace(/{@dc (\d+)}/g, (m0, m1) => {
+				.replace(/{@dc (\d+)(?:\|[^}]+)?}/g, (m0, m1) => {
 					const curDc = Number(m1);
 					const origDc = curDc + pbIn - pbOut;
 					const outDc = Math.max(10, getAdjustedDcFlat(origDc));
@@ -1593,12 +1629,18 @@
 						const modFromAbil = modifier ? Number(modifier) - offsetEnchant : null;
 
 						// try to figure out which mod we're going to be scaling
-						const modBeingScaled = this._getModBeingScaled(originalStrMod, originalDexMod, modFromAbil, it.name, toUpdate);
-						const originalAbilMod = modBeingScaled === "str" ? strMod : modBeingScaled === "dex" ? dexMod : null;
+						const abilBeingScaled = this._getAbilBeingScaled({
+							strMod: originalStrMod,
+							dexMod: originalDexMod,
+							modFromAbil,
+							name: it.name,
+							content: toUpdate,
+						});
+						const originalAbilMod = abilBeingScaled === "str" ? strMod : abilBeingScaled === "dex" ? dexMod : null;
 
 						const getAdjustedDamMod = () => {
-							if (modBeingScaled === "str" && mon._strTmpMod != null) return mon._strTmpMod;
-							if (modBeingScaled === "dex" && mon._dexTmpMod != null) return mon._dexTmpMod;
+							if (abilBeingScaled === "str" && mon._strTmpMod != null) return mon._strTmpMod;
+							if (abilBeingScaled === "dex" && mon._dexTmpMod != null) return mon._dexTmpMod;
 
 							if (modFromAbil == null) return 0 - offsetEnchant; // ensure enchanted equipment is ignored even with +0 base damage mod
 
@@ -1617,20 +1659,19 @@
 							// - minimum number of dice is 1
 							// - minimum DPR range is 0-1, which can be achieved with e.g. 1d4-1 (avg 1) or 1d4-2 (avg 0)
 							// therefore, this provides a sanity check: this should only occur when something's broken
-							if (modOut < -5) throw new Error(`Ability modifier ${modBeingScaled != null ? `(${modBeingScaled})` : ""} was below -5 (${modOut})! Original dice expression was ${diceExp}.`);
+							if (modOut < -5) throw new Error(`Ability modifier ${abilBeingScaled != null ? `(${abilBeingScaled})` : ""} was below -5 (${modOut})! Original dice expression was ${diceExp}.`);
 
-							if (originalAbilMod != null && modOut !== originalAbilMod) {
-								// Written out in full to make ctrl-F easier
-								const [tmpModProp, maxDprKey] = {
-									"str": [`_strTmpMod`, `_maxDprStr`],
-									"dex": [`_dexTmpMod`, `_maxDprDex`],
-								}[modBeingScaled];
+							if (abilBeingScaled == null) return;
 
-								let updateTempMod = true;
+							// Written out in full to make ctrl-F easier
+							const [tmpModProp, maxDprKey] = {
+								"str": [`_strTmpMod`, `_maxDprStr`],
+								"dex": [`_dexTmpMod`, `_maxDprDex`],
+							}[abilBeingScaled];
+
+							if (originalAbilMod != null) {
 								if (mon[tmpModProp] != null && mon[tmpModProp] !== modOut) {
-									if (mon[maxDprKey] >= adjustedDpr) {
-										updateTempMod = false;
-									} else {
+									if (mon[maxDprKey] < adjustedDpr) {
 										// TODO test this -- none of the official monsters require attribute re-calculation but homebrew might. The story so far:
 										//   - A previous damage roll required an adjusted ability modifier to make the numbers line up
 										//   - This damage roll requires a _different_ adjustment to the same modifier to make the numbers line up
@@ -1641,21 +1682,23 @@
 										mon[tmpModProp] = modOut;
 										mon[maxDprKey] = adjustedDpr;
 										allSucceeded = false;
-										return "";
+										return;
 									}
 								}
 
-								if (updateTempMod) {
-									mon[maxDprKey] = Math.max((mon[maxDprKey] || 0), adjustedDpr);
-									mon[tmpModProp] = modOut;
-								}
-
-								reqAbilAdjust.push({
-									ability: modBeingScaled,
-									mod: modOut,
-									adjustedDpr,
-								})
+								// Always update the ability score key if one was used, to avoid later rolls clobbering our
+								//   values. We do this for e.g. Young White Dragon's "Bite" attack being scaled from CR6 to 7,
+								//   which would otherwise cause the 1d8 (mod 0) to calculate a new Strength value.
+								mon[maxDprKey] = Math.max((mon[maxDprKey] || 0), adjustedDpr);
+								mon[tmpModProp] = modOut;
 							}
+
+							// Track dbg data
+							reqAbilAdjust.push({
+								ability: abilBeingScaled,
+								mod: modOut,
+								adjustedDpr,
+							});
 						};
 
 						const getDiceExp = (a = numDiceOut, b = diceFacesOut, c = modOut) => `${a}d${b}${c !== 0 ? ` ${c > 0 ? "+" : ""} ${c}` : ""}`;
@@ -1741,9 +1784,19 @@
 							};
 
 							const tryAdjustMod = () => {
+								if (modFromAbil == null) return;
+
 								// alternating sequence, going further from origin each time.
 								// E.g. original modOut == 0 => 1, -1, 2, -2, 3, -3, ... modOut+n, modOut-n
 								modOut += (1 - ((loops % 2) * 2)) * (loops + 1);
+							};
+
+							/** Alternate implementation which prevents dec/increasing AS when inc/decreasing CR */
+							const tryAdjustMod_alt = () => {
+								if (modFromAbil == null) return;
+
+								modOut += Math.sign(crOut - crIn);
+								modOut = Math.max(-5, Math.min(modOut, 10)); // Cap at -5 (0) and at +10 (30)
 							};
 
 							// order of preference for scaling:
@@ -1806,7 +1859,7 @@
 
 			if (mon[tmpModProp] != null) {
 				mon[oldScoreProp] = mon[prop];
-				mon[prop] = this._calcNewAbility(mon, prop, mon[tmpModProp])
+				mon[prop] = this._calcNewAbility(mon, prop, mon[tmpModProp]);
 			}
 			delete mon[tmpModProp];
 		};
@@ -1948,7 +2001,7 @@
 				if (mClasses) spellsFromClass = mClasses[1];
 				else {
 					const mClasses2 = /(artificer|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard)(?:'s)? spell list/i.exec(outStr);
-					if (mClasses2) spellsFromClass = mClasses2[1]
+					if (mClasses2) spellsFromClass = mClasses2[1];
 				}
 
 				if (anyChange) sc.headerEntries = JSON.parse(outStr);
@@ -1979,7 +2032,7 @@
 					const targetCantripCount = this._getScaledToRatio(curCantrips, idealCantripsIn, idealCantripsOut);
 
 					if (curCantrips < targetCantripCount) {
-						const cantrips = Object.keys((this._spells[SRC_PHB][spellsFromClass.toLowerCase()] || {})[0]).map(it => it.toLowerCase());
+						const cantrips = Object.keys((this._spells[Parser.SRC_PHB][spellsFromClass.toLowerCase()] || {})[0]).map(it => it.toLowerCase());
 						if (cantrips.length) {
 							const extraCantrips = [];
 							const numNew = Math.min(targetCantripCount - curCantrips, cantrips.length);
@@ -2012,7 +2065,7 @@
 					}
 
 					const numSpellsKnown = this._adjustSpellcasting_getWarlockNumSpellsKnown(primaryOutLevel);
-					const warlockSpells = this._spells[SRC_PHB].warlock;
+					const warlockSpells = this._spells[Parser.SRC_PHB].warlock;
 					let spellList = [];
 					for (let i = 1; i < maxSpellLevel + 1; ++i) {
 						spellList = spellList.concat(Object.keys(warlockSpells[i]).map(sp => sp.toSpellCase()));
@@ -2031,7 +2084,7 @@
 						spells: [
 							`A selection of ${maxSpellLevel === 1 ? `{@filter 1st-level warlock spells|spells|level=${1}|class=warlock}.` : `{@filter 1st- to ${Parser.spLevelToFull(maxSpellLevel)}-level warlock spells|spells|level=${[...new Array(maxSpellLevel)].map((_, i) => i + 1).join(";")}|class=warlock}.`}  Examples include: ${spellsKnown.sort(SortUtil.ascSortLower).map(it => `{@spell ${it}}`).joinConjunct(", ", " and ")}`,
 						],
-					}
+					};
 				} else {
 					let lastRatio = 1; // adjust for higher/lower than regular spell slot counts
 					for (let i = 1; i < 10; ++i) {
@@ -2052,9 +2105,9 @@
 							}
 						} else if (i <= maxSpellLevel) {
 							const slots = Math.max(1, Math.round(idealSlotsOut * lastRatio));
-							if (spellsFromClass && (this._spells[SRC_PHB][spellsFromClass.toLowerCase()] || {})[i]) {
+							if (spellsFromClass && (this._spells[Parser.SRC_PHB][spellsFromClass.toLowerCase()] || {})[i]) {
 								const examples = [];
-								const levelSpells = Object.keys(this._spells[SRC_PHB][spellsFromClass.toLowerCase()][i]).map(it => it.toSpellCase());
+								const levelSpells = Object.keys(this._spells[Parser.SRC_PHB][spellsFromClass.toLowerCase()][i]).map(it => it.toSpellCase());
 								const numExamples = Math.min(5, levelSpells.length);
 								for (let n = 0; n < numExamples; ++n) {
 									const ix = RollerUtil.roll(levelSpells.length, this._rng);
@@ -2099,7 +2152,7 @@
 						const m = /{@spell ([^|}]+)(?:\|([^|}]+))?[|}]/.exec(it);
 						if (m) {
 							const nameTag = m[1].toLowerCase();
-							const srcTag = (m[2] || SRC_PHB).toLowerCase();
+							const srcTag = (m[2] || Parser.SRC_PHB).toLowerCase();
 
 							const src = Object.keys(this._spells).find(it => it.toLowerCase() === srcTag);
 							if (src) {
@@ -2122,7 +2175,7 @@
 					sc.daily["1e"] = curSpells.map(it => it.original);
 				} else {
 					for (let i = 5 + curNumSpells; i < 5 + numArcanum; ++i) {
-						const rollOn = Object.keys(this._spells[SRC_PHB].warlock[i]);
+						const rollOn = Object.keys(this._spells[Parser.SRC_PHB].warlock[i]);
 						const ix = RollerUtil.roll(rollOn.length, this._rng);
 						sc.daily["1e"].push(`{@spell ${rollOn[ix].toSpellCase()}}`);
 					}
@@ -2135,7 +2188,7 @@
 
 	_adjustSpellcasting_isWarlock (mon) {
 		if (mon.spellcasting) {
-			return mon.spellcasting.some(sc => sc.headerEntries && /warlock spells?|warlock('s)? spell list/i.test(JSON.stringify(sc.headerEntries)))
+			return mon.spellcasting.some(sc => sc.headerEntries && /warlock spells?|warlock('s)? spell list/i.test(JSON.stringify(sc.headerEntries)));
 		}
 	},
 
@@ -2152,15 +2205,44 @@
 	},
 };
 
-(typeof module !== "undefined" ? global : window).ScaleSummonCreature = {
+globalThis.ScaleSummonedCreature = {
+	_mutSimpleSpecialAcItem (acItem) {
+		// Try to convert to "from" AC
+		const mSimpleNatural = /^(\d+) \(natural armor\)$/i.exec(acItem.special);
+		if (mSimpleNatural) {
+			delete acItem.special;
+			acItem.ac = Number(mSimpleNatural[1]);
+			acItem.from = ["natural armor"];
+		}
+	},
+
+	/** */
+	_mutSimpleSpecialHp (mon) {
+		if (!mon.hp?.special) return;
+
+		const cleanHp = mon.hp.special.toLowerCase().replace(/ /g, "");
+		const mHp = /^(?<averagePart>\d+)(?<hdPart>\((?<dicePart>\d+d\d+)(?<bonusPart>[-+]\d+)?\))?$/.exec(cleanHp);
+
+		if (!mHp) return;
+
+		if (!mHp.groups.hdPart) return {average: Number(mHp.groups.averagePart)};
+
+		mon.hp = {
+			average: Number(mHp.groups.averagePart),
+			formula: `${mHp.groups.dicePart}${mHp.groups.bonusPart ? mHp.groups.bonusPart.replace(/[-+]/g, " $0 ") : ""}`,
+		};
+	},
+};
+
+globalThis.ScaleSpellSummonedCreature = {
 	async scale (mon, toSpellLevel) {
-		mon = MiscUtil.copy(mon);
+		mon = MiscUtil.copyFast(mon);
 
-		if (!mon.summonedBySpell || mon._summonedBySpell_levelBase == null) return mon;
+		if (!mon.summonedBySpell || mon.summonedBySpellLevel == null) return mon;
 
-		ScaleSummonCreature._WALKER = ScaleSummonCreature._WALKER || MiscUtil.getWalker({keyBlacklist: MiscUtil.GENERIC_WALKER_ENTRIES_KEY_BLACKLIST});
+		ScaleSpellSummonedCreature._WALKER = ScaleSpellSummonedCreature._WALKER || MiscUtil.getWalker({keyBlocklist: MiscUtil.GENERIC_WALKER_ENTRIES_KEY_BLOCKLIST});
 
-		const state = new ScaleSummonCreature.State({});
+		const state = new ScaleSpellSummonedCreature.State({});
 
 		mon._displayName = `${mon.name} (${Parser.getOrdinalForm(toSpellLevel)}-Level Spell)`;
 
@@ -2169,17 +2251,19 @@
 
 		this._scale_traits(mon, toSpellLevel, state);
 		this._scale_actions(mon, toSpellLevel, state);
+		this._scale_bonusActions(mon, toSpellLevel, state);
 		this._scale_reactions(mon, toSpellLevel, state);
 
 		mon._summonedBySpell_level = toSpellLevel;
-		mon._scaledSummonLevel = toSpellLevel;
-		mon._isScaledSummon = true;
+		mon._scaledSpellSummonLevel = toSpellLevel;
+		mon._isScaledSpellSummon = true;
 
 		return mon;
 	},
 
 	_scale_ac (mon, toSpellLevel, state) {
 		if (!mon.ac) return;
+
 		mon.ac = mon.ac.map(it => {
 			if (!it.special) return it;
 
@@ -2188,20 +2272,15 @@
 				.replace(/(\d+)\s*\+\s*the level of the spell/g, (...m) => Number(m[1]) + toSpellLevel)
 			;
 
-			// Try to convert to "from" AC
-			const mSimpleNatural = /^(\d+) \(natural armor\)$/i.exec(it.special);
-			if (mSimpleNatural) {
-				delete it.special;
-				it.ac = Number(mSimpleNatural[1]);
-				it.from = ["natural armor"];
-			}
+			ScaleSummonedCreature._mutSimpleSpecialAcItem(it);
 
 			return it;
-		})
+		});
 	},
 
 	_scale_hp (mon, toSpellLevel, state) {
 		if (!mon.hp?.special) return;
+
 		mon.hp.special = mon.hp.special
 			// "40 + 10 for each spell level above 4th"
 			.replace(/(\d+)\s*\+\s*(\d+) for each spell level above (\d+)(?:st|nd|rd|th)/g, (...m) => {
@@ -2214,18 +2293,21 @@
 				return Parser.textToNumber(numMult) * toSpellLevel;
 			})
 		;
+
+		ScaleSummonedCreature._mutSimpleSpecialHp(mon);
 	},
 
 	_scale_genericEntries (mon, toSpellLevel, state, prop) {
-		if (!mon[prop]) return
-		mon[prop] = ScaleSummonCreature._WALKER.walk(
+		if (!mon[prop]) return;
+		mon[prop] = ScaleSpellSummonedCreature._WALKER.walk(
 			mon[prop],
 			{
 				string: (str) => {
 					str = str
 						// "The aberration makes a number of attacks equal to half this spell's level (rounded down)."
 						.replace(/a number of attacks equal to half this spell's level \(rounded down\)/g, (...m) => {
-							return `${Parser.numberToText(Math.floor(toSpellLevel / 2))} attacks`
+							const count = Math.floor(toSpellLevel / 2);
+							return `${Parser.numberToText(count)} attack${count === 1 ? "" : "s"}`;
 						})
 						// "{@damage 1d8 + 3 + summonSpellLevel}"
 						.replace(/{@(?:dice|damage|hit|d20) [^}]+}/g, (...m) => {
@@ -2238,16 +2320,195 @@
 					return str;
 				},
 			},
-		)
+		);
 	},
 
 	_scale_traits (mon, toSpellLevel, state) { this._scale_genericEntries(mon, toSpellLevel, state, "trait"); },
 	_scale_actions (mon, toSpellLevel, state) { this._scale_genericEntries(mon, toSpellLevel, state, "action"); },
+	_scale_bonusActions (mon, toSpellLevel, state) { this._scale_genericEntries(mon, toSpellLevel, state, "bonus"); },
 	_scale_reactions (mon, toSpellLevel, state) { this._scale_genericEntries(mon, toSpellLevel, state, "reaction"); },
 
 	State: function () {
 		// (Implement as required)
 		// this.whatever = null;
+	},
+
+	_WALKER: null,
+};
+
+globalThis.ScaleClassSummonedCreature = {
+	async scale (mon, toClassLevel) {
+		mon = MiscUtil.copyFast(mon);
+
+		if (!mon.summonedByClass || toClassLevel < 1) return mon;
+
+		ScaleClassSummonedCreature._WALKER = ScaleClassSummonedCreature._WALKER || MiscUtil.getWalker({keyBlocklist: MiscUtil.GENERIC_WALKER_ENTRIES_KEY_BLOCKLIST});
+
+		const className = mon.summonedByClass.split("|")[0].toTitleCase();
+		const state = new ScaleClassSummonedCreature.State({
+			className,
+			proficiencyBonus: Parser.levelToPb(toClassLevel),
+		});
+
+		mon._displayName = `${mon.name} (Level ${toClassLevel} ${className})`;
+
+		this._scale_ac(mon, toClassLevel, state);
+		this._scale_hp(mon, toClassLevel, state);
+
+		this._scale_saves(mon, toClassLevel, state);
+		this._scale_skills(mon, toClassLevel, state);
+
+		this._scale_pbNote(mon, toClassLevel, state);
+
+		this._scale_traits(mon, toClassLevel, state);
+		this._scale_actions(mon, toClassLevel, state);
+		this._scale_bonusActions(mon, toClassLevel, state);
+		this._scale_reactions(mon, toClassLevel, state);
+
+		mon._summonedByClass_level = toClassLevel;
+		mon._scaledClassSummonLevel = toClassLevel;
+		mon._isScaledClassSummon = true;
+
+		return mon;
+	},
+
+	_scale_ac (mon, toClassLevel, state) {
+		if (!mon.ac) return;
+
+		mon.ac = mon.ac.map(it => {
+			if (!it.special) return it;
+
+			it.special = it.special
+				// "13 + PB (natural armor)"
+				.replace(/(\d+)\s*\+\s*PB\b/g, (...m) => Number(m[1]) + state.proficiencyBonus)
+			;
+
+			ScaleSummonedCreature._mutSimpleSpecialAcItem(it);
+
+			return it;
+		});
+	},
+
+	_scale_savesSkills (mon, toClassLevel, state, prop) {
+		mon[prop] = Object.entries(mon[prop])
+			.mergeMap(([k, v]) => {
+				if (typeof v !== "string") return {[k]: v};
+				return {[k]: v
+					.replace(/\bplus\b/gi, "+")
+					.replace(/(\b|[-+])PB\b/g, `$1${state.proficiencyBonus}`)};
+			});
+	},
+
+	_scale_saves (mon, toClassLevel, state) {
+		if (!mon.save) return;
+		this._scale_savesSkills(mon, toClassLevel, state, "save");
+	},
+
+	_scale_skills (mon, toClassLevel, state) {
+		if (!mon.skill) return;
+		this._scale_savesSkills(mon, toClassLevel, state, "skill");
+	},
+
+	_scale_hp (mon, toClassLevel, state) {
+		if (!mon.hp?.special) return;
+
+		let basePart = mon.hp.special; let hdPart = ""; let yourAbilModPart = "";
+		if (mon.hp.special.includes("(")) {
+			let [start, ...rest] = mon.hp.special.split("(");
+			rest = rest.join("(");
+			if (rest.toLowerCase().includes("hit dice")) {
+				basePart = start.trim();
+				hdPart = rest.trimAnyChar("() ");
+			}
+		}
+
+		basePart = basePart
+			.replace(/\+\s*your (?:Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma) modifier/i, (...m) => {
+				yourAbilModPart = m[0];
+				return "";
+			})
+			.replace(/ +/g, " ")
+			.trim();
+
+		basePart = basePart
+			// "5 + five times your ranger level"
+			.replace(/(?<base>\d+)\s*\+\s*(?<perLevel>\d+|[a-z]+) times your (?<className>[^(]*) level/g, (...m) => {
+				const numTimes = isNaN(m.last().perLevel) ? Parser.textToNumber(m.last().perLevel) : Number(m.last().perLevel);
+				return `${Number(m.last().base) + (numTimes * toClassLevel)}`;
+			})
+			// "1 + <...> + your artificer level"
+			.replace(/(?<base>\d+)\s*\+\s*your (?<className>[^(]*) level/g, (...m) => {
+				return `${Number(m.last().base) + toClassLevel}`;
+			})
+			// "equal the beast's Constitution modifier + five times your ranger level"
+			.replace(/equal .*? Constitution modifier\s*\+\s*(?<perLevel>\d+|[a-z]+) times your (?<className>[^(]*) level/g, (...m) => {
+				const numTimes = isNaN(m.last().perLevel) ? Parser.textToNumber(m.last().perLevel) : Number(m.last().perLevel);
+				return `${Parser.getAbilityModNumber(mon.con) + (numTimes * toClassLevel)}`;
+			})
+		;
+
+		// "the beast has a number of Hit Dice [d8s] equal to your ranger level"
+		if (hdPart) {
+			hdPart = hdPart.replace(/(?<intro>.*) a number of hit dice \[d(?<hdSides>\d+)s?] equal to your (?<className>[^(]*) level/i, (...m) => {
+				const hdFormula = `${toClassLevel}d${m.last().hdSides}`;
+				if (!yourAbilModPart) return hdFormula;
+
+				return `${m.last().intro} {@dice ${hdFormula}} Hit Dice`;
+			});
+		}
+
+		// If there is an ability modifier part, we cannot scale purely by level--display an expression instead.
+		if (yourAbilModPart) {
+			mon.hp.special = `${basePart} ${yourAbilModPart}${hdPart ? ` (${hdPart})` : ""}`.trim();
+		} else {
+			mon.hp.special = `${basePart}${hdPart ? ` (${hdPart})` : ""}`.trim();
+		}
+
+		ScaleSummonedCreature._mutSimpleSpecialHp(mon);
+	},
+
+	_scale_genericEntries (mon, toClassLevel, state, prop) {
+		if (!mon[prop]) return;
+		mon[prop] = ScaleClassSummonedCreature._WALKER.walk(
+			mon[prop],
+			{
+				string: (str) => {
+					str = str
+						// "add your proficiency bonus"
+						.replace(/add your proficiency bonus/gi, (...m) => {
+							return `${m[0]} (${UiUtil.intToBonus(state.proficiencyBonus)})`;
+						})
+						// "{@damage 1d8 + 2 + PB}"
+						.replace(/{@(?:dice|damage|hit|d20) [^}]+}/g, (...m) => {
+							return m[0]
+								.replace(/\bPB\b/g, (...n) => state.proficiencyBonus)
+								// eslint-disable-next-line no-eval
+								.replace(/[-+]\s*\d+\s*[-+]\s*\d+\b/g, (...n) => UiUtil.intToBonus(eval(n[0])))
+								.replace(/\s*[-+]\s*/g, (...m) => ` ${m[0].trim()} `)
+							;
+						})
+					;
+
+					return str;
+				},
+			},
+		);
+	},
+
+	_scale_traits (mon, toClassLevel, state) { this._scale_genericEntries(mon, toClassLevel, state, "trait"); },
+	_scale_actions (mon, toClassLevel, state) { this._scale_genericEntries(mon, toClassLevel, state, "action"); },
+	_scale_bonusActions (mon, toClassLevel, state) { this._scale_genericEntries(mon, toClassLevel, state, "bonus"); },
+	_scale_reactions (mon, toClassLevel, state) { this._scale_genericEntries(mon, toClassLevel, state, "reaction"); },
+
+	_scale_pbNote (mon, toClassLevel, state) {
+		if (!mon.pbNote) return;
+
+		mon.pbNote = mon.pbNote.replace(/equals your bonus\b/, (...m) => `${m[0]} (${UiUtil.intToBonus(state.proficiencyBonus, {isPretty: true})})`);
+	},
+
+	State: function ({className, proficiencyBonus}) {
+		this.className = className;
+		this.proficiencyBonus = proficiencyBonus;
 	},
 
 	_WALKER: null,

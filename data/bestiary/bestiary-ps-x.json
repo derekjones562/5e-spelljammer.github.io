@@ -2,16 +2,151 @@
 	"_meta": {
 		"dependencies": {
 			"monster": [
-				"MM"
+				"MM",
+				"VGM"
 			]
 		}
 	},
 	"monster": [
 		{
+			"name": "Aegisaur",
+			"source": "PSX",
+			"page": 28,
+			"_copy": {
+				"name": "Ankylosaurus",
+				"source": "MM"
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Aerosaur (Large)",
+			"source": "PSX",
+			"page": 29,
+			"_copy": {
+				"name": "Quetzalcoatlus",
+				"source": "VGM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "quetzalcoatlus",
+						"with": "aerosaur"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Aerosaur (Small)",
+			"source": "PSX",
+			"page": 29,
+			"_copy": {
+				"name": "Pteranodon",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "pteranodon",
+						"with": "aerosaur"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Air Totem Elemental",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Air Elemental",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "elemental",
+						"with": "totem elemental"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Armasaur",
+			"source": "PSX",
+			"page": 28,
+			"_copy": {
+				"name": "Stegosaurus",
+				"source": "VGM"
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Awakened Shrub Totem Elemental",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Awakened Shrub",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "shrub",
+						"with": "shrub totem"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Blight Totem Elemental",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Vine Blight",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "blight",
+						"with": "blight totem"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Brontodon",
+			"source": "PSX",
+			"page": 27,
+			"_copy": {
+				"name": "Brontosaurus",
+				"source": "VGM"
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Ceratops",
+			"source": "PSX",
+			"page": 28,
+			"_copy": {
+				"name": "Triceratops",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "triceratops",
+						"with": "ceratops"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
 			"name": "Chupacabra",
 			"source": "PSX",
 			"page": 9,
-			"size": "M",
+			"size": [
+				"M"
+			],
 			"type": "monstrosity",
 			"alignment": [
 				"N",
@@ -88,7 +223,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Sunlight Sensitivity"
 			],
@@ -100,17 +234,92 @@
 				"P"
 			],
 			"miscTags": [
+				"HPR",
 				"MW"
 			],
 			"conditionInflict": [
 				"prone"
-			]
+			],
+			"hasToken": true
+		},
+		{
+			"name": "Coatl",
+			"source": "PSX",
+			"page": 35,
+			"_copy": {
+				"name": "Couatl",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "couatl",
+						"with": "coatl"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Deinonychus",
+			"source": "PSX",
+			"page": 30,
+			"_copy": {
+				"name": "Deinonychus",
+				"source": "VGM"
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Demon",
+			"source": "PSX",
+			"page": 36,
+			"_copy": {
+				"name": "Vrock",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "vrock",
+						"with": "demon"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Dryad",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Dryad",
+				"source": "MM"
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Earth Totem Elemental",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Earth Elemental",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "elemental",
+						"with": "totem elemental"
+					}
+				}
+			},
+			"hasFluff": true
 		},
 		{
 			"name": "Elder Dinosaur",
 			"source": "PSX",
 			"page": 33,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": {
 				"type": "monstrosity",
 				"tags": [
@@ -230,7 +439,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -250,13 +458,17 @@
 				"blinded",
 				"frightened",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
 		},
 		{
 			"name": "Elder Dinosaur (Etali, Primal Storm)",
 			"source": "PSX",
 			"page": 33,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": {
 				"type": "monstrosity",
 				"tags": [
@@ -394,7 +606,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -424,13 +635,17 @@
 				"frightened",
 				"grappled",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
 		},
 		{
 			"name": "Elder Dinosaur (Ghalta, Primal Hunger)",
 			"source": "PSX",
 			"page": 33,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": {
 				"type": "monstrosity",
 				"tags": [
@@ -568,7 +783,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -597,13 +811,17 @@
 				"grappled",
 				"prone",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
 		},
 		{
 			"name": "Elder Dinosaur (Nezahal, Primal Tide)",
 			"source": "PSX",
 			"page": 33,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": {
 				"type": "monstrosity",
 				"tags": [
@@ -742,7 +960,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Hold Breath",
 				"Legendary Resistances",
@@ -771,13 +988,17 @@
 				"frightened",
 				"grappled",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
 		},
 		{
 			"name": "Elder Dinosaur (Tetzimoc, Primal Death)",
 			"source": "PSX",
 			"page": 33,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": {
 				"type": "monstrosity",
 				"tags": [
@@ -939,7 +1160,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -969,13 +1189,17 @@
 				"grappled",
 				"prone",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
 		},
 		{
 			"name": "Elder Dinosaur (Zacama, Primal Calamity)",
 			"source": "PSX",
 			"page": 33,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": {
 				"type": "monstrosity",
 				"tags": [
@@ -1113,7 +1337,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -1142,13 +1365,17 @@
 				"grappled",
 				"prone",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
 		},
 		{
 			"name": "Elder Dinosaur (Zetalpa, Primal Dawn)",
 			"source": "PSX",
 			"page": 33,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": {
 				"type": "monstrosity",
 				"tags": [
@@ -1296,7 +1523,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances",
 				"Magic Resistance",
@@ -1325,13 +1551,51 @@
 				"frightened",
 				"grappled",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
+		},
+		{
+			"name": "Ferocidon",
+			"source": "PSX",
+			"page": 30,
+			"_copy": {
+				"name": "Allosaurus",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "allosaurus",
+						"with": "ferocidon"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Fire Guardian",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Fire Elemental",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "elemental",
+						"with": "fire guardian"
+					}
+				}
+			},
+			"hasFluff": true
 		},
 		{
 			"name": "Frilled Deathspitter",
 			"source": "PSX",
 			"page": 30,
-			"size": "S",
+			"size": [
+				"S"
+			],
 			"type": "beast",
 			"alignment": [
 				"U"
@@ -1388,7 +1652,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"actionTags": [
 				"Multiattack"
 			],
@@ -1403,14 +1666,18 @@
 			],
 			"conditionInflict": [
 				"blinded"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
 		},
 		{
 			"name": "Gishath, Sun's Avatar",
 			"isNamedCreature": true,
 			"source": "PSX",
 			"page": 32,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": "beast",
 			"alignment": [
 				"U"
@@ -1502,7 +1769,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Legendary Resistances"
 			],
@@ -1525,7 +1791,53 @@
 				"grappled",
 				"prone",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
+		},
+		{
+			"name": "Griffin",
+			"source": "PSX",
+			"page": 39,
+			"_copy": {
+				"name": "Griffon",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "griffon",
+						"with": "griffin"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Hadrosaur",
+			"source": "PSX",
+			"page": 29,
+			"_copy": {
+				"name": "Hadrosaurus",
+				"source": "VGM"
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Hammerskull",
+			"source": "PSX",
+			"page": 29,
+			"_copy": {
+				"name": "Giant Goat",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "goat",
+						"with": "hammerskull"
+					}
+				}
+			},
+			"hasFluff": true
 		},
 		{
 			"name": "Harpy",
@@ -1535,39 +1847,191 @@
 				"name": "Harpy",
 				"source": "MM",
 				"_mod": {
-					"action": [
-						{
-							"mode": "replaceArr",
-							"replace": "Multiattack",
-							"items": {
-								"name": "Multiattack",
-								"entries": [
-									"The harpy makes two attacks: one with its claws and one with its bite."
-								]
-							}
-						},
-						{
-							"mode": "replaceArr",
-							"replace": "Club",
-							"items": {
-								"name": "Bite",
-								"entries": [
-									"{@atk mw} {@hit 3} to hit, reach 5 ft., one target. {@h}3 ({@damage 1d4 + 1}) slashing damage. If the target is a creature, it must succeed on a DC 11 Constitution saving throw or contract a disease. Until the disease is cured, the target can't regain hit points except by magical means, and the target's hit point maximum decreases by 3 ({@dice 1d6}) every 24 hours. If the target's hit point maximum drops to 0 as a result of this disease, the target dies."
-								]
-							}
+					"action": {
+						"mode": "replaceArr",
+						"replace": "Club",
+						"items": {
+							"name": "Bite",
+							"entries": [
+								"{@atk mw} {@hit 3} to hit, reach 5 ft., one target. {@h}3 ({@damage 1d4 + 1}) slashing damage. If the target is a creature, it must succeed on a DC 11 Constitution saving throw or contract a disease. Until the disease is cured, the target can't regain hit points except by magical means, and the target's hit point maximum decreases by 3 ({@dice 1d6}) every 24 hours. If the target's hit point maximum drops to 0 as a result of this disease, the target dies."
+							]
 						}
-					]
+					}
 				}
 			},
-			"damageTags": [
-				"S"
-			]
+			"hasToken": true,
+			"hasFluff": true
+		},
+		{
+			"name": "Horned Frog",
+			"source": "PSX",
+			"page": 39,
+			"_copy": {
+				"name": "Giant Frog",
+				"source": "MM"
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Macaw",
+			"source": "PSX",
+			"page": 39,
+			"_copy": {
+				"name": "Raven",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "raven",
+						"with": "macaw"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Parrot",
+			"source": "PSX",
+			"page": 39,
+			"_copy": {
+				"name": "Raven",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "raven",
+						"with": "parrot"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Piranha",
+			"source": "PSX",
+			"page": 40,
+			"_copy": {
+				"name": "Quipper",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "quipper",
+						"with": "piranha"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Sailback",
+			"source": "PSX",
+			"page": 30,
+			"_copy": {
+				"name": "Giant Crocodile",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "crocodile",
+						"with": "sailback"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Shambling Mound Totem Elemental",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Shambling Mound",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "shambling mound",
+						"with": "shambling mound totem"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Stone Guardian (Animated Armor)",
+			"source": "PSX",
+			"page": 40,
+			"_copy": {
+				"name": "Animated Armor",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "armor",
+						"with": "stone guardian"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Stone Guardian (Helmed Horror)",
+			"source": "PSX",
+			"page": 40,
+			"_copy": {
+				"name": "Helmed Horror",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "helmed horror",
+						"with": "stone guardian"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Stone Guardian (Shield Guardian)",
+			"source": "PSX",
+			"page": 40,
+			"_copy": {
+				"name": "Shield Guardian",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "shield guardian",
+						"with": "stone guardian"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Stone Guardian (Stone Golem)",
+			"source": "PSX",
+			"page": 40,
+			"_copy": {
+				"name": "Stone Golem",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "golem",
+						"with": "stone guardian"
+					}
+				}
+			},
+			"hasFluff": true
 		},
 		{
 			"name": "Sunbird",
 			"source": "PSX",
 			"page": 32,
-			"size": "G",
+			"size": [
+				"G"
+			],
 			"type": "monstrosity",
 			"alignment": [
 				"U"
@@ -1666,7 +2130,6 @@
 					]
 				}
 			],
-			"hasToken": true,
 			"traitTags": [
 				"Death Burst",
 				"Flyby",
@@ -1695,7 +2158,127 @@
 			"conditionInflict": [
 				"grappled",
 				"restrained"
-			]
+			],
+			"hasToken": true,
+			"hasFluff": true
+		},
+		{
+			"name": "Swarm of Piranhas",
+			"source": "PSX",
+			"page": 40,
+			"_copy": {
+				"name": "Swarm of Quippers",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "quipper",
+						"with": "piranha"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Treant Totem Elemental",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Treant",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "treant",
+						"with": "treant totem"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Trilobite",
+			"source": "PSX",
+			"page": 40,
+			"_copy": {
+				"name": "Crab",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "crab",
+						"with": "trilobite"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Trilobite (Giant)",
+			"source": "PSX",
+			"page": 40,
+			"_copy": {
+				"name": "Giant Crab",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "crab",
+						"with": "trilobite"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Tyrant",
+			"alias": [
+				"Monstrosaur",
+				"Dreadmaw",
+				"Swordtooth",
+				"Regisaur"
+			],
+			"source": "PSX",
+			"page": 31,
+			"_copy": {
+				"name": "Tyrannosaurus Rex",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "tyrannosaurus",
+						"with": "tyrant"
+					}
+				}
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Velociraptor",
+			"source": "PSX",
+			"page": 30,
+			"_copy": {
+				"name": "Velociraptor",
+				"source": "VGM"
+			},
+			"hasFluff": true
+		},
+		{
+			"name": "Water Totem Elemental",
+			"source": "PSX",
+			"page": 38,
+			"_copy": {
+				"name": "Water Elemental",
+				"source": "MM",
+				"_mod": {
+					"*": {
+						"mode": "replaceTxt",
+						"replace": "elemental",
+						"with": "totem elemental"
+					}
+				}
+			},
+			"hasFluff": true
 		}
 	]
 }

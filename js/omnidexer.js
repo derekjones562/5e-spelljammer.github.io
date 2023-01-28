@@ -1,11 +1,5 @@
 "use strict";
 
-if (typeof require !== "undefined") {
-	require("../js/utils.js");
-	require("../js/render.js");
-	require("../js/render-dice.js");
-}
-
 class Omnidexer {
 	constructor (id = 0) {
 		/**
@@ -16,10 +10,15 @@ class Omnidexer {
 		 *   s: "PHB", // source
 		 *   u: "spell name_phb, // hash
 		 *   uh: "spell name_phb, // Optional; hash for href if the link should be different from the hover lookup hash.
-		 *   p: 110, // page
+		 *   p: 110, // page number
+		 *   [q: "bestiary.html", // page; synthetic property only used by search widget]
 		 *   h: 1 // if isHover enabled, otherwise undefined
+		 *   r: 1 // if SRD
 		 *   c: 10, // category ID
-		 *   id: 123 // index ID
+		 *   id: 123, // index ID
+		 *   [t: "spell"], // tag
+		 *   [uu: "fireball|phb"], // UID
+		 *   [m: "img/spell/Fireball.png"], // Image
 		 * }
 		 */
 		this._index = [];
@@ -36,19 +35,20 @@ class Omnidexer {
 	}
 
 	static decompressIndex (indexGroup) {
-		const {x, m} = indexGroup;
+		const {x: index, m: metadata} = indexGroup;
 
 		const props = new Set();
+
 		// de-invert the metadata
 		const lookup = {};
-		Object.keys(m).forEach(k => {
+		Object.keys(metadata).forEach(k => {
 			props.add(k);
-			Object.entries(m[k]).forEach(([kk, vv]) => (lookup[k] = lookup[k] || {})[vv] = kk);
+			Object.entries(metadata[k]).forEach(([kk, vv]) => (lookup[k] = lookup[k] || {})[vv] = kk);
 		});
 
-		x.forEach(it => Object.keys(it).filter(k => props.has(k))
-			.forEach(k => it[k] = lookup[k][it[k]] || it[k]));
-		return x;
+		index.forEach(it => Object.keys(it).filter(k => props.has(k))
+			.forEach(k => it[k] = lookup[k][it[k]] ?? it[k]));
+		return index;
 	}
 
 	static getProperty (obj, withDots) {
@@ -59,64 +59,118 @@ class Omnidexer {
 	 * Compute and add an index item.
 	 * @param arbiter The indexer arbiter.
 	 * @param json A raw JSON object of a file, typically containing an array to be indexed.
-	 * @param options Options object.
-	 * @param options.isNoFilter If filtering rules are to be ignored (e.g. for tests).
-	 * @param options.alt Sub-options for alternate indices.
+	 * @param [options] Options object.
+	 * @param [options.isNoFilter] If filtering rules are to be ignored (e.g. for tests).
+	 * @param [options.alt] Sub-options for alternate indices.
+	 * @param [options.isIncludeTag]
+	 * @param [options.isIncludeUid]
+	 * @param [options.isIncludeImg]
 	 */
 	async pAddToIndex (arbiter, json, options) {
 		options = options || {};
 		const index = this._index;
-		let id = this.id;
 
-		const getToAdd = (it, toMerge, i) => {
-			const src = Omnidexer.getProperty(it, arbiter.source || "source");
-			const hash = arbiter.hashBuilder
-				? arbiter.hashBuilder(it, i)
-				: UrlUtil.URL_TO_HASH_BUILDER[arbiter.baseUrl](it);
-			const toAdd = {
-				c: arbiter.category,
-				s: this.getMetaId("s", src),
-				id: id++,
-				u: hash,
-				p: Omnidexer.getProperty(it, arbiter.page || "page"),
-			};
-			if (arbiter.isHover) toAdd.h = 1;
-			if (options.alt) {
-				if (options.alt.additionalProperties) Object.entries(options.alt.additionalProperties).forEach(([k, getV]) => toAdd[k] = getV(it));
-			}
-			Object.assign(toAdd, toMerge);
-			return toAdd;
-		};
-
-		const pHandleItem = async (it, i, name) => {
-			if (it.noDisplay) return;
-			if (name) name = name.toAscii();
-
-			const toAdd = getToAdd(it, {n: name}, i);
-
-			if ((options.isNoFilter || (!arbiter.include && !(arbiter.filter && arbiter.filter(it))) || (!arbiter.filter && (!arbiter.include || arbiter.include(it)))) && !arbiter.isOnlyDeep) index.push(toAdd);
-
-			const primary = {it: it, ix: i, parentName: name};
-			const deepItems = await arbiter.pGetDeepIndex(this, primary, it);
-			deepItems.forEach(item => {
-				const toAdd = getToAdd(it, item);
-				if (!arbiter.filter || !arbiter.filter(it)) index.push(toAdd);
-			});
-		};
+		if (arbiter.postLoad) json = arbiter.postLoad(json);
 
 		const dataArr = Omnidexer.getProperty(json, arbiter.listProp);
-		if (dataArr) {
-			for (let i = 0; i < dataArr.length; ++i) {
-				const it = dataArr[i];
+		if (!dataArr) return;
 
-				const name = Omnidexer.getProperty(it, arbiter.primary || "name");
-				await pHandleItem(it, i, name);
+		const state = {arbiter, index, options};
 
-				if (it.alias) it.alias.forEach(a => pHandleItem(it, i, a));
+		let ixOffset = 0;
+		for (let ix = 0; ix < dataArr.length; ++ix) {
+			const it = dataArr[ix];
+
+			const name = Omnidexer.getProperty(it, arbiter.primary || "name");
+			await this._pAddToIndex_pHandleItem(state, it, ix + ixOffset, name);
+
+			if (it.alias?.length) {
+				for (const a of it.alias) {
+					ixOffset++;
+					await this._pAddToIndex_pHandleItem(state, it, ix + ixOffset, a);
+				}
+			}
+		}
+	}
+
+	async _pAddToIndex_pHandleItem (state, ent, ix, name) {
+		if (ent.noDisplay) return;
+
+		const {arbiter, index, options} = state;
+
+		if (name) name = name.toAscii();
+
+		const toAdd = await this._pAddToIndex_pGetToAdd(state, ent, {n: name}, ix);
+
+		if ((options.isNoFilter || (!arbiter.include && !(arbiter.filter && arbiter.filter(ent))) || (!arbiter.filter && (!arbiter.include || arbiter.include(ent)))) && !arbiter.isOnlyDeep) index.push(toAdd);
+
+		const primary = {it: ent, ix: ix, parentName: name};
+		const deepItems = await arbiter.pGetDeepIndex(this, primary, ent);
+		for (const item of deepItems) {
+			const toAdd = await this._pAddToIndex_pGetToAdd(state, ent, item);
+			if (!arbiter.filter || !arbiter.filter(ent)) index.push(toAdd);
+		}
+	}
+
+	async _pAddToIndex_pGetToAdd (state, ent, toMerge, i) {
+		const {arbiter, options} = state;
+
+		const src = Omnidexer.getProperty(ent, arbiter.source || "source");
+
+		const hash = arbiter.hashBuilder
+			? arbiter.hashBuilder(ent, i)
+			: (UrlUtil.URL_TO_HASH_BUILDER[arbiter.listProp])(ent);
+
+		const id = this.id++;
+
+		const indexDoc = {
+			id,
+			c: arbiter.category,
+			u: hash,
+			p: Omnidexer.getProperty(ent, arbiter.page || "page"),
+		};
+		if (src != null) indexDoc.s = this.getMetaId("s", src);
+		if (arbiter.isHover) indexDoc.h = 1;
+		if (arbiter.isFauxPage) indexDoc.hx = 1;
+		if (ent.srd) indexDoc.r = 1;
+
+		if (src) {
+			if (options.isIncludeTag) {
+				indexDoc.t = this.getMetaId("t", Parser.getPropTag(arbiter.listProp));
+			}
+
+			if (options.isIncludeUid) {
+				const tag = Parser.getPropTag(arbiter.listProp);
+				const uid = DataUtil.proxy.getUid(arbiter.listProp, ent);
+				indexDoc.uu = DataUtil.proxy.getNormalizedUid(arbiter.listProp, uid, tag);
+			}
+
+			if (options.isIncludeImg) {
+				// Prefer the token image, as it is more likely to be an appropriate size
+				if (arbiter.fnGetToken) {
+					indexDoc.m = arbiter.fnGetToken(ent);
+				}
+
+				if (!indexDoc.m) {
+					const fluff = await Renderer.hover.pGetHoverableFluff(arbiter.fluffBaseListProp || arbiter.listProp, src, hash, {isSilent: true});
+					if (fluff?.images?.length) {
+						indexDoc.m = Renderer.utils.getMediaUrl(fluff.images[0], "href", "img");
+					}
+				}
+
+				if (indexDoc.m) {
+					indexDoc.m = indexDoc.m.replace(/^img\//, "");
+				}
 			}
 		}
 
-		this.id = id;
+		if (options.alt) {
+			if (options.alt.additionalProperties) Object.entries(options.alt.additionalProperties).forEach(([k, getV]) => indexDoc[k] = getV(ent));
+		}
+
+		Object.assign(indexDoc, toMerge);
+
+		return indexDoc;
 	}
 
 	/**
@@ -156,6 +210,7 @@ class IndexableDirectory {
 	 * @param [opts.alternateIndexes]
 	 * @param [opts.isOnlyDeep]
 	 * @param [opts.pFnPreProcBrew] An un-bound function
+	 * @param [opts.fnGetToken]
 	 */
 	constructor (opts) {
 		this.category = opts.category;
@@ -169,6 +224,7 @@ class IndexableDirectory {
 		this.alternateIndexes = opts.alternateIndexes;
 		this.isOnlyDeep = opts.isOnlyDeep;
 		this.pFnPreProcBrew = opts.pFnPreProcBrew;
+		this.fnGetToken = opts.fnGetToken;
 	}
 
 	pGetDeepIndex () { return []; }
@@ -184,6 +240,10 @@ class IndexableDirectoryBestiary extends IndexableDirectory {
 			listProp: "monster",
 			baseUrl: "bestiary.html",
 			isHover: true,
+			fnGetToken: (ent) => {
+				if (!ent.tokenUrl && !ent.hasToken) return null;
+				return Renderer.monster.getTokenUrl(ent);
+			},
 		});
 	}
 }
@@ -332,6 +392,7 @@ class IndexableFile {
 	 * @param [opts.source] (default "source") JSON property containing the item's source, per item. Can be a chan of properties, e.g. `outer.inner.source`
 	 * @param [opts.page] (default "page") JSON property containing the item's page in the relevant book, per item. Can be a chain of properties, e.g. `outer.inner.page`
 	 * @param opts.listProp the JSON always has a root property containing the list of items. Provide the name of this property here. Can be a chain of properties e.g. `outer.inner.name`
+	 * @param [opts.fluffBaseListProp]
 	 * @param opts.baseUrl the base URL (which page) to use when forming index URLs
 	 * @param [opts.hashBuilder] a function which takes a data item and returns a hash for it. Generally not needed, as UrlUtils has a defined list of hash-building functions for each page.
 	 * @param [opts.test_extraIndex] a function which can optionally be called per item if `doExtraIndex` is true. Used to generate a complete list of links for testing; should not be used for production index. Should return full index objects.
@@ -342,6 +403,9 @@ class IndexableFile {
 	 * @param opts.isOnlyDeep
 	 * @param opts.additionalIndexes
 	 * @param opts.isSkipBrew
+	 * @param [opts.pFnPreProcBrew] An un-bound function
+	 * @param [opts.fnGetToken]
+	 * @param [opts.isFauxPage]
 	 */
 	constructor (opts) {
 		this.category = opts.category;
@@ -350,6 +414,7 @@ class IndexableFile {
 		this.source = opts.source;
 		this.page = opts.page;
 		this.listProp = opts.listProp;
+		this.fluffBaseListProp = opts.fluffBaseListProp;
 		this.baseUrl = opts.baseUrl;
 		this.hashBuilder = opts.hashBuilder;
 		this.test_extraIndex = opts.test_extraIndex;
@@ -360,6 +425,9 @@ class IndexableFile {
 		this.isOnlyDeep = opts.isOnlyDeep;
 		this.additionalIndexes = opts.additionalIndexes;
 		this.isSkipBrew = opts.isSkipBrew;
+		this.pFnPreProcBrew = opts.pFnPreProcBrew;
+		this.fnGetToken = opts.fnGetToken;
+		this.isFauxPage = !!opts.isFauxPage;
 	}
 
 	/**
@@ -386,6 +454,7 @@ class IndexableFileItemsBase extends IndexableFile {
 			category: Parser.CAT_ID_ITEM,
 			file: "items-base.json",
 			listProp: "baseitem",
+			fluffBaseListProp: "item",
 			baseUrl: "items.html",
 			isHover: true,
 		});
@@ -410,6 +479,7 @@ class IndexableFileItemGroups extends IndexableFile {
 			category: Parser.CAT_ID_ITEM,
 			file: "items.json",
 			listProp: "itemGroup",
+			fluffBaseListProp: "item",
 			baseUrl: "items.html",
 			isHover: true,
 		});
@@ -423,7 +493,8 @@ class IndexableFileMagicVariants extends IndexableFile {
 			file: "magicvariants.json",
 			source: "inherits.source",
 			page: "inherits.page",
-			listProp: "variant",
+			listProp: "magicvariant",
+			fluffBaseListProp: "item",
 			baseUrl: "items.html",
 			hashBuilder: (it) => {
 				return UrlUtil.encodeForHash([it.name, it.inherits.source]);
@@ -431,14 +502,16 @@ class IndexableFileMagicVariants extends IndexableFile {
 			additionalIndexes: {
 				item: async (indexer, rawVariants) => {
 					const specVars = await (async () => {
-						if (typeof module !== "undefined") return Renderer.item.getAllIndexableItems(rawVariants, require(`../data/items-base.json`));
-						else {
-							const baseItemJson = await DataUtil.loadJSON(`data/items-base.json`);
-							const rawBaseItems = {...baseItemJson, baseitem: [...baseItemJson.baseitem]};
-							const brew = await BrewUtil.pAddBrewData();
-							if (brew.baseitem) rawBaseItems.baseitem.push(...brew.baseitem);
-							return Renderer.item.getAllIndexableItems(rawVariants, rawBaseItems);
-						}
+						const baseItemJson = await DataUtil.loadJSON(`data/items-base.json`);
+						const rawBaseItems = {...baseItemJson, baseitem: [...baseItemJson.baseitem]};
+
+						const prerelease = typeof PrereleaseUtil !== "undefined" ? await PrereleaseUtil.pGetBrewProcessed() : {};
+						if (prerelease.baseitem) rawBaseItems.baseitem.push(...prerelease.baseitem);
+
+						const brew = typeof BrewUtil2 !== "undefined" ? await BrewUtil2.pGetBrewProcessed() : {};
+						if (brew.baseitem) rawBaseItems.baseitem.push(...brew.baseitem);
+
+						return Renderer.item.getAllIndexableItems(rawVariants, rawBaseItems);
 					})();
 					return specVars.map(sv => {
 						const out = {
@@ -463,17 +536,6 @@ class IndexableFileMagicVariants extends IndexableFile {
 			isHover: true,
 		});
 	}
-
-	pGetDeepIndex (indexer, primary, it) {
-		const revName = Renderer.item.modifierPostToPre(it);
-		if (revName) {
-			return [{
-				d: 1,
-				u: UrlUtil.encodeForHash([revName.name, it.inherits.source]),
-			}];
-		}
-		return [];
-	}
 }
 
 class IndexableFileConditions extends IndexableFile {
@@ -494,6 +556,18 @@ class IndexableFileDiseases extends IndexableFile {
 			category: Parser.CAT_ID_DISEASE,
 			file: "conditionsdiseases.json",
 			listProp: "disease",
+			baseUrl: "conditionsdiseases.html",
+			isHover: true,
+		});
+	}
+}
+
+class IndexableFileStatuses extends IndexableFile {
+	constructor () {
+		super({
+			category: Parser.CAT_ID_STATUS,
+			file: "conditionsdiseases.json",
+			listProp: "status",
 			baseUrl: "conditionsdiseases.html",
 			isHover: true,
 		});
@@ -723,34 +797,18 @@ class IndexableFileRaces extends IndexableFile {
 			file: "races.json",
 			listProp: "race",
 			baseUrl: "races.html",
-			isOnlyDeep: true,
 			isHover: true,
+			postLoad: data => {
+				return DataUtil.race.getPostProcessedSiteJson(data, {isAddBaseRaces: true});
+			},
+			pFnPreProcBrew: async prereleaseBrew => {
+				if (!prereleaseBrew.race?.length && !prereleaseBrew.subrace?.length) return prereleaseBrew;
+
+				const site = await DataUtil.race.loadRawJSON();
+
+				return DataUtil.race.getPostProcessedPrereleaseBrewJson(site, prereleaseBrew, {isAddBaseRaces: true});
+			},
 		});
-	}
-
-	pGetDeepIndex (indexer, primary, it) {
-		const out = [];
-
-		// If there are subraces, add the base race
-		if (it.subraces) {
-			const r = MiscUtil.copy(it);
-			const isAnyNoName = it.subraces.some(it => !it.name);
-			if (isAnyNoName) r.name = `${r.name} (Base)`;
-			out.push({
-				n: r.name,
-				s: indexer.getMetaId("s", r.source),
-				u: UrlUtil.URL_TO_HASH_BUILDER["races.html"](r),
-			});
-		}
-
-		const subs = Renderer.race._mergeSubraces(it);
-		out.push(...subs.map(r => ({
-			n: r.name,
-			s: indexer.getMetaId("s", r.source),
-			u: UrlUtil.URL_TO_HASH_BUILDER["races.html"](r),
-		})));
-
-		return out;
 	}
 }
 
@@ -831,7 +889,7 @@ class IndexableFileQuickReference extends IndexableFile {
 		this._walker = MiscUtil.getWalker();
 	}
 
-	static getChapterNameMetas (it) {
+	static getChapterNameMetas (it, {isRequireQuickrefFlag = true} = {}) {
 		const trackedNames = [];
 		const renderer = Renderer.get().setDepthTracker(trackedNames);
 		renderer.render(it);
@@ -846,35 +904,45 @@ class IndexableFileQuickReference extends IndexableFile {
 
 		return trackedNames
 			.filter(it => {
+				if (!isRequireQuickrefFlag) return true;
+
 				if (!it.data) return false;
 				return it.data.quickref != null || it.data.quickrefIndex;
 			});
 	}
 
 	pGetDeepIndex (indexer, primary, it) {
-		return it.entries
+		const out = it.entries
 			.map(it => {
 				return IndexableFileQuickReference.getChapterNameMetas(it).map(nameMeta => {
 					return [
 						IndexableFileQuickReference._getDeepDoc(indexer, primary, nameMeta),
 						...(nameMeta.alias || []).map(alias => IndexableFileQuickReference._getDeepDoc(indexer, primary, nameMeta, alias)),
-					]
+					];
 				}).flat();
 			})
 			.flat();
+
+		const seen = new Set();
+		return out.filter(it => {
+			if (!seen.has(it.u)) {
+				seen.add(it.u);
+				return true;
+			}
+			return false;
+		});
 	}
 
 	static _getDeepDoc (indexer, primary, nameMeta, alias) {
-		const hashParts = [
-			"bookref-quick",
-			primary.ix,
-			UrlUtil.encodeForHash(nameMeta.name.toLowerCase()),
-		];
-		if (nameMeta.ixBook) hashParts.push(nameMeta.ixBook);
+		const hash = UrlUtil.URL_TO_HASH_BUILDER[UrlUtil.PG_QUICKREF]({
+			name: nameMeta.name,
+			ixChapter: primary.ix,
+			ixHeader: nameMeta.ixBook,
+		});
 
 		return {
 			n: alias || nameMeta.name,
-			u: hashParts.join(HASH_PART_SEP),
+			u: hash,
 			s: indexer.getMetaId("s", nameMeta.source),
 			p: nameMeta.page,
 		};
@@ -903,6 +971,10 @@ class IndexableFileObjects extends IndexableFile {
 			listProp: "object",
 			baseUrl: "objects.html",
 			isHover: true,
+			fnGetToken: (ent) => {
+				if (!ent.tokenUrl && !ent.hasToken) return null;
+				return Renderer.object.getTokenUrl(ent);
+			},
 		});
 	}
 }
@@ -976,6 +1048,7 @@ class IndexableFileTablesGenerated extends IndexableFile {
 			listProp: "table",
 			baseUrl: "tables.html",
 			isHover: true,
+			isSkipBrew: true,
 		});
 	}
 }
@@ -1001,6 +1074,10 @@ class IndexableFileVehicles extends IndexableFile {
 			listProp: "vehicle",
 			baseUrl: "vehicles.html",
 			isHover: true,
+			fnGetToken: (ent) => {
+				if (!ent.tokenUrl && !ent.hasToken) return null;
+				return Renderer.vehicle.getTokenUrl(ent);
+			},
 		});
 	}
 }
@@ -1085,10 +1162,37 @@ class IndexableFileRecipes extends IndexableFile {
 	}
 }
 
+class IndexableFileSkills extends IndexableFile {
+	constructor () {
+		super({
+			category: Parser.CAT_ID_SKILLS,
+			file: "skills.json",
+			listProp: "skill",
+			baseUrl: "skill",
+			isHover: true,
+			isFauxPage: true,
+		});
+	}
+}
+
+class IndexableFileSenses extends IndexableFile {
+	constructor () {
+		super({
+			category: Parser.CAT_ID_SENSES,
+			file: "senses.json",
+			listProp: "sense",
+			baseUrl: "sense",
+			isHover: true,
+			isFauxPage: true,
+		});
+	}
+}
+
 Omnidexer.TO_INDEX = [
 	new IndexableFileBackgrounds(),
 	new IndexableFileConditions(),
 	new IndexableFileDiseases(),
+	new IndexableFileStatuses(),
 	new IndexableFileFeats(),
 
 	new IndexableFileOptFeatures_EldritchInvocations(),
@@ -1137,6 +1241,8 @@ Omnidexer.TO_INDEX = [
 	new IndexableFileLanguages(),
 	new IndexableFileCharCreationOptions(),
 	new IndexableFileRecipes(),
+	new IndexableFileSkills(),
+	new IndexableFileSenses(),
 ];
 
 class IndexableSpecial {
@@ -1146,11 +1252,13 @@ class IndexableSpecial {
 class IndexableSpecialPages extends IndexableSpecial {
 	pGetIndex () {
 		return Object.entries(UrlUtil.PG_TO_NAME)
+			.filter(([page]) => ![UrlUtil.PG_CLASS_SUBCLASS_FEATURES].includes(page))
 			.map(([page, name]) => ({
 				n: name,
 				c: Parser.CAT_ID_PAGE,
 				u: page,
-			}))
+				r: 1, // Consider basic pages to be "SRD friendly"
+			}));
 	}
 }
 
@@ -1158,6 +1266,4 @@ Omnidexer.TO_INDEX__SPECIAL = [
 	new IndexableSpecialPages(),
 ];
 
-if (typeof module !== "undefined") {
-	module.exports.Omnidexer = Omnidexer;
-}
+globalThis.Omnidexer = Omnidexer;

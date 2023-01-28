@@ -1,10 +1,18 @@
 "use strict";
 
 class PageFilterRecipes extends PageFilter {
+	static _DIET_TO_FULL = {
+		"V": "Vegan",
+		"C": "Vegetarian",
+		"X": "Omni",
+	};
+	static _MISC_TAG_TO_FULL = {
+		"alcohol": "Contains Alcohol",
+	};
+
 	constructor () {
 		super();
 
-		this._sourceFilter = new SourceFilter();
 		this._typeFilter = new Filter({
 			header: "Type",
 			displayFn: StrUtil.toTitleCase,
@@ -29,7 +37,7 @@ class PageFilterRecipes extends PageFilter {
 		this._miscFilter = new Filter({
 			header: "Miscellaneous",
 			items: ["SRD"],
-			isSrdFilter: true,
+			isMiscFilter: true,
 			displayFn: PageFilterRecipes._miscTagToFull,
 		});
 	}
@@ -75,17 +83,23 @@ class PageFilterRecipes extends PageFilter {
 			it._fDiet,
 			it.allergenGroups,
 			it._fMisc,
-		)
+		);
 	}
 
 	static _dietToFull (diet) { return PageFilterRecipes._DIET_TO_FULL[diet] || diet; }
 	static _miscTagToFull (tag) { return PageFilterRecipes._MISC_TAG_TO_FULL[tag] || tag; }
 }
-PageFilterRecipes._DIET_TO_FULL = {
-	"V": "Vegan",
-	"C": "Vegetarian",
-	"X": "Omni",
-};
-PageFilterRecipes._MISC_TAG_TO_FULL = {
-	"alcohol": "Contains Alcohol",
-};
+
+globalThis.PageFilterRecipes = PageFilterRecipes;
+
+class ListSyntaxRecipes extends ListUiUtil.ListSyntax {
+	_getSearchCacheStats (entity) {
+		if (!entity.ingredients && !entity.instructions) return "";
+		const ptrOut = {_: ""};
+		this._getSearchCache_handleEntryProp(entity, "ingredients", ptrOut);
+		this._getSearchCache_handleEntryProp(entity, "instructions", ptrOut);
+		return ptrOut._;
+	}
+}
+
+globalThis.ListSyntaxRecipes = ListSyntaxRecipes;
